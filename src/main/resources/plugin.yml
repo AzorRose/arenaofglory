@@ -1,0 +1,4 @@
+name: ArenaOfGlory
+version: 1.0
+main: ru.mainmayhem.arenaofglory.ArenaOfGlory
+api-version: 1.16
