@@ -1,4 +1,9 @@
 name: ArenaOfGlory
-version: 1.0
+version: ${plugin_version}
 main: ru.mainmayhem.arenaofglory.ArenaOfGlory
 api-version: 1.16
+commands:
+  ${command_help_name}:
+    description: ${command_help_description}
+  ${command_choose_fraction_name}:
+    description: ${command_choose_fraction_description}

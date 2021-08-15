@@ -1,0 +1,15 @@
+ext {
+
+    plugin_version = '1.0'
+
+    //todo найти способ делать описание на русском в plugin.yml
+
+    //команды
+    command_help_name = 'arenahelp'
+    command_help_description = 'Prints all comands'
+
+    command_choose_fraction_name = 'arenachoosefraction'
+    command_choose_fraction_description = 'Makes you a member of the fraction you wrote in args'
+    command_choose_fraction_argument = '<fraction name>'
+
+}
