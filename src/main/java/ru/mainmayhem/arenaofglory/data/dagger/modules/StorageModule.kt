@@ -2,7 +2,9 @@ package ru.mainmayhem.arenaofglory.data.dagger.modules
 
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.local.database.JetbrainsExposedDatabase
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
@@ -13,6 +15,7 @@ import ru.mainmayhem.arenaofglory.data.local.database.dao.exposed.JetbrainsExpos
 import ru.mainmayhem.arenaofglory.data.local.repositories.DbConfigFileRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.impls.DbConfigFileRepoImpl
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import java.sql.Connection
 import javax.inject.Singleton
 
 @Module
@@ -29,12 +32,15 @@ class StorageModule {
     ): Database{
         val config = dbConfigRepository.getConfigFromFile()
         logger.info("Подключение к БД с конфигурацией: $config")
-        return Database.connect(
+        val db =  Database.connect(
             url = config.url,
             driver = config.driver,
             user = config.user.orEmpty(),
             password = config.password.orEmpty()
         )
+        TransactionManager.manager.defaultIsolationLevel =
+            Connection.TRANSACTION_SERIALIZABLE
+        return db
     }
 
     @Provides
@@ -43,17 +49,19 @@ class StorageModule {
 
     @Provides
     @Singleton
-    fun getArenaPlayersDao(d: CoroutineDispatchers): ArenaPlayersDao = JetbrainsExposedArenaPlayersDao(d)
+    fun getArenaPlayersDao(
+        d: CoroutineDispatchers,
+        acs: CoroutineScope
+    ): ArenaPlayersDao =
+        JetbrainsExposedArenaPlayersDao(d, acs)
 
     @Provides
     @Singleton
     fun getDatabase(
-        db: Database,
         fd: FractionDao,
         apd: ArenaPlayersDao
     ): PluginDatabase =
         JetbrainsExposedDatabase(
-            database = db,
             fractionDao = fd,
             playersDao = apd
         )

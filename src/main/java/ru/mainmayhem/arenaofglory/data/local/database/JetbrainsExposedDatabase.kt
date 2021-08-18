@@ -1,6 +1,5 @@
 package ru.mainmayhem.arenaofglory.data.local.database
 
-import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaPlayersDao
 import ru.mainmayhem.arenaofglory.data.local.database.dao.FractionDao
@@ -8,7 +7,6 @@ import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.Fractions
 
 class JetbrainsExposedDatabase(
-    private val database: Database,
     private val fractionDao: FractionDao,
     private val playersDao: ArenaPlayersDao
 ): PluginDatabase {

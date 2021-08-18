@@ -10,4 +10,5 @@ import javax.inject.Singleton
 @Component(modules = [AppModule::class, StorageModule::class, RepositoryModule::class])
 interface AppComponent {
     fun createRepositoryComponent(): RepositoryComponent
+    fun createCmdExecutorComponent(): CommandExecutorComponent
 }
