@@ -3,7 +3,6 @@ package ru.mainmayhem.arenaofglory.data.dagger.modules
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
-import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.DbConfigFileRepository
@@ -25,23 +24,19 @@ class RepositoryModule {
     fun getArenaPlayersRepository(
         db: PluginDatabase,
         cs: CoroutineScope,
-        d: CoroutineDispatchers
     ): ArenaPlayersRepository = ArenaPlayersRepositoryImpl(
         pluginDatabase = db,
-        coroutineScope = cs,
-        dispatchers = d
+        coroutineScope = cs
     )
 
     @Provides
     @Singleton
     fun getFractionsRepository(
         db: PluginDatabase,
-        cs: CoroutineScope,
-        d: CoroutineDispatchers
+        cs: CoroutineScope
     ): FractionsRepository = FractionsRepositoryImpl(
         pluginDatabase = db,
-        coroutineScope = cs,
-        dispatchers = d
+        coroutineScope = cs
     )
 
 }

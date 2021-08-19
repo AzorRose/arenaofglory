@@ -3,25 +3,25 @@ package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
+import java.util.*
 
 class ArenaPlayersRepositoryImpl(
     pluginDatabase: PluginDatabase,
-    coroutineScope: CoroutineScope,
-    dispatchers: CoroutineDispatchers
+    coroutineScope: CoroutineScope
 ): ArenaPlayersRepository {
 
-    private var players = emptyList<ArenaPlayer>()
+    private val players = Collections.synchronizedList(emptyList<ArenaPlayer>())
 
     init {
-        coroutineScope.launch(dispatchers.main) {
+        coroutineScope.launch {
             pluginDatabase.getArenaPlayersDao()
                 .getPlayersFlow()
                 .collectLatest {
-                    players = it
+                    players.clear()
+                    players.addAll(it)
                 }
         }
     }

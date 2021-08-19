@@ -24,7 +24,6 @@ class AppModule(
     @Provides
     fun getDispatchers(): CoroutineDispatchers{
         return CoroutineDispatchers(
-            main = Dispatchers.Main,
             io = Dispatchers.IO,
             default = Dispatchers.Default,
             unconfirmed = Dispatchers.Unconfined
