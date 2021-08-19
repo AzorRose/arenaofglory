@@ -22,11 +22,12 @@ class ArenaOfGlory: JavaPlugin() {
     @Inject internal lateinit var initDataUseCase: InitDataUseCase
     @Inject internal lateinit var coroutineScope: CoroutineScope
     @Inject internal lateinit var logger: PluginLogger
+    @Inject internal lateinit var eventsListener: EventsListener
 
     override fun onEnable() {
         initDI()
         initData()
-        server.pluginManager.registerEvents(EventsListener(), this)
+        server.pluginManager.registerEvents(eventsListener, this)
         initCommands()
     }
 
