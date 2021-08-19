@@ -6,8 +6,6 @@ plugins {
     id "org.jetbrains.kotlin.kapt" version "1.5.21"
 }
 
-apply from: "constants.gradle"
-
 group = 'ru.mainmayhem'
 version = '1.0'
 

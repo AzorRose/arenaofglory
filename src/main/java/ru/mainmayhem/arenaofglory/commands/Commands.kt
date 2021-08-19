@@ -1,21 +1,28 @@
 package ru.mainmayhem.arenaofglory.commands
 
-//todo доставать строки из гредла
+/**
+ * Все команды плагина
+ * Чтобы добавить команду, нужно:
+ * -создать команду в Commands
+ * -продублировать название и описание команды в файле plugin.yml
+ * -создать новый executor в пакете commands.executors
+ * -добавить executor в классе ArenafOfGlory
+ */
 enum class Commands(
     val cmdName: String,
-    val cmdAttributeName: String?,
+    val cmdAttributesName: List<String>?,
     val cmdDescription: String
 ) {
 
     CHOOSE_FRACTION(
         cmdName = "arenachoosefraction",
-        cmdAttributeName = "<fraction name>",
+        cmdAttributesName = listOf("<fraction name>", "<player id>"),
         cmdDescription = "Выбор фракции"
     ),
 
     HELP(
         cmdName = "arenahelp",
-        cmdAttributeName = null,
+        cmdAttributesName = null,
         cmdDescription = "Выводит все команды"
     )
 

@@ -14,13 +14,13 @@ class DbConfigFileRepoImpl(
     private val defaultConfig = DbConfig(
         url = "",
         driver = "",
-        user = null,
-        password = null
+        user = "",
+        password = ""
     )
 
     private val filePath = jarFilePath + Constants.PLUGIN_META_FOLDER_NAME + "/"
 
-    private val fileName = "db_config"
+    private val fileName = "db_config.txt"
 
     private val urlConfigName = "url"
     private val driverConfigName = "driver"
@@ -53,15 +53,15 @@ class DbConfigFileRepoImpl(
         val lines = readLines()
         val url = lines.firstOrNull()?.split("=")?.getOrNull(1)
         val driver = lines.getOrNull(1)?.split("=")?.getOrNull(1)
-        val user = lines.getOrNull(2)?.split("=")?.getOrNull(1)
-        val password = lines.getOrNull(3)?.split("=")?.getOrNull(1)
-        if (url == null)
+        val user = lines.getOrNull(2)?.split("=")?.getOrNull(1).orEmpty()
+        val password = lines.getOrNull(3)?.split("=")?.getOrNull(1).orEmpty()
+        if (url.isNullOrBlank())
             throw NullPointerException("Не найден URL в файле $fileName")
-        if (driver == null)
+        if (driver.isNullOrBlank())
             throw NullPointerException("Не найден driver в файле $fileName")
-        if (user == null)
+        if (user.isBlank())
             logger.info("Не найден пользователь в файле $userConfigName")
-        if (password == null)
+        if (password.isBlank())
             logger.info("Не найден пароль в файле $userConfigName")
         return DbConfig(url, driver, user, password)
     }
