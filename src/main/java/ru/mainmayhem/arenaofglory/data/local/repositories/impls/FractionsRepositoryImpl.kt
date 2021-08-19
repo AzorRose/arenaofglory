@@ -12,7 +12,7 @@ class FractionsRepositoryImpl(
     coroutineScope: CoroutineScope
 ): FractionsRepository {
 
-    private val cache = Collections.synchronizedList(emptyList<Fraction>())
+    private val cache = Collections.synchronizedList(mutableListOf<Fraction>())
 
     init {
         coroutineScope.launch {
