@@ -20,6 +20,12 @@ enum class Commands(
         cmdDescription = "Выбор фракции"
     ),
 
+    CHANGE_FRACTION(
+        cmdName = "arenachangefraction",
+        cmdAttributesName = listOf("<new fraction name>", "<player id>"),
+        cmdDescription = "Смена фракции"
+    ),
+
     HELP(
         cmdName = "arenahelp",
         cmdAttributesName = null,

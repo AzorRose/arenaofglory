@@ -6,6 +6,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.commands.Commands
+import ru.mainmayhem.arenaofglory.commands.executors.ChangeFractionCommandExecutor
 import ru.mainmayhem.arenaofglory.commands.executors.ChooseFractionCommandExecutor
 import ru.mainmayhem.arenaofglory.commands.executors.HelpCommandExecutor
 import ru.mainmayhem.arenaofglory.data.dagger.components.DaggerAppComponent
@@ -17,6 +18,7 @@ import javax.inject.Inject
 class ArenaOfGlory: JavaPlugin() {
 
     @Inject internal lateinit var chooseFractionCommandExecutor: ChooseFractionCommandExecutor
+    @Inject internal lateinit var changeFractionCommandExecutor: ChangeFractionCommandExecutor
     @Inject internal lateinit var initDataUseCase: InitDataUseCase
     @Inject internal lateinit var coroutineScope: CoroutineScope
     @Inject internal lateinit var logger: PluginLogger
@@ -64,6 +66,7 @@ class ArenaOfGlory: JavaPlugin() {
                 when(it){
                     Commands.HELP -> HelpCommandExecutor()
                     Commands.CHOOSE_FRACTION -> chooseFractionCommandExecutor
+                    Commands.CHANGE_FRACTION -> changeFractionCommandExecutor
                 }
             )
         }

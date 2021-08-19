@@ -1,13 +1,9 @@
 package ru.mainmayhem.arenaofglory.data.local.database.dao.exposed
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
@@ -15,8 +11,7 @@ import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaPlayersDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaPlayers
 
 class JetbrainsExposedArenaPlayersDao(
-    private val dispatchers: CoroutineDispatchers,
-    private val appCoroutineScope: CoroutineScope
+    private val dispatchers: CoroutineDispatchers
 ): ArenaPlayersDao {
 
     private var stateFlow: MutableStateFlow<List<ArenaPlayer>>? = null
@@ -25,6 +20,19 @@ class JetbrainsExposedArenaPlayersDao(
         return withContext(dispatchers.io){
             transaction {
                 ArenaPlayers.insert {
+                    it[id] = player.id
+                    it[name] = player.name
+                    it[fractionId] = player.fractionId
+                }
+            }
+            stateFlow?.value = getAll()
+        }
+    }
+
+    override suspend fun update(player: ArenaPlayer) {
+        return withContext(dispatchers.io){
+            transaction {
+                ArenaPlayers.update {
                     it[id] = player.id
                     it[name] = player.name
                     it[fractionId] = player.fractionId

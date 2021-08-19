@@ -7,3 +7,5 @@ commands:
     description: Отображает все команды с описанием
   arenachoosefraction:
     description: Выбор фракции
+  arenachangefraction:
+    description: Смена фракции

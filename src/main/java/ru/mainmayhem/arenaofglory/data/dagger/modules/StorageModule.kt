@@ -2,7 +2,6 @@ package ru.mainmayhem.arenaofglory.data.dagger.modules
 
 import dagger.Module
 import dagger.Provides
-import kotlinx.coroutines.CoroutineScope
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.local.database.JetbrainsExposedDatabase
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
@@ -24,10 +23,9 @@ class StorageModule {
     @Provides
     @Singleton
     fun getArenaPlayersDao(
-        d: CoroutineDispatchers,
-        acs: CoroutineScope
+        d: CoroutineDispatchers
     ): ArenaPlayersDao =
-        JetbrainsExposedArenaPlayersDao(d, acs)
+        JetbrainsExposedArenaPlayersDao(d)
 
     @Provides
     @Singleton
