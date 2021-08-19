@@ -32,7 +32,7 @@ class AppModule(
     }
 
     @Provides
-    fun getLogger(): PluginLogger = IBukkitLogger(plugin.server.logger)
+    fun getLogger(plugin: JavaPlugin): PluginLogger = IBukkitLogger(plugin.server.logger)
 
     @Singleton
     @Provides

@@ -1,17 +1,26 @@
 package ru.mainmayhem.arenaofglory.data.local.database
 
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.jetbrains.exposed.sql.transactions.transaction
 import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaPlayersDao
 import ru.mainmayhem.arenaofglory.data.local.database.dao.FractionDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaPlayers
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.Fractions
+import ru.mainmayhem.arenaofglory.data.local.repositories.DbConfigFileRepository
+import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import java.sql.Connection
 
 class JetbrainsExposedDatabase(
     private val fractionDao: FractionDao,
-    private val playersDao: ArenaPlayersDao
+    private val playersDao: ArenaPlayersDao,
+    private val dbConfigRepository: DbConfigFileRepository,
+    private val logger: PluginLogger
 ): PluginDatabase {
 
     init {
+        connectToDatabase()
         createTables()
     }
 
@@ -22,8 +31,23 @@ class JetbrainsExposedDatabase(
     override fun close() {}
 
     private fun createTables(){
-        SchemaUtils.create(Fractions)
-        SchemaUtils.create(ArenaPlayers)
+        transaction {
+            SchemaUtils.create(Fractions)
+            SchemaUtils.create(ArenaPlayers)
+        }
+    }
+
+    private fun connectToDatabase(){
+        val config = dbConfigRepository.getConfigFromFile()
+        logger.info("Подключение к БД с конфигурацией: $config")
+        Database.connect(
+            url = config.url,
+            driver = config.driver,
+            user = config.user.orEmpty(),
+            password = config.password.orEmpty()
+        )
+        TransactionManager.manager.defaultIsolationLevel =
+            Connection.TRANSACTION_SERIALIZABLE
     }
 
 }

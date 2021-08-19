@@ -3,7 +3,6 @@ package ru.mainmayhem.arenaofglory.data.local.database.dao.exposed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
@@ -17,16 +16,10 @@ import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaPlayer
 
 class JetbrainsExposedArenaPlayersDao(
     private val dispatchers: CoroutineDispatchers,
-    appCoroutineScope: CoroutineScope
+    private val appCoroutineScope: CoroutineScope
 ): ArenaPlayersDao {
 
-    private val stateFlow = MutableStateFlow<List<ArenaPlayer>>(emptyList())
-
-    init {
-        appCoroutineScope.launch {
-            stateFlow.value = getAll()
-        }
-    }
+    private var stateFlow: MutableStateFlow<List<ArenaPlayer>>? = null
 
     override suspend fun insert(player: ArenaPlayer) {
         return withContext(dispatchers.io){
@@ -37,7 +30,7 @@ class JetbrainsExposedArenaPlayersDao(
                     it[fractionId] = player.fractionId
                 }
             }
-            stateFlow.value = getAll()
+            stateFlow?.value = getAll()
         }
     }
 
@@ -65,7 +58,11 @@ class JetbrainsExposedArenaPlayersDao(
         }
     }
 
-    override suspend fun getPlayersFlow(): Flow<List<ArenaPlayer>> = stateFlow
+    override suspend fun getPlayersFlow(): Flow<List<ArenaPlayer>>{
+        return stateFlow ?: MutableStateFlow(getAll()).also {
+            stateFlow = it
+        }
+    }
 
     private fun ResultRow.toModel(): ArenaPlayer{
         return ArenaPlayer(
