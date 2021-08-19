@@ -8,6 +8,7 @@ import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaPlayersDao
 import ru.mainmayhem.arenaofglory.data.local.database.dao.FractionDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaPlayers
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.Fractions
+import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.WaitingRoomCoordinates
 import ru.mainmayhem.arenaofglory.data.local.repositories.DbConfigFileRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import java.sql.Connection
@@ -32,8 +33,11 @@ class JetbrainsExposedDatabase(
 
     private fun createTables(){
         transaction {
-            SchemaUtils.create(Fractions)
-            SchemaUtils.create(ArenaPlayers)
+            SchemaUtils.create(
+                Fractions,
+                ArenaPlayers,
+                WaitingRoomCoordinates
+            )
         }
     }
 
