@@ -6,4 +6,6 @@ interface FractionDao {
 
     suspend fun getAll(): List<Fraction>
 
+    suspend fun insert(fractions: List<Fraction>)
+
 }

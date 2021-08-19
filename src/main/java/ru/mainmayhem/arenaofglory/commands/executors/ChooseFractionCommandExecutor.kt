@@ -6,7 +6,6 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
-import ru.mainmayhem.arenaofglory.DIHolder
 import ru.mainmayhem.arenaofglory.commands.Commands
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
@@ -21,34 +20,19 @@ import javax.inject.Inject
  * usage:<название команды> <название фракции на английском из табл fractions> <id игрока>
  */
 
-class ChooseFractionCommandExecutor: CommandExecutor {
-
-    @Inject
-    internal lateinit var database: PluginDatabase
-
-    @Inject
-    internal lateinit var arenaPlayersRepository: ArenaPlayersRepository
-
-    @Inject
-    internal lateinit var fractionsRepository: FractionsRepository
-
-    @Inject
-    internal lateinit var coroutineScope: CoroutineScope
-
-    @Inject
-    internal lateinit var plugin: JavaPlugin
-
-    @Inject
-    internal lateinit var logger: PluginLogger
-
-    init {
-        DIHolder.getComponent().createCmdExecutorComponent().injectChooseFractionExecutor(this)
-    }
+class ChooseFractionCommandExecutor @Inject constructor(
+    private val database: PluginDatabase,
+    private val arenaPlayersRepository: ArenaPlayersRepository,
+    private val fractionsRepository: FractionsRepository,
+    private val coroutineScope: CoroutineScope,
+    private val plugin: JavaPlugin,
+    private val logger: PluginLogger
+): CommandExecutor {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (command.name.lowercase() != Commands.CHOOSE_FRACTION.cmdName) return false
 
-        if (args.isArgumentsNotCorrect()){
+        if (args.argumentsNotCorrect()){
             sender.sendMessage("Некорректные аргументы")
             logger.info("${sender.name} выполнил команду ${Commands.CHOOSE_FRACTION} с некорректными аргументами")
             return false
@@ -72,7 +56,7 @@ class ChooseFractionCommandExecutor: CommandExecutor {
         return insertNewPlayer(playerId, fractionName)
     }
 
-    private fun Array<out String>.isArgumentsNotCorrect(): Boolean{
+    private fun Array<out String>.argumentsNotCorrect(): Boolean{
         return size != 2
     }
 
