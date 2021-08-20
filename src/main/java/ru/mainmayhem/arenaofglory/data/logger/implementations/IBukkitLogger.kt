@@ -8,16 +8,18 @@ class IBukkitLogger(
     private val logger: Logger
 ): PluginLogger {
 
-    override fun info(message: String) = logger.info(message)
+    private val prefix = "[ArenaOfGlory]"
 
-    override fun warning(message: String) = logger.warning(message)
+    override fun info(message: String) = logger.info("$prefix $message")
+
+    override fun warning(message: String) = logger.warning("$prefix $message")
 
     override fun error(className: String, methodName: String, throwable: Throwable) {
-        logger.log(Level.INFO, "Ошибка в классе $className в методе $methodName", throwable)
+        logger.log(Level.INFO, "$prefix Ошибка в классе $className в методе $methodName", throwable)
     }
 
     override fun error(message: String, className: String, methodName: String, throwable: Throwable) {
-        warning(message)
+        warning("$prefix $message")
         error(className, methodName, throwable)
     }
 
