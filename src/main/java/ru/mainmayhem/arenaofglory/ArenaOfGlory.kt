@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.commands.Commands
 import ru.mainmayhem.arenaofglory.commands.executors.ChangeFractionCommandExecutor
 import ru.mainmayhem.arenaofglory.commands.executors.ChooseFractionCommandExecutor
+import ru.mainmayhem.arenaofglory.commands.executors.EnterWaitingRoomCommandExecutor
 import ru.mainmayhem.arenaofglory.commands.executors.HelpCommandExecutor
 import ru.mainmayhem.arenaofglory.data.dagger.components.DaggerAppComponent
 import ru.mainmayhem.arenaofglory.data.dagger.modules.AppModule
@@ -19,6 +20,7 @@ class ArenaOfGlory: JavaPlugin() {
 
     @Inject internal lateinit var chooseFractionCommandExecutor: ChooseFractionCommandExecutor
     @Inject internal lateinit var changeFractionCommandExecutor: ChangeFractionCommandExecutor
+    @Inject internal lateinit var enterWaitingRoomCommandExecutor: EnterWaitingRoomCommandExecutor
     @Inject internal lateinit var initDataUseCase: InitDataUseCase
     @Inject internal lateinit var coroutineScope: CoroutineScope
     @Inject internal lateinit var logger: PluginLogger
@@ -68,6 +70,7 @@ class ArenaOfGlory: JavaPlugin() {
                     Commands.HELP -> HelpCommandExecutor()
                     Commands.CHOOSE_FRACTION -> chooseFractionCommandExecutor
                     Commands.CHANGE_FRACTION -> changeFractionCommandExecutor
+                    Commands.ENTER_WAITING_ROOM -> enterWaitingRoomCommandExecutor
                 }
             )
         }

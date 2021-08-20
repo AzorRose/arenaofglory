@@ -9,3 +9,5 @@ commands:
     description: Выбор фракции
   arenachangefraction:
     description: Смена фракции
+  arenaenterwaitingroom:
+      description: Войти в комнату ожидания
