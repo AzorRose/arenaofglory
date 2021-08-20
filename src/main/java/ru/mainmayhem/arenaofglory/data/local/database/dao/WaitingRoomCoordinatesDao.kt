@@ -8,4 +8,6 @@ interface WaitingRoomCoordinatesDao {
 
     suspend fun get(): LocationCoordinates
 
+    suspend fun isEmpty(): Boolean
+
 }
