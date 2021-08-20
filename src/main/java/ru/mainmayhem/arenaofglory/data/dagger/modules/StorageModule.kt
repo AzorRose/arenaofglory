@@ -7,6 +7,8 @@ import ru.mainmayhem.arenaofglory.data.local.database.JetbrainsExposedDatabase
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaPlayersDao
 import ru.mainmayhem.arenaofglory.data.local.database.dao.FractionDao
+import ru.mainmayhem.arenaofglory.data.local.database.dao.WaitingRoomCoordinatesDao
+import ru.mainmayhem.arenaofglory.data.local.database.dao.exposed.JEWaitingRoomCoordinatesDao
 import ru.mainmayhem.arenaofglory.data.local.database.dao.exposed.JetbrainsExposedArenaPlayersDao
 import ru.mainmayhem.arenaofglory.data.local.database.dao.exposed.JetbrainsExposedFractionDao
 import ru.mainmayhem.arenaofglory.data.local.repositories.DbConfigFileRepository
@@ -28,16 +30,24 @@ class StorageModule {
         JetbrainsExposedArenaPlayersDao(d)
 
     @Provides
+    fun getWaitingRoomCoordinatesDao(
+        d: CoroutineDispatchers
+    ): WaitingRoomCoordinatesDao =
+        JEWaitingRoomCoordinatesDao(d)
+
+    @Provides
     @Singleton
     fun getDatabase(
         fd: FractionDao,
         apd: ArenaPlayersDao,
+        wrcd: WaitingRoomCoordinatesDao,
         dbCfgRep: DbConfigFileRepository,
         logger: PluginLogger
     ): PluginDatabase =
         JetbrainsExposedDatabase(
             fractionDao = fd,
             playersDao = apd,
+            waitingRoomCoordinatesDao = wrcd,
             dbConfigRepository = dbCfgRep,
             logger = logger
         )

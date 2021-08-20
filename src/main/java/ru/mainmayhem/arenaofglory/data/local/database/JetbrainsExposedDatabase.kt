@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaPlayersDao
 import ru.mainmayhem.arenaofglory.data.local.database.dao.FractionDao
+import ru.mainmayhem.arenaofglory.data.local.database.dao.WaitingRoomCoordinatesDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaPlayers
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.Fractions
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.WaitingRoomCoordinates
@@ -16,6 +17,7 @@ import java.sql.Connection
 class JetbrainsExposedDatabase(
     private val fractionDao: FractionDao,
     private val playersDao: ArenaPlayersDao,
+    private val waitingRoomCoordinatesDao: WaitingRoomCoordinatesDao,
     private val dbConfigRepository: DbConfigFileRepository,
     private val logger: PluginLogger
 ): PluginDatabase {
@@ -28,6 +30,8 @@ class JetbrainsExposedDatabase(
     override fun getFractionDao(): FractionDao = fractionDao
 
     override fun getArenaPlayersDao(): ArenaPlayersDao = playersDao
+
+    override fun getWaitingRoomCoordinatesDao(): WaitingRoomCoordinatesDao = waitingRoomCoordinatesDao
 
     override fun close() {}
 
@@ -47,8 +51,8 @@ class JetbrainsExposedDatabase(
         Database.connect(
             url = config.url,
             driver = config.driver,
-            user = config.user.orEmpty(),
-            password = config.password.orEmpty()
+            user = config.user,
+            password = config.password
         )
         TransactionManager.manager.defaultIsolationLevel =
             Connection.TRANSACTION_SERIALIZABLE
