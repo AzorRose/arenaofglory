@@ -1,6 +1,8 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
+import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.entities.Fraction
+import ru.mainmayhem.arenaofglory.data.entities.LocationCoordinates
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import javax.inject.Inject
@@ -17,6 +19,7 @@ class InitDataUseCase @Inject constructor(
     suspend fun init(){
         logger.info("Инициализация данных")
         checkFractions()
+        checkWaitingRoomCoordinates()
     }
 
     private suspend fun checkFractions(){
@@ -40,6 +43,19 @@ class InitDataUseCase @Inject constructor(
         )
         dao.insert(fractions)
         logger.info("Таблица с фракциями заполнена данными по умолчанию: $fractions")
+    }
+
+    private suspend fun checkWaitingRoomCoordinates(){
+        logger.info("Проверка координат комнаты ожидания")
+        val dao = database.getWaitingRoomCoordinatesDao()
+        if (dao.isEmpty().not()) return
+        logger.info("Таблица с координатами комнаты ожидания пуста, заполняем данными")
+        val locationCoordinates = LocationCoordinates(
+            leftTop = Coordinates(0,0,0),
+            rightBottom = Coordinates(10,10,10)
+        )
+        dao.insert(locationCoordinates)
+        logger.info("Таблица заполнена данными по умолчанию: $locationCoordinates")
     }
 
 }

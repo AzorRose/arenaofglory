@@ -1,5 +1,7 @@
 package ru.mainmayhem.arenaofglory.data.local.database.dao.exposed
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -15,6 +17,8 @@ class JEWaitingRoomCoordinatesDao(
 
     private val topLeftCorner = "top_left_corner"
     private val bottomRightCorner = "bottom_right_corner"
+
+    private var stateFlow: MutableStateFlow<LocationCoordinates>? = null
 
     override suspend fun insert(coordinates: LocationCoordinates) {
         withContext(dispatchers.io){
@@ -53,6 +57,12 @@ class JEWaitingRoomCoordinatesDao(
                     rightBottom = bottomRight
                 )
             }
+        }
+    }
+
+    override suspend fun locationFlow(): Flow<LocationCoordinates> {
+        return stateFlow ?: MutableStateFlow(get()).also {
+            stateFlow = it
         }
     }
 
