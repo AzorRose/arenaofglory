@@ -1,6 +1,7 @@
 package ru.mainmayhem.arenaofglory.data.logger.implementations
 
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import java.util.logging.Level
 import java.util.logging.Logger
 
 class IBukkitLogger(
@@ -12,7 +13,7 @@ class IBukkitLogger(
     override fun warning(message: String) = logger.warning(message)
 
     override fun error(className: String, methodName: String, throwable: Throwable) {
-        logger.throwing(className, methodName, throwable)
+        logger.log(Level.INFO, "Ошибка в классе $className в методе $methodName", throwable)
     }
 
     override fun error(message: String, className: String, methodName: String, throwable: Throwable) {

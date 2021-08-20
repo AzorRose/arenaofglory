@@ -13,7 +13,7 @@ class ArenaPlayersRepositoryImpl(
     coroutineScope: CoroutineScope
 ): ArenaPlayersRepository {
 
-    private val players = Collections.synchronizedList(emptyList<ArenaPlayer>())
+    private val players = Collections.synchronizedList(mutableListOf<ArenaPlayer>())
 
     init {
         coroutineScope.launch {

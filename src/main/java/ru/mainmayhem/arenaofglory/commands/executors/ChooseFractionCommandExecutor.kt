@@ -12,6 +12,7 @@ import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -61,7 +62,7 @@ class ChooseFractionCommandExecutor @Inject constructor(
     }
 
     private fun insertNewPlayer(playerId: String, fractionName: String): Boolean{
-        val playerName = plugin.server.getPlayer(playerId)?.displayName
+        val playerName = plugin.server.getPlayer(UUID.fromString(playerId))?.displayName
         if (playerName == null){
             logger.error(
                 message = "Игрок с id = $playerId не найден",
