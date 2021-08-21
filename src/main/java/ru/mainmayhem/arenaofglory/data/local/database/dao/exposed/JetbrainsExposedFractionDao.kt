@@ -1,5 +1,7 @@
 package ru.mainmayhem.arenaofglory.data.local.database.dao.exposed
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
@@ -13,6 +15,8 @@ import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.Fractions
 class JetbrainsExposedFractionDao(
     private val dispatchers: CoroutineDispatchers
 ): FractionDao {
+
+    private var stateFlow: MutableStateFlow<List<Fraction>>? = null
 
     override suspend fun getAll(): List<Fraction> {
         return withContext(dispatchers.io){
@@ -34,6 +38,13 @@ class JetbrainsExposedFractionDao(
                     }
                 }
             }
+            stateFlow?.value = getAll()
+        }
+    }
+
+    override suspend fun getFractionsFlow(): Flow<List<Fraction>> {
+        return stateFlow ?: MutableStateFlow(getAll()).also {
+            stateFlow = it
         }
     }
 

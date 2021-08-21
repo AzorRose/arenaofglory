@@ -1,6 +1,7 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.mainmayhem.arenaofglory.data.entities.Fraction
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
@@ -16,9 +17,13 @@ class FractionsRepositoryImpl(
 
     init {
         coroutineScope.launch {
-            val fractions = pluginDatabase.getFractionDao().getAll()
-            cache.clear()
-            cache.addAll(fractions)
+            pluginDatabase
+                .getFractionDao()
+                .getFractionsFlow()
+                .collectLatest {
+                    cache.clear()
+                    cache.addAll(it)
+                }
         }
     }
 
