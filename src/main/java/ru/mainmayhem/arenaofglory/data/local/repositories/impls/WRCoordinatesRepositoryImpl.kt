@@ -23,7 +23,9 @@ class WRCoordinatesRepositoryImpl(
         coroutineScope.launch {
             dao.locationFlow()
                 .map {
-                    calculator.calculate(it)
+                    it?.let {
+                        calculator.calculate(it)
+                    }
                 }
                 .collectLatest {
                     calculatedLocation = it

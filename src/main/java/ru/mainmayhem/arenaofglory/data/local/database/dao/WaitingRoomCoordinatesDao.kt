@@ -7,9 +7,9 @@ interface WaitingRoomCoordinatesDao {
 
     suspend fun insert(coordinates: LocationCoordinates)
 
-    suspend fun get(): LocationCoordinates
+    suspend fun get(): LocationCoordinates?
 
-    suspend fun locationFlow(): Flow<LocationCoordinates>
+    suspend fun locationFlow(): Flow<LocationCoordinates?>
 
     suspend fun isEmpty(): Boolean
 

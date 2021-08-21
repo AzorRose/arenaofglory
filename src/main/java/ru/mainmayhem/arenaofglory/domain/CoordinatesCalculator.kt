@@ -25,7 +25,6 @@ class CoordinatesCalculator @Inject constructor(
         val topLeft = locationCoordinates.leftTop
         val bottomRight = locationCoordinates.rightBottom
         val coordinates = mutableListOf<Coordinates>()
-
         var minX = 0
         var maxX = 0
         var minZ = 0
@@ -40,7 +39,7 @@ class CoordinatesCalculator @Inject constructor(
                     minX = x
                 if (x > maxX)
                     maxX = x
-                coordinates.add(Coordinates(x, 0, z))
+                coordinates.add(Coordinates(x, topLeft.y, z))
             }
         }
         return CalculatedLocation(minX, maxX, minZ, maxZ, coordinates)

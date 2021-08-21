@@ -18,7 +18,7 @@ class JEWaitingRoomCoordinatesDao(
     private val topLeftCorner = "top_left_corner"
     private val bottomRightCorner = "bottom_right_corner"
 
-    private var stateFlow: MutableStateFlow<LocationCoordinates>? = null
+    private var stateFlow: MutableStateFlow<LocationCoordinates?>? = null
 
     override suspend fun insert(coordinates: LocationCoordinates) {
         withContext(dispatchers.io){
@@ -39,19 +39,19 @@ class JEWaitingRoomCoordinatesDao(
         }
     }
 
-    override suspend fun get(): LocationCoordinates {
+    override suspend fun get(): LocationCoordinates? {
         return withContext(dispatchers.io){
             transaction {
                 val topLeft = WaitingRoomCoordinates.select(
                     Op.build {
                         WaitingRoomCoordinates.type eq topLeftCorner
                     }
-                ).first().toModel()
+                ).firstOrNull()?.toModel() ?: return@transaction null
                 val bottomRight = WaitingRoomCoordinates.select(
                     Op.build {
                         WaitingRoomCoordinates.type eq bottomRightCorner
                     }
-                ).first().toModel()
+                ).firstOrNull()?.toModel() ?: return@transaction null
                 LocationCoordinates(
                     leftTop = topLeft,
                     rightBottom = bottomRight
@@ -60,7 +60,7 @@ class JEWaitingRoomCoordinatesDao(
         }
     }
 
-    override suspend fun locationFlow(): Flow<LocationCoordinates> {
+    override suspend fun locationFlow(): Flow<LocationCoordinates?> {
         return stateFlow ?: MutableStateFlow(get()).also {
             stateFlow = it
         }
