@@ -13,7 +13,7 @@ class CoordinatesCalculator @Inject constructor(
     /**
      * Принимает две точки локации и отдает все точки, принадлежащие данной локации
      * Точки округляются до целых числ
-     * Отдает только X, Z. Y ВСЕГДА равен 0
+     * Отдает только X, Z. Y ВСЕГДА равен значению верхнего левого угла
      */
     suspend fun calculate(locationCoordinates: LocationCoordinates): CalculatedLocation{
         return withContext(dispatchers.io){

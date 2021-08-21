@@ -32,4 +32,10 @@ interface ArenaQueueRepository {
      */
     fun isEmpty(fractionId: Long): Boolean
 
+    /**
+     * Получение очередей из игроков по каждой фракции
+     * key - id фракции, value - сет из игроков
+     */
+    fun get(): Map<Long, Set<ArenaPlayer>>
+
 }

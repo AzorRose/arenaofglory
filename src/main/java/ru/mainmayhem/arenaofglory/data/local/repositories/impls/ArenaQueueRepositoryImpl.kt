@@ -36,4 +36,6 @@ class ArenaQueueRepositoryImpl: ArenaQueueRepository {
         return queueMap[fractionId]?.isEmpty() != false
     }
 
+    override fun get(): Map<Long, Set<ArenaPlayer>> = queueMap
+
 }
