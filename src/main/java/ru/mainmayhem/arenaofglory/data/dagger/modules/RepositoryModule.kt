@@ -4,14 +4,8 @@ import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
-import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
-import ru.mainmayhem.arenaofglory.data.local.repositories.DbConfigFileRepository
-import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
-import ru.mainmayhem.arenaofglory.data.local.repositories.WaitingRoomCoordinatesRepository
-import ru.mainmayhem.arenaofglory.data.local.repositories.impls.ArenaPlayersRepositoryImpl
-import ru.mainmayhem.arenaofglory.data.local.repositories.impls.DbConfigFileRepoImpl
-import ru.mainmayhem.arenaofglory.data.local.repositories.impls.FractionsRepositoryImpl
-import ru.mainmayhem.arenaofglory.data.local.repositories.impls.WRCoordinatesRepositoryImpl
+import ru.mainmayhem.arenaofglory.data.local.repositories.*
+import ru.mainmayhem.arenaofglory.data.local.repositories.impls.*
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.CoordinatesCalculator
 import javax.inject.Singleton
@@ -49,5 +43,9 @@ class RepositoryModule {
         coroutineScope: CoroutineScope,
         database: PluginDatabase
     ): WaitingRoomCoordinatesRepository = WRCoordinatesRepositoryImpl(calculator, database, coroutineScope)
+
+    @Provides
+    @Singleton
+    fun getArenaQueueRepository(): ArenaQueueRepository = ArenaQueueRepositoryImpl()
 
 }
