@@ -50,4 +50,11 @@ class RepositoryModule {
         ar: ArenaPlayersRepository
     ): ArenaQueueRepository = ArenaQueueRepositoryImpl(ar)
 
+    @Provides
+    @Singleton
+    fun getArenaMatchMetaRepository(
+       l: PluginLogger,
+       fr: FractionsRepository
+    ): ArenaMatchMetaRepository = ArenaMatchMetaRepositoryImpl(l, fr)
+
 }
