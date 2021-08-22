@@ -8,4 +8,7 @@ object Constants {
     //время ожидания в комнате ожидания перед началом матча в минутах
     const val ARENA_QUEUE_DELAY_IN_MINUTES = 5
 
+    //fixme название мира лучше все же вынести в БД
+    const val WORLD_NAME = "world"
+
 }

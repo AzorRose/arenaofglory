@@ -2,6 +2,7 @@ package ru.mainmayhem.arenaofglory.domain.useCases
 
 import org.bukkit.Location
 import org.bukkit.plugin.java.JavaPlugin
+import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.getShortInfo
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
@@ -28,8 +29,7 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
             ?: throw NullPointerException("Игрок не принадлежит к фракции")
         val player = javaPlugin.server.getPlayer(UUID.fromString(playerId))
             ?: throw NullPointerException("Игрок не найден")
-        //fixme название мира лучше все же вынести в БД
-        val world = javaPlugin.server.getWorld("world") ?: throw NullPointerException("Мир для телепортации не найден")
+        val world = javaPlugin.server.getWorld(Constants.WORLD_NAME) ?: throw NullPointerException("Мир для телепортации не найден")
         val randomCoordinates = getRandomWRCoordinate()
         logger.info("Переносим игрока ${player.getShortInfo()} в комнату ожидания с координатами $randomCoordinates")
         player.teleport(
