@@ -57,4 +57,13 @@ class RepositoryModule {
        fr: FractionsRepository
     ): ArenaMatchMetaRepository = ArenaMatchMetaRepositoryImpl(l, fr)
 
+    @Provides
+    @Singleton
+    fun getArenaRespawnCoordinatesRepository(
+        calculator: CoordinatesCalculator,
+        coroutineScope: CoroutineScope,
+        database: PluginDatabase
+    ): ArenaRespawnCoordinatesRepository =
+        ArenaRespawnCoordinatesRepositoryImpl(calculator, database, coroutineScope)
+
 }

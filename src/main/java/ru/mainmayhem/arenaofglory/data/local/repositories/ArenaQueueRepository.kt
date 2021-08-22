@@ -44,4 +44,9 @@ interface ArenaQueueRepository {
      */
     fun remove(playerId: String)
 
+    /**
+     * Возвращает всех игроков вперемешку
+     */
+    fun getAll(): List<ArenaPlayer>
+
 }

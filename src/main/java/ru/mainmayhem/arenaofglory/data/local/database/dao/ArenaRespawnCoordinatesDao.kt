@@ -9,7 +9,7 @@ interface ArenaRespawnCoordinatesDao {
 
     suspend fun get(): List<RespawnCoordinates>
 
-    suspend fun locationFlow(): Flow<List<RespawnCoordinates>?>
+    suspend fun coordinatesFlow(): Flow<List<RespawnCoordinates>>
 
     suspend fun isEmpty(): Boolean
 

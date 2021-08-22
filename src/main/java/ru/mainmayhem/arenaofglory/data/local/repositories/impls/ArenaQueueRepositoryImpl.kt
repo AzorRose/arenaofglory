@@ -55,4 +55,12 @@ class ArenaQueueRepositoryImpl(
         queueMap[player.fractionId] = queue
     }
 
+    override fun getAll(): List<ArenaPlayer> {
+        val res = mutableListOf<ArenaPlayer>()
+        queueMap.forEach { (_, value) ->
+            res.addAll(value)
+        }
+        return res
+    }
+
 }

@@ -5,6 +5,7 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaPlayersDao
+import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaRespawnCoordinatesDao
 import ru.mainmayhem.arenaofglory.data.local.database.dao.FractionDao
 import ru.mainmayhem.arenaofglory.data.local.database.dao.WaitingRoomCoordinatesDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaPlayers
@@ -19,6 +20,7 @@ class JetbrainsExposedDatabase(
     private val fractionDao: FractionDao,
     private val playersDao: ArenaPlayersDao,
     private val waitingRoomCoordinatesDao: WaitingRoomCoordinatesDao,
+    private val arenaRespawnCoordinatesDao: ArenaRespawnCoordinatesDao,
     private val dbConfigRepository: DbConfigFileRepository,
     private val logger: PluginLogger
 ): PluginDatabase {
@@ -33,6 +35,8 @@ class JetbrainsExposedDatabase(
     override fun getArenaPlayersDao(): ArenaPlayersDao = playersDao
 
     override fun getWaitingRoomCoordinatesDao(): WaitingRoomCoordinatesDao = waitingRoomCoordinatesDao
+
+    override fun getArenaRespawnCoordinatesDao(): ArenaRespawnCoordinatesDao = arenaRespawnCoordinatesDao
 
     override fun close() {}
 

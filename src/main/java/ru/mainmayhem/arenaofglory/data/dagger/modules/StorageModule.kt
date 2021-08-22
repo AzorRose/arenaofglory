@@ -51,6 +51,7 @@ class StorageModule {
         fd: FractionDao,
         apd: ArenaPlayersDao,
         wrcd: WaitingRoomCoordinatesDao,
+        arcd: ArenaRespawnCoordinatesDao,
         dbCfgRep: DbConfigFileRepository,
         logger: PluginLogger
     ): PluginDatabase =
@@ -58,6 +59,7 @@ class StorageModule {
             fractionDao = fd,
             playersDao = apd,
             waitingRoomCoordinatesDao = wrcd,
+            arenaRespawnCoordinatesDao = arcd,
             dbConfigRepository = dbCfgRep,
             logger = logger
         )
