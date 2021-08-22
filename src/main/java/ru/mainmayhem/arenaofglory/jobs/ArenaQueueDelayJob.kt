@@ -15,7 +15,9 @@ import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import java.util.*
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ArenaQueueDelayJob @Inject constructor(
     private val coroutineScope: CoroutineScope,
     private val logger: PluginLogger,
@@ -54,11 +56,13 @@ class ArenaQueueDelayJob @Inject constructor(
             try {
                 timer.collect()
             }catch (t: Throwable){
-                logger.error(
-                    className = "ArenaQueueDelayJob",
-                    methodName = "timer flow",
-                    throwable = t
-                )
+                if (t !is CancellationException){
+                    logger.error(
+                        className = "ArenaQueueDelayJob",
+                        methodName = "timer flow",
+                        throwable = t
+                    )
+                }
             }
         }
     }
