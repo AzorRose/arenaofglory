@@ -32,6 +32,12 @@ enum class Commands(
         cmdDescription = "Войти в комнату ожидания"
     ),
 
+    QUIT_WAITING_ROOM(
+        cmdName = "arenaquitwaitingroom",
+        cmdAttributesName = listOf("<player id>"),
+        cmdDescription = "Выйти из комнаты ожидания"
+    ),
+
     HELP(
         cmdName = "arenahelp",
         cmdAttributesName = null,

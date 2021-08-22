@@ -11,3 +11,5 @@ commands:
     description: Смена фракции
   arenaenterwaitingroom:
       description: Войти в комнату ожидания
+  arenaquitwaitingroom:
+      description: Выйти из комнаты ожидания

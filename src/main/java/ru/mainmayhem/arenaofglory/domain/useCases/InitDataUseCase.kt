@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 /**
  * Подтягивает данные из таблиц, если они были изменены
- * Таблицу fractions заполняет данными, если она пуста
+ * Таблицы fractions, waiting_room_coordinates заполняет данными, если они были пусты
  */
 class InitDataUseCase @Inject constructor(
     private val database: PluginDatabase,
