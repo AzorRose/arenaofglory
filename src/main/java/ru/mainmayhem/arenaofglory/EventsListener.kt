@@ -8,6 +8,7 @@ import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerTeleportEvent
+import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerKickedEventInteractor
 import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerQuitServerEventInteractor
 import javax.inject.Inject
 
@@ -17,13 +18,13 @@ import javax.inject.Inject
  * !не должен содержать никакой логики!
  */
 class EventsListener @Inject constructor(
-    private val playerQuitServerEventInteractor: PlayerQuitServerEventInteractor
+    private val playerQuitServerEventInteractor: PlayerQuitServerEventInteractor,
+    private val playerKickedEventInteractor: PlayerKickedEventInteractor
 ): Listener {
 
     @EventHandler
     fun onPlayerKick(event: PlayerKickEvent){
-        //todo когда игрока кикают и он в это время был на арене, нужно достать из очереди чувака его фракции
-        //todo если он вышел из комнаты ожидания, то исключить его из очереди
+        playerKickedEventInteractor.handle(event)
     }
 
     @EventHandler
