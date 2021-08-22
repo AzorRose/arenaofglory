@@ -46,6 +46,8 @@ class RepositoryModule {
 
     @Provides
     @Singleton
-    fun getArenaQueueRepository(): ArenaQueueRepository = ArenaQueueRepositoryImpl()
+    fun getArenaQueueRepository(
+        ar: ArenaPlayersRepository
+    ): ArenaQueueRepository = ArenaQueueRepositoryImpl(ar)
 
 }

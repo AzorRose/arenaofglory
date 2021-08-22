@@ -38,4 +38,10 @@ interface ArenaQueueRepository {
      */
     fun get(): Map<Long, Set<ArenaPlayer>>
 
+    /**
+     * Исключает игрока из очереди
+     * @param playerId - id игрока, которого надо удалить из очереди
+     */
+    fun remove(playerId: String)
+
 }

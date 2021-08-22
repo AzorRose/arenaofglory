@@ -1,10 +1,13 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
+import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import java.util.*
 
-class ArenaQueueRepositoryImpl: ArenaQueueRepository {
+class ArenaQueueRepositoryImpl(
+    private val arenaPlayersRepository: ArenaPlayersRepository
+): ArenaQueueRepository {
 
     private val queueMap = Collections.synchronizedMap(
         mutableMapOf<Long, MutableSet<ArenaPlayer>>()
@@ -30,12 +33,26 @@ class ArenaQueueRepositoryImpl: ArenaQueueRepository {
         return result
     }
 
-    override fun isEmpty(): Boolean = queueMap.isEmpty()
+    override fun isEmpty(): Boolean{
+        queueMap.forEach { (_, value) ->
+            if (value.isNotEmpty()){
+                return false
+            }
+        }
+        return true
+    }
 
     override fun isEmpty(fractionId: Long): Boolean{
         return queueMap[fractionId]?.isEmpty() != false
     }
 
     override fun get(): Map<Long, Set<ArenaPlayer>> = queueMap
+
+    override fun remove(playerId: String) {
+        val player = arenaPlayersRepository.getCachedPlayerById(playerId) ?: return
+        val queue = queueMap[player.fractionId] ?: return
+        queue.remove(player)
+        queueMap[player.fractionId] = queue
+    }
 
 }

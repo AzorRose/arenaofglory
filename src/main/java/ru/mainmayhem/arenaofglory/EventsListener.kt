@@ -8,6 +8,7 @@ import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerTeleportEvent
+import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerQuitServerEventInteractor
 import javax.inject.Inject
 
 
@@ -15,7 +16,9 @@ import javax.inject.Inject
  * Класс который ловит ВСЕ события и делегирует работу другим классам
  * !не должен содержать никакой логики!
  */
-class EventsListener @Inject constructor(): Listener {
+class EventsListener @Inject constructor(
+    private val playerQuitServerEventInteractor: PlayerQuitServerEventInteractor
+): Listener {
 
     @EventHandler
     fun onPlayerKick(event: PlayerKickEvent){
@@ -25,12 +28,11 @@ class EventsListener @Inject constructor(): Listener {
 
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent){
-        //todo то же что и при кике
+        playerQuitServerEventInteractor.handle(event)
     }
 
     @EventHandler
     fun onPlayerTeleported(event: PlayerTeleportEvent){
-        //todo если телепортировался с арены, то делаем то же что и при выходе
         //todo если телепортировался из "внешнего мира" в комнату ожидания - кидаем в очередь
         //todo если телепортировался из арены в комнату ожидания - выдать награду и телепортировать во внешний мир
     }
