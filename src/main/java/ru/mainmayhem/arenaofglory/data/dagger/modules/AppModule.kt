@@ -12,9 +12,7 @@ import ru.mainmayhem.arenaofglory.data.logger.implementations.IBukkitLogger
 import javax.inject.Singleton
 
 @Module
-class AppModule(
-    private val plugin: JavaPlugin
-) {
+class AppModule {
 
     @Provides
     @Singleton
@@ -32,9 +30,5 @@ class AppModule(
 
     @Provides
     fun getLogger(plugin: JavaPlugin): PluginLogger = IBukkitLogger(plugin.server.logger)
-
-    @Singleton
-    @Provides
-    fun getPluginClass(): JavaPlugin = plugin
 
 }
