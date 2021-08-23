@@ -44,6 +44,7 @@ class ArenaQueueDelayJob @Inject constructor(
             delay(millisInOneMinute)
         }
         .onCompletion {
+            logger.info("Время ожидания игроков вышло")
             arenaQueueDelayCompletedUseCase.handle()
         }
 

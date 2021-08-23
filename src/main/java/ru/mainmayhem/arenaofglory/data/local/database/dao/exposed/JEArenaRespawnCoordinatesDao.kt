@@ -62,7 +62,7 @@ class JEArenaRespawnCoordinatesDao(
         }
     }
 
-    override suspend fun coordinatesFlow(): Flow<List<RespawnCoordinates>?> {
+    override suspend fun coordinatesFlow(): Flow<List<RespawnCoordinates>> {
         return stateFlow ?: MutableStateFlow(get()).also {
             stateFlow = it
         }

@@ -49,4 +49,9 @@ interface ArenaQueueRepository {
      */
     fun getAll(): List<ArenaPlayer>
 
+    /**
+     * Полностью очищает очередь
+     */
+    fun clear()
+
 }

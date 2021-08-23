@@ -46,7 +46,7 @@ class ArenaQueueRepositoryImpl(
         return queueMap[fractionId]?.isEmpty() != false
     }
 
-    override fun get(): Map<Long, Set<ArenaPlayer>> = queueMap
+    override fun get(): Map<Long, Set<ArenaPlayer>> = queueMap.toMap()
 
     override fun remove(playerId: String) {
         val player = arenaPlayersRepository.getCachedPlayerById(playerId) ?: return
@@ -61,6 +61,10 @@ class ArenaQueueRepositoryImpl(
             res.addAll(value)
         }
         return res
+    }
+
+    override fun clear() {
+        queueMap.clear()
     }
 
 }
