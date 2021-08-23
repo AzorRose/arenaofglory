@@ -8,7 +8,6 @@ import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.commands.Commands
 import ru.mainmayhem.arenaofglory.commands.executors.*
 import ru.mainmayhem.arenaofglory.data.dagger.components.DaggerAppComponent
-import ru.mainmayhem.arenaofglory.data.dagger.modules.AppModule
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.InitDataUseCase
 import javax.inject.Inject
@@ -52,11 +51,7 @@ class ArenaOfGlory: JavaPlugin() {
 
     private fun initDI(){
         DIHolder.setComponent(
-            DaggerAppComponent.builder().appModule(
-                AppModule(
-                    plugin = this
-                )
-            ).build()
+            DaggerAppComponent.factory().create(this)
         )
         DIHolder.getComponent().injectArenaOfGloryClass(this)
     }
