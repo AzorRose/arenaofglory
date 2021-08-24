@@ -10,17 +10,23 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.WaitingRoomCoordinatesRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.jobs.ArenaQueueDelayJob
+import ru.mainmayhem.arenaofglory.jobs.MatchJob
 import java.util.*
 import javax.inject.Inject
 import kotlin.random.Random
 
+/**
+ * Логика телепортации игрока в комнату ожидания и добавления его в очередь
+ * Стартует таймер ожидания если это необходимо
+ */
 class TeleportToWaitingRoomUseCase @Inject constructor(
     private val javaPlugin: JavaPlugin,
     private val waitingRoomCoordsRepository: WaitingRoomCoordinatesRepository,
     private val logger: PluginLogger,
     private val arenaQueueDelayJob: ArenaQueueDelayJob,
     private val arenaQueueRepository: ArenaQueueRepository,
-    private val arenaPlayersRepository: ArenaPlayersRepository
+    private val arenaPlayersRepository: ArenaPlayersRepository,
+    private val matchJob: MatchJob
 ) {
 
     @Throws(NullPointerException::class)
@@ -36,13 +42,18 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
             Location(world, randomCoordinates.x.toDouble(), randomCoordinates.y.toDouble(), randomCoordinates.z.toDouble())
         )
         val isQueueEmpty = arenaQueueRepository.isEmpty()
+        val isMatchActive = matchJob.isActive
         arenaQueueRepository.put(arenaPlayer)
         //если очередь была пуста до добавления игрока, запускаем таймер на 5 минут
-        if (isQueueEmpty){
-            arenaQueueDelayJob.start()
-        } else{
-            //пишем в чат сколько времени осталось, иначе игрок не будет об этом знать какое-то время
-            player.sendMessage("До начала матча: ${arenaQueueDelayJob.leftTime} мин")
+        //если матч уже запущен, то просто пишем время до конца
+        when{
+            isMatchActive -> {
+                player.sendMessage("До конца матча: ${matchJob.leftTime} мин")
+            }
+            isQueueEmpty -> arenaQueueDelayJob.start()
+            else -> {
+                player.sendMessage("До начала матча: ${arenaQueueDelayJob.leftTime} мин")
+            }
         }
 
     }

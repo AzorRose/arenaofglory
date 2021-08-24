@@ -8,6 +8,7 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaReposito
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinatesRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import ru.mainmayhem.arenaofglory.jobs.StartMatchDelayJob
 import java.util.*
 import javax.inject.Inject
 import kotlin.random.Random
@@ -20,7 +21,8 @@ class ArenaQueueDelayCompletedUseCase @Inject constructor(
     private val logger: PluginLogger,
     private val javaPlugin: JavaPlugin,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
-    private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository
+    private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
+    private val startMatchDelayJob: StartMatchDelayJob
 ) {
 
     fun handle(){
@@ -96,7 +98,7 @@ class ArenaQueueDelayCompletedUseCase @Inject constructor(
     }
 
     private fun teleportPlayersAndStartJob(players: Map<Long, Set<ArenaPlayer>>){
-        //todo стартовать job
+        startMatchDelayJob.start()
         players.forEach { (key, value) ->
             value.forEach { player ->
                 arenaRespawnCoordinatesRepository.getCachedCoordinates()[key]?.let {

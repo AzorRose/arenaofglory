@@ -3,6 +3,7 @@ package ru.mainmayhem.arenaofglory.domain.useCases
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.entities.Fraction
 import ru.mainmayhem.arenaofglory.data.entities.LocationCoordinates
+import ru.mainmayhem.arenaofglory.data.entities.RespawnCoordinates
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import javax.inject.Inject
@@ -20,6 +21,7 @@ class InitDataUseCase @Inject constructor(
         logger.info("Инициализация данных")
         checkFractions()
         checkWaitingRoomCoordinates()
+        checkArenaRespawns()
     }
 
     private suspend fun checkFractions(){
@@ -56,6 +58,47 @@ class InitDataUseCase @Inject constructor(
         )
         dao.insert(locationCoordinates)
         logger.info("Таблица заполнена данными по умолчанию: $locationCoordinates")
+    }
+
+    private suspend fun checkArenaRespawns(){
+        logger.info("Проверка респавнов на арене")
+        val dao = database.getArenaRespawnCoordinatesDao()
+        if (!dao.isEmpty()) return
+        logger.info("Таблица с координатами респавнов пуста, заполняем данными")
+        val respawns = listOf<RespawnCoordinates>(
+            RespawnCoordinates(
+                fractionId = 1,
+                coordinates = LocationCoordinates(
+                    leftTop = Coordinates(
+                        x = 0,
+                        y = 0,
+                        z = 0
+                    ),
+                    rightBottom = Coordinates(
+                        x = 20,
+                        y = 20,
+                        z = 20
+                    )
+                )
+            ),
+            RespawnCoordinates(
+                fractionId = 2,
+                coordinates = LocationCoordinates(
+                    leftTop = Coordinates(
+                        x = 0,
+                        y = 0,
+                        z = 0
+                    ),
+                    rightBottom = Coordinates(
+                        x = 20,
+                        y = 20,
+                        z = 20
+                    )
+                )
+            )
+        )
+        dao.insert(respawns)
+        logger.info("Таблица с координатами респавнов заполнена данными по умолчанию: $respawns")
     }
 
 }
