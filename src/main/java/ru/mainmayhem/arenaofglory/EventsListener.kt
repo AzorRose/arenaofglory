@@ -12,6 +12,7 @@ import org.bukkit.event.player.PlayerTeleportEvent
 import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerDamageEventInteractor
 import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerKickedEventInteractor
 import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerQuitServerEventInteractor
+import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerRespawnEventHandler
 import javax.inject.Inject
 
 
@@ -22,7 +23,8 @@ import javax.inject.Inject
 class EventsListener @Inject constructor(
     private val playerQuitServerEventInteractor: PlayerQuitServerEventInteractor,
     private val playerKickedEventInteractor: PlayerKickedEventInteractor,
-    private val playerDamageEventInteractor: PlayerDamageEventInteractor
+    private val playerDamageEventInteractor: PlayerDamageEventInteractor,
+    private val playerRespawnEventHandler: PlayerRespawnEventHandler
 ): Listener {
 
     @EventHandler
@@ -41,10 +43,9 @@ class EventsListener @Inject constructor(
         //todo если телепортировался из арены в комнату ожидания - выдать награду и телепортировать во внешний мир
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     fun onPlayerRespawn(event: PlayerRespawnEvent){
-//        event.respawnLocation =
-        //todo если игрок умер на арене, его респавнит на базу его фракции
+        playerRespawnEventHandler.handle(event)
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
