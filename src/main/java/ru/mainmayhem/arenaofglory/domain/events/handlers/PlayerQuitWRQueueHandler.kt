@@ -17,7 +17,7 @@ import javax.inject.Inject
  * Если игрок вышел с сервера(неважно как) и в это время был в очереди на арену, то исключаем его
  */
 
-class PlayerQuitWRQueue @Inject constructor(
+class PlayerQuitWRQueueHandler @Inject constructor(
     private val arenaQueueRepository: ArenaQueueRepository,
     private val arenaPlayersRepository: ArenaPlayersRepository,
     private val logger: PluginLogger,
