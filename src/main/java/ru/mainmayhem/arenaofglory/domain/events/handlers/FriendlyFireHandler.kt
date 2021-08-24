@@ -21,7 +21,10 @@ class FriendlyFireHandler @Inject constructor(
     override fun handle(event: EntityDamageByEntityEvent) {
         val damager = event.damager
         val victim = event.entity
-        if (damager !is Player || victim !is Player) return
+        if (damager !is Player || victim !is Player){
+            super.handle(event)
+            return
+        }
         if (damager inOneFractionWith victim && matchJob.isActive && checkPlayersInArena(damager, victim)){
             event.isCancelled = true
         } else {

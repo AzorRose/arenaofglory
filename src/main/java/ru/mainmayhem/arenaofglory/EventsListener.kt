@@ -8,11 +8,7 @@ import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
-import org.bukkit.event.player.PlayerTeleportEvent
-import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerDamageEventInteractor
-import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerKickedEventInteractor
-import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerQuitServerEventInteractor
-import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerRespawnEventHandler
+import ru.mainmayhem.arenaofglory.domain.events.interactors.*
 import javax.inject.Inject
 
 
@@ -24,7 +20,8 @@ class EventsListener @Inject constructor(
     private val playerQuitServerEventInteractor: PlayerQuitServerEventInteractor,
     private val playerKickedEventInteractor: PlayerKickedEventInteractor,
     private val playerDamageEventInteractor: PlayerDamageEventInteractor,
-    private val playerRespawnEventHandler: PlayerRespawnEventHandler
+    private val playerRespawnEventHandler: PlayerRespawnEventHandler,
+    private val playerDeathEventInteractor: PlayerDeathEventInteractor
 ): Listener {
 
     @EventHandler
@@ -35,12 +32,6 @@ class EventsListener @Inject constructor(
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent){
         playerQuitServerEventInteractor.handle(event)
-    }
-
-    @EventHandler
-    fun onPlayerTeleported(event: PlayerTeleportEvent){
-        //todo если телепортировался из "внешнего мира" в комнату ожидания - кидаем в очередь
-        //todo если телепортировался из арены в комнату ожидания - выдать награду и телепортировать во внешний мир
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -55,11 +46,7 @@ class EventsListener @Inject constructor(
 
     @EventHandler
     fun onPlayerKilled(event: PlayerDeathEvent){
-        //todo проверить, что игрок был убит на арене и прибавить очки противоположной команде
-        //todo убийце увеличить счетчик убийств
-//        val killed: String = e.getEntity().getName()
-//        val killer: String = e.getEntity().getKiller().getName()
-//        e.setDeathMessage(ChatColor.RED.toString() + killed + " has been slain by " + killer)
+        playerDeathEventInteractor.handle(event)
     }
 
 }

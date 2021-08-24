@@ -17,4 +17,7 @@ object Constants {
     //fixme название мира лучше все же вынести в БД
     const val WORLD_NAME = "world"
 
+    //кол-во очков, выдаваемое фракции за убийство
+    const val FRACTION_KILL_PONTS = 100
+
 }
