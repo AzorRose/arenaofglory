@@ -1,13 +1,15 @@
 package ru.mainmayhem.arenaofglory
 
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
-import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerTeleportEvent
+import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerDamageEventInteractor
 import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerKickedEventInteractor
 import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerQuitServerEventInteractor
 import javax.inject.Inject
@@ -19,7 +21,8 @@ import javax.inject.Inject
  */
 class EventsListener @Inject constructor(
     private val playerQuitServerEventInteractor: PlayerQuitServerEventInteractor,
-    private val playerKickedEventInteractor: PlayerKickedEventInteractor
+    private val playerKickedEventInteractor: PlayerKickedEventInteractor,
+    private val playerDamageEventInteractor: PlayerDamageEventInteractor
 ): Listener {
 
     @EventHandler
@@ -44,9 +47,9 @@ class EventsListener @Inject constructor(
         //todo если игрок умер на арене, его респавнит на базу его фракции
     }
 
-    @EventHandler
-    fun onPlayerDamaged(entity: EntityDamageEvent){
-        //todo проверяем если урон был нанесен в комнате ожидания, то отменяем
+    @EventHandler(priority = EventPriority.HIGHEST)
+    fun onPlayerDamaged(event: EntityDamageByEntityEvent){
+        playerDamageEventInteractor.handle(event)
     }
 
     @EventHandler
