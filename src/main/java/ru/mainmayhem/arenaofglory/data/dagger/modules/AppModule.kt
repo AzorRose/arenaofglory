@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import org.bukkit.plugin.java.JavaPlugin
+import ru.mainmayhem.arenaofglory.async.dispatchers.PluginMainDispatcher
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.data.logger.implementations.IBukkitLogger
@@ -20,11 +21,12 @@ class AppModule {
         CoroutineScope(d.io + Job())
 
     @Provides
-    fun getDispatchers(): CoroutineDispatchers{
+    fun getDispatchers(m: PluginMainDispatcher): CoroutineDispatchers{
         return CoroutineDispatchers(
             io = Dispatchers.IO,
             default = Dispatchers.Default,
-            unconfirmed = Dispatchers.Unconfined
+            unconfirmed = Dispatchers.Unconfined,
+            main = m
         )
     }
 

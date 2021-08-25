@@ -1,9 +1,12 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
+import kotlinx.coroutines.withContext
 import org.bukkit.Location
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
+import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
+import ru.mainmayhem.arenaofglory.data.getShortInfo
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinatesRepository
@@ -22,10 +25,11 @@ class ArenaQueueDelayCompletedUseCase @Inject constructor(
     private val javaPlugin: JavaPlugin,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
-    private val startMatchDelayJob: StartMatchDelayJob
+    private val startMatchDelayJob: StartMatchDelayJob,
+    private val dispatchers: CoroutineDispatchers
 ) {
 
-    fun handle(){
+    suspend fun handle(){
         val size = queueSize()
         logger.info("Игроков в очереди: $size")
         when(size){
@@ -35,16 +39,21 @@ class ArenaQueueDelayCompletedUseCase @Inject constructor(
         }
     }
 
-    private fun kickPlayer(){
-        logger.info("Кикаем игрока из комнаты ожидания")
+    private suspend fun kickPlayer(){
         val playerId = arenaQueueRepository.getAll().first().id
-        val player = javaPlugin.server.getPlayer(playerId) ?: return
-        javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let {
-            player.teleport(it.spawnLocation)
+        val player = javaPlugin.server.getPlayer(
+            UUID.fromString(playerId)
+        ) ?: return
+        logger.info("Кикаем игрока ${player.getShortInfo()} из комнаты ожидания")
+        withContext(dispatchers.main){
+            javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let {
+                player.teleport(it.spawnLocation)
+            }
+            player.sendMessage("Недостаточно игроков")
         }
     }
 
-    private fun startMatch(){
+    private suspend fun startMatch(){
         logger.info("Начинаем матч")
         val queue = arenaQueueRepository.get()
         if (allFractionsSizeEqual(queue)){
@@ -60,7 +69,7 @@ class ArenaQueueDelayCompletedUseCase @Inject constructor(
         }
     }
 
-    private fun startMatchWithEqualPlayersSize(players: Map<Long, Set<ArenaPlayer>>){
+    private suspend fun startMatchWithEqualPlayersSize(players: Map<Long, Set<ArenaPlayer>>){
         val min = getMinPlayersInFraction(players)
         logger.info("Меньшая из фракций состоит из $min игроков")
         val newPlayers = mutableMapOf<Long, Set<ArenaPlayer>>()
@@ -97,21 +106,23 @@ class ArenaQueueDelayCompletedUseCase @Inject constructor(
         arenaMatchMetaRepository.setPlayers(res)
     }
 
-    private fun teleportPlayersAndStartJob(players: Map<Long, Set<ArenaPlayer>>){
+    private suspend fun teleportPlayersAndStartJob(players: Map<Long, Set<ArenaPlayer>>){
         startMatchDelayJob.start()
-        players.forEach { (key, value) ->
-            value.forEach { player ->
-                arenaRespawnCoordinatesRepository.getCachedCoordinates()[key]?.let {
-                    val random = it.coordinates[Random.nextInt(it.coordinates.size)]
-                    val serverPlayer = javaPlugin.server.getPlayer(UUID.fromString(player.id))
-                    serverPlayer?.teleport(
-                        Location(
-                            javaPlugin.server.getWorld(Constants.WORLD_NAME),
-                            random.x.toDouble(),
-                            random.y.toDouble(),
-                            random.z.toDouble()
+        withContext(dispatchers.main){
+            players.forEach { (key, value) ->
+                value.forEach { player ->
+                    arenaRespawnCoordinatesRepository.getCachedCoordinates()[key]?.let {
+                        val random = it.coordinates[Random.nextInt(it.coordinates.size)]
+                        val serverPlayer = javaPlugin.server.getPlayer(UUID.fromString(player.id))
+                        serverPlayer?.teleport(
+                            Location(
+                                javaPlugin.server.getWorld(Constants.WORLD_NAME),
+                                random.x.toDouble(),
+                                random.y.toDouble(),
+                                random.z.toDouble()
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
