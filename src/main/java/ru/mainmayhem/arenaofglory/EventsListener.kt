@@ -5,6 +5,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
@@ -21,7 +22,8 @@ class EventsListener @Inject constructor(
     private val playerKickedEventInteractor: PlayerKickedEventInteractor,
     private val playerDamageEventInteractor: PlayerDamageEventInteractor,
     private val playerRespawnEventHandler: PlayerRespawnEventHandler,
-    private val playerDeathEventInteractor: PlayerDeathEventInteractor
+    private val playerDeathEventInteractor: PlayerDeathEventInteractor,
+    private val playerChatEventInteractor: PlayerChatEventInteractor
 ): Listener {
 
     @EventHandler
@@ -47,6 +49,11 @@ class EventsListener @Inject constructor(
     @EventHandler
     fun onPlayerKilled(event: PlayerDeathEvent){
         playerDeathEventInteractor.handle(event)
+    }
+
+    @EventHandler
+    fun onChatMessage(event: AsyncPlayerChatEvent){
+        playerChatEventInteractor.handle(event)
     }
 
 }
