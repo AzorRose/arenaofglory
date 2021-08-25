@@ -48,6 +48,7 @@ class ArenaMatchMetaRepositoryImpl(
         }
         val index = players.indexOf(player)
         players[index] = player.copy(kills = player.kills.inc())
+        logger.info("Новые данные по игрокам: $players")
     }
 
     override fun increaseFractionPoints(fractionId: Long, points: Int) {
@@ -58,6 +59,7 @@ class ArenaMatchMetaRepositoryImpl(
             return
         }
         fractions[fractionId] = currentPoints + points
+        logger.info("Новые данные по фракциям: $fractions")
     }
 
     override fun getFractionsPoints(): Map<Long, Int> = fractions

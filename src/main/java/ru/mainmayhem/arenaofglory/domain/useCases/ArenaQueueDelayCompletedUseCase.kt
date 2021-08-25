@@ -41,6 +41,7 @@ class ArenaQueueDelayCompletedUseCase @Inject constructor(
 
     private suspend fun kickPlayer(){
         val playerId = arenaQueueRepository.getAll().first().id
+        arenaQueueRepository.remove(playerId)
         val player = javaPlugin.server.getPlayer(
             UUID.fromString(playerId)
         ) ?: return
