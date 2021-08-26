@@ -25,20 +25,12 @@ class CoordinatesCalculator @Inject constructor(
         val topLeft = locationCoordinates.leftTop
         val bottomRight = locationCoordinates.rightBottom
         val coordinates = mutableListOf<Coordinates>()
-        var minX = 0
-        var maxX = 0
-        var minZ = 0
-        var maxZ = 0
+        val minX = if (topLeft.x < bottomRight.x) topLeft.x else bottomRight.x
+        val maxX = if (topLeft.x > bottomRight.x) topLeft.x else bottomRight.x
+        val minZ = if (topLeft.z < bottomRight.z) topLeft.z else bottomRight.z
+        val maxZ = if (topLeft.z > bottomRight.z) topLeft.z else bottomRight.z
         getProgression(topLeft.z, bottomRight.z).forEach { z ->
-            if (minZ > z)
-                minZ = z
-            if (z > maxZ)
-                maxZ = z
             getProgression(topLeft.x, bottomRight.x).forEach { x ->
-                if (minX > x)
-                    minX = x
-                if (x > maxX)
-                    maxX = x
                 coordinates.add(Coordinates(x, topLeft.y, z))
             }
         }
