@@ -1,13 +1,9 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
-import org.bukkit.Location
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
-import ru.mainmayhem.arenaofglory.data.getShortInfo
-import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
-import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
-import ru.mainmayhem.arenaofglory.data.local.repositories.WaitingRoomCoordinatesRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.*
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.DisbalanceFinder
 import ru.mainmayhem.arenaofglory.jobs.ArenaQueueDelayJob
@@ -18,7 +14,8 @@ import kotlin.random.Random
 
 /**
  * Логика телепортации игрока в комнату ожидания и добавления его в очередь
- * Стартует таймер ожидания если это необходимо
+ * Если очередь пуста - стартует таймер ожидания на 5 мин, перемещаем игрока в комнату ожидания
+ * Если есть дисбаланс команд, то игроки с соответствующей фракцией заходят сразу на арену
  */
 class TeleportToWaitingRoomUseCase @Inject constructor(
     private val javaPlugin: JavaPlugin,
@@ -28,7 +25,9 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
     private val arenaQueueRepository: ArenaQueueRepository,
     private val arenaPlayersRepository: ArenaPlayersRepository,
     private val matchJob: MatchJob,
-    private val disbalanceFinder: DisbalanceFinder
+    private val disbalanceFinder: DisbalanceFinder,
+    private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
+    private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository
 ) {
 
     @Throws(NullPointerException::class)
@@ -39,28 +38,35 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
             ?: throw NullPointerException("Игрок не найден")
         val world = javaPlugin.server.getWorld(Constants.WORLD_NAME)
         val randomCoordinates = getRandomWRCoordinate()
-        logger.info("Переносим игрока ${player.getShortInfo()} в комнату ожидания с координатами $randomCoordinates")
-        player.teleport(
-            Location(world, randomCoordinates.x.toDouble(), randomCoordinates.y.toDouble(), randomCoordinates.z.toDouble())
-        )
+
         val isQueueEmpty = arenaQueueRepository.isEmpty()
         val isMatchActive = matchJob.isActive
         val isFractionDisbalanced = disbalanceFinder.isFractionDisbalanced(arenaPlayer.fractionId)
-        arenaQueueRepository.put(arenaPlayer)
-        //если очередь была пуста до добавления игрока, запускаем таймер на 5 минут
-        //если матч уже запущен, то проверяем на дисбаланс
+
+        var location = randomCoordinates.getLocation(world)
+
         when{
             isMatchActive && !isFractionDisbalanced -> {
                 player.sendMessage("До конца матча: ${matchJob.leftTime} мин")
+                arenaQueueRepository.put(arenaPlayer)
             }
             isMatchActive && isFractionDisbalanced -> {
-
+                val coordinates = arenaRespawnCoordinatesRepository
+                    .getCachedCoordinates()[arenaPlayer.fractionId]?.coordinates?.randomOrNull()
+                if (coordinates == null){
+                    logger.warning("Не найдены точки респавна для игрока $this")
+                    return
+                }
+                arenaMatchMetaRepository.insert(arenaPlayer)
+                location = coordinates.getLocation(world)
             }
             isQueueEmpty -> arenaQueueDelayJob.start()
             else -> {
                 player.sendMessage("До начала матча: ${arenaQueueDelayJob.leftTime} мин")
             }
         }
+
+        player.teleport(location)
 
     }
 
