@@ -14,6 +14,9 @@ object Constants {
     //продолжительность матча в минутах
     const val MATCH_TIME_IN_MINUTES = 15
 
+    //Продолжительность задержки до автовина, если команда полностью вышла с арены
+    const val EMPTY_TEAM_DELAY_IN_SECONDS = 60
+
     //fixme название мира лучше все же вынести в БД
     const val WORLD_NAME = "world"
 

@@ -1,12 +1,15 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
+import kotlinx.coroutines.withContext
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
+import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.local.repositories.*
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.DisbalanceFinder
 import ru.mainmayhem.arenaofglory.jobs.ArenaQueueDelayJob
+import ru.mainmayhem.arenaofglory.jobs.EmptyTeamJob
 import ru.mainmayhem.arenaofglory.jobs.MatchJob
 import java.util.*
 import javax.inject.Inject
@@ -27,11 +30,13 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
     private val matchJob: MatchJob,
     private val disbalanceFinder: DisbalanceFinder,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
-    private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository
+    private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
+    private val emptyTeamJob: EmptyTeamJob,
+    private val dispatchers: CoroutineDispatchers
 ) {
 
     @Throws(NullPointerException::class)
-    fun teleport(playerId: String){
+    suspend fun teleport(playerId: String){
         val arenaPlayer = arenaPlayersRepository.getCachedPlayerById(playerId)
             ?: throw NullPointerException("Игрок не принадлежит к фракции")
         val player = javaPlugin.server.getPlayer(UUID.fromString(playerId))
@@ -66,7 +71,13 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
             }
         }
 
-        player.teleport(location)
+        if (!disbalanceFinder.hasEmptyFractions()){
+            emptyTeamJob.stop()
+        }
+
+        withContext(dispatchers.main){
+            player.teleport(location)
+        }
 
     }
 

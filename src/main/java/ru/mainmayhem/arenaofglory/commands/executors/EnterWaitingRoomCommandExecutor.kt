@@ -1,5 +1,7 @@
 package ru.mainmayhem.arenaofglory.commands.executors
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -20,7 +22,8 @@ class EnterWaitingRoomCommandExecutor @Inject constructor(
     private val arenaPlayersRepository: ArenaPlayersRepository,
     private val pluginLogger: PluginLogger,
     private val javaPlugin: JavaPlugin,
-    private val teleportToWaitingRoomUseCase: TeleportToWaitingRoomUseCase
+    private val teleportToWaitingRoomUseCase: TeleportToWaitingRoomUseCase,
+    private val coroutineScope: CoroutineScope
 ): CommandExecutor {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
@@ -37,11 +40,13 @@ class EnterWaitingRoomCommandExecutor @Inject constructor(
             return false
         }
 
-        try {
-            teleportToWaitingRoomUseCase.teleport(playerId)
-        } catch (e: Throwable){
-            pluginLogger.error("EnterWaitingRoomCommandExecutor", "onCommand", e)
-            return false
+        //тяжелая команда с кучей логики, решил вызывать асинхронно
+        coroutineScope.launch {
+            try {
+                teleportToWaitingRoomUseCase.teleport(playerId)
+            } catch (e: Throwable){
+                pluginLogger.error("EnterWaitingRoomCommandExecutor", "onCommand", e)
+            }
         }
 
         return true

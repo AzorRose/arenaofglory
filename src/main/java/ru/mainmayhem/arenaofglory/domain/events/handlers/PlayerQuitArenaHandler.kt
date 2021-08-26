@@ -13,6 +13,7 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinatesRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.events.BaseEventHandler
+import ru.mainmayhem.arenaofglory.jobs.EmptyTeamJob
 import java.util.*
 import javax.inject.Inject
 
@@ -29,7 +30,8 @@ class PlayerQuitArenaHandler @Inject constructor(
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val arenaQueueRepository: ArenaQueueRepository,
     private val arenaPlayersRepository: ArenaPlayersRepository,
-    private val respawnCoordinatesRepository: ArenaRespawnCoordinatesRepository
+    private val respawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
+    private val emptyTeamJob: EmptyTeamJob
 ): BaseEventHandler<PlayerEvent>() {
 
     override fun handle(event: PlayerEvent) {
@@ -46,7 +48,7 @@ class PlayerQuitArenaHandler @Inject constructor(
             val newPlayer = arenaQueueRepository.getAndRemove(fractionId)
             if (newPlayer == null){
                 logger.info("Невозможно взять нового игрока из очереди: очередь фракции пуста")
-                //todo старт таймера
+                emptyTeamJob.start()
             }
             newPlayer?.teleportPlayerToArena()
             //телепортируем игрока на спавн, чтобы при след. заходе он не оказался на арене

@@ -31,6 +31,13 @@ class DisbalanceFinder @Inject constructor(
         return findDisbalancedFractions().contains(fractionId)
     }
 
+    /**
+     * Есть ли в матче пустые команды
+     */
+    fun hasEmptyFractions(): Boolean{
+        return getArenaMeta().any { it.members.isEmpty() }
+    }
+
     private fun getArenaMeta(): List<ArenaFraction>{
         val map = mutableMapOf<Long, List<ArenaPlayer>>()
         val players = arenaMatchMetaRepository.getPlayers()
