@@ -5,10 +5,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.event.player.AsyncPlayerChatEvent
-import org.bukkit.event.player.PlayerKickEvent
-import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.event.player.PlayerRespawnEvent
+import org.bukkit.event.player.*
 import ru.mainmayhem.arenaofglory.domain.events.interactors.*
 import javax.inject.Inject
 
@@ -21,9 +18,10 @@ class EventsListener @Inject constructor(
     private val playerQuitServerEventInteractor: PlayerQuitServerEventInteractor,
     private val playerKickedEventInteractor: PlayerKickedEventInteractor,
     private val playerDamageEventInteractor: PlayerDamageEventInteractor,
-    private val playerRespawnEventHandler: PlayerRespawnEventHandler,
+    private val playerRespawnEventInteractor: PlayerRespawnEventInteractor,
     private val playerDeathEventInteractor: PlayerDeathEventInteractor,
-    private val playerChatEventInteractor: PlayerChatEventInteractor
+    private val playerChatEventInteractor: PlayerChatEventInteractor,
+    private val playerMoveEventInteractor: PlayerMoveEventInteractor
 ): Listener {
 
     @EventHandler
@@ -38,7 +36,7 @@ class EventsListener @Inject constructor(
 
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onPlayerRespawn(event: PlayerRespawnEvent){
-        playerRespawnEventHandler.handle(event)
+        playerRespawnEventInteractor.handle(event)
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -54,6 +52,11 @@ class EventsListener @Inject constructor(
     @EventHandler
     fun onChatMessage(event: AsyncPlayerChatEvent){
         playerChatEventInteractor.handle(event)
+    }
+
+    @EventHandler
+    fun onPlayerMoved(event: PlayerMoveEvent){
+        playerMoveEventInteractor.handle(event)
     }
 
 }

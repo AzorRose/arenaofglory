@@ -1,8 +1,9 @@
 package ru.mainmayhem.arenaofglory.domain
 
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
+import javax.inject.Inject
 
-class CoordinatesComparator{
+class CoordinatesComparator @Inject constructor(){
 
     /**
      * Метод, который проверяет, попадает ли переданная точка в некую область на карте

@@ -9,7 +9,7 @@ import javax.inject.Inject
 /**
  * Класс для создания цепочек для обработки респавна игрока
  */
-class PlayerRespawnEventHandler @Inject constructor(
+class PlayerRespawnEventInteractor @Inject constructor(
     private val logger: PluginLogger,
     private val arenaRespawnEventHandler: ArenaRespawnEventHandler
 ) {
