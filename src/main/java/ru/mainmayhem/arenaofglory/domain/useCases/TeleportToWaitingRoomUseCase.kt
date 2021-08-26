@@ -9,6 +9,7 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.WaitingRoomCoordinatesRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import ru.mainmayhem.arenaofglory.domain.DisbalanceFinder
 import ru.mainmayhem.arenaofglory.jobs.ArenaQueueDelayJob
 import ru.mainmayhem.arenaofglory.jobs.MatchJob
 import java.util.*
@@ -26,7 +27,8 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
     private val arenaQueueDelayJob: ArenaQueueDelayJob,
     private val arenaQueueRepository: ArenaQueueRepository,
     private val arenaPlayersRepository: ArenaPlayersRepository,
-    private val matchJob: MatchJob
+    private val matchJob: MatchJob,
+    private val disbalanceFinder: DisbalanceFinder
 ) {
 
     @Throws(NullPointerException::class)
@@ -35,7 +37,7 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
             ?: throw NullPointerException("Игрок не принадлежит к фракции")
         val player = javaPlugin.server.getPlayer(UUID.fromString(playerId))
             ?: throw NullPointerException("Игрок не найден")
-        val world = javaPlugin.server.getWorld(Constants.WORLD_NAME) ?: throw NullPointerException("Мир для телепортации не найден")
+        val world = javaPlugin.server.getWorld(Constants.WORLD_NAME)
         val randomCoordinates = getRandomWRCoordinate()
         logger.info("Переносим игрока ${player.getShortInfo()} в комнату ожидания с координатами $randomCoordinates")
         player.teleport(
@@ -43,12 +45,16 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
         )
         val isQueueEmpty = arenaQueueRepository.isEmpty()
         val isMatchActive = matchJob.isActive
+        val isFractionDisbalanced = disbalanceFinder.isFractionDisbalanced(arenaPlayer.fractionId)
         arenaQueueRepository.put(arenaPlayer)
         //если очередь была пуста до добавления игрока, запускаем таймер на 5 минут
-        //если матч уже запущен, то просто пишем время до конца
+        //если матч уже запущен, то проверяем на дисбаланс
         when{
-            isMatchActive -> {
+            isMatchActive && !isFractionDisbalanced -> {
                 player.sendMessage("До конца матча: ${matchJob.leftTime} мин")
+            }
+            isMatchActive && isFractionDisbalanced -> {
+
             }
             isQueueEmpty -> arenaQueueDelayJob.start()
             else -> {
