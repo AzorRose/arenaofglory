@@ -5,15 +5,16 @@ import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import java.util.*
 
 class ArenaMatchMetaRepositoryImpl(
     private val logger: PluginLogger,
     private val fractionsRepository: FractionsRepository
 ): ArenaMatchMetaRepository {
 
-    private val players = mutableListOf<ArenaMatchMember>()
+    private val players = Collections.synchronizedList(mutableListOf<ArenaMatchMember>())
 
-    private val fractions = mutableMapOf<Long, Int>()
+    private val fractions = Collections.synchronizedMap(mutableMapOf<Long, Int>())
 
     override fun setPlayers(players: List<ArenaPlayer>) {
         logger.info("Обновляем участников арены, сбрасываем очки фракций")
