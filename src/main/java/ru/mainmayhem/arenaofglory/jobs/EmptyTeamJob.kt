@@ -9,6 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import ru.mainmayhem.arenaofglory.domain.useCases.ArenaMatchEndedUseCase
 import java.util.*
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
@@ -20,7 +21,8 @@ class EmptyTeamJob @Inject constructor(
     private val matchJob: MatchJob,
     private val logger: PluginLogger,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
-    private val javaPlugin: JavaPlugin
+    private val javaPlugin: JavaPlugin,
+    private val arenaMatchEndedUseCase: ArenaMatchEndedUseCase
 ) {
 
     //сколько времени осталось в секундах до истечения таймера
@@ -44,7 +46,7 @@ class EmptyTeamJob @Inject constructor(
         }
         .onCompletion {
             matchJob.stop()
-            //todo награда
+            arenaMatchEndedUseCase.handle()
         }
 
     private var job: Job? = null

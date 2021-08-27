@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import ru.mainmayhem.arenaofglory.domain.useCases.ArenaMatchEndedUseCase
 import java.util.*
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
@@ -22,7 +23,8 @@ class MatchJob @Inject constructor(
     private val coroutineScope: CoroutineScope,
     private val logger: PluginLogger,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
-    private val javaPlugin: JavaPlugin
+    private val javaPlugin: JavaPlugin,
+    private val arenaMatchEndedUseCase: ArenaMatchEndedUseCase
 ) {
 
     private val millisInOneMinute = 60_000L
@@ -48,8 +50,7 @@ class MatchJob @Inject constructor(
             delay(millisInOneMinute)
         }
         .onCompletion {
-            logger.info("Матч закончен")
-            //todo
+            arenaMatchEndedUseCase.handle()
         }
 
     fun start(){
