@@ -19,6 +19,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@Deprecated("По новой постановке это не нужно, будем использовать MatchScheduleJob")
 class ArenaQueueDelayJob @Inject constructor(
     private val coroutineScope: CoroutineScope,
     private val logger: PluginLogger,
