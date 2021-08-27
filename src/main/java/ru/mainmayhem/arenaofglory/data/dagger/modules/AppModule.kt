@@ -1,5 +1,7 @@
 package ru.mainmayhem.arenaofglory.data.dagger.modules
 
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
@@ -32,5 +34,10 @@ class AppModule {
 
     @Provides
     fun getLogger(plugin: JavaPlugin): PluginLogger = IBukkitLogger(plugin.server.logger)
+
+    @Provides
+    @Singleton
+    fun getMoshi(): Moshi =
+        Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
 
 }

@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
+import com.squareup.moshi.Moshi
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.jarFilePath
 import ru.mainmayhem.arenaofglory.data.local.DbConfig
@@ -8,7 +9,8 @@ import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import java.io.File
 
 class DbConfigFileRepoImpl(
-    private val logger: PluginLogger
+    private val logger: PluginLogger,
+    moshi: Moshi
 ): DbConfigFileRepository {
 
     private val defaultConfig = DbConfig(
@@ -18,14 +20,11 @@ class DbConfigFileRepoImpl(
         password = ""
     )
 
+    private val dbConfigAdapter = moshi.adapter(DbConfig::class.java)
+
     private val filePath = jarFilePath + Constants.PLUGIN_META_FOLDER_NAME + "/"
 
     private val fileName = "db_config.txt"
-
-    private val urlConfigName = "url"
-    private val driverConfigName = "driver"
-    private val userConfigName = "user"
-    private val passwordConfigName = "password"
 
     override fun getConfigFromFile(): DbConfig {
         makeDirIfNotExist()
@@ -41,29 +40,24 @@ class DbConfigFileRepoImpl(
     }
 
     private infix fun DbConfig.into(file: File){
-        val content =
-                "$urlConfigName=$url\n" +
-                "$driverConfigName=$driver\n" +
-                "$userConfigName=$user\n" +
-                "$passwordConfigName=$password"
-        file.writeBytes(content.toByteArray())
+        file.writeBytes(dbConfigAdapter.toJson(this).toByteArray())
     }
 
     private fun File.getConfig(): DbConfig{
-        val lines = readLines()
-        val url = lines.firstOrNull()?.split("=")?.getOrNull(1)
-        val driver = lines.getOrNull(1)?.split("=")?.getOrNull(1)
-        val user = lines.getOrNull(2)?.split("=")?.getOrNull(1).orEmpty()
-        val password = lines.getOrNull(3)?.split("=")?.getOrNull(1).orEmpty()
-        if (url.isNullOrBlank())
+        val json = readText()
+        val dbConfig = kotlin.runCatching { dbConfigAdapter.fromJson(json) }.getOrNull()
+            ?: throw NullPointerException("Неверная структура файла $fileName")
+
+        if (dbConfig.url.isBlank())
             throw NullPointerException("Не найден URL в файле $fileName")
-        if (driver.isNullOrBlank())
+        if (dbConfig.driver.isBlank())
             throw NullPointerException("Не найден driver в файле $fileName")
-        if (user.isBlank())
-            logger.info("Не найден пользователь в файле $userConfigName")
-        if (password.isBlank())
-            logger.info("Не найден пароль в файле $userConfigName")
-        return DbConfig(url, driver, user, password)
+        if (dbConfig.user.isBlank())
+            logger.info("Не найден пользователь в файле $fileName")
+        if (dbConfig.password.isBlank())
+            logger.info("Не найден пароль в файле $fileName")
+
+        return dbConfig
     }
 
     private fun makeDirIfNotExist(){

@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.data.dagger.modules
 
+import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
@@ -14,7 +15,7 @@ import javax.inject.Singleton
 class RepositoryModule {
 
     @Provides
-    fun getDbConfigRepository(logger: PluginLogger): DbConfigFileRepository = DbConfigFileRepoImpl(logger)
+    fun getDbConfigRepository(logger: PluginLogger, m: Moshi): DbConfigFileRepository = DbConfigFileRepoImpl(logger, m)
 
     @Provides
     @Singleton
