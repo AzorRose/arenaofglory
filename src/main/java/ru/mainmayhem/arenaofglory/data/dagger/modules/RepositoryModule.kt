@@ -82,4 +82,12 @@ class RepositoryModule {
         dispatchers = d
     )
 
+    @Provides
+    @Singleton
+    fun getSettingsRepository(m: Moshi, l: PluginLogger): PluginSettingsRepository =
+        SettingsRepositoryImpl(
+            moshi = m,
+            logger = l
+        )
+
 }
