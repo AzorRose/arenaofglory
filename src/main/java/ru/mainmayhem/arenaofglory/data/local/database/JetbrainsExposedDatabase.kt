@@ -4,14 +4,8 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
-import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaPlayersDao
-import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaRespawnCoordinatesDao
-import ru.mainmayhem.arenaofglory.data.local.database.dao.FractionDao
-import ru.mainmayhem.arenaofglory.data.local.database.dao.WaitingRoomCoordinatesDao
-import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaPlayers
-import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaRespawnCoordinates
-import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.Fractions
-import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.WaitingRoomCoordinates
+import ru.mainmayhem.arenaofglory.data.local.database.dao.*
+import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.*
 import ru.mainmayhem.arenaofglory.data.local.repositories.DbConfigFileRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import java.sql.Connection
@@ -21,6 +15,7 @@ class JetbrainsExposedDatabase(
     private val playersDao: ArenaPlayersDao,
     private val waitingRoomCoordinatesDao: WaitingRoomCoordinatesDao,
     private val arenaRespawnCoordinatesDao: ArenaRespawnCoordinatesDao,
+    private val rewardDao: RewardDao,
     private val dbConfigRepository: DbConfigFileRepository,
     private val logger: PluginLogger
 ): PluginDatabase {
@@ -38,6 +33,8 @@ class JetbrainsExposedDatabase(
 
     override fun getArenaRespawnCoordinatesDao(): ArenaRespawnCoordinatesDao = arenaRespawnCoordinatesDao
 
+    override fun getRewardDao(): RewardDao = rewardDao
+
     override fun close() {}
 
     private fun createTables(){
@@ -46,7 +43,8 @@ class JetbrainsExposedDatabase(
                 Fractions,
                 ArenaPlayers,
                 WaitingRoomCoordinates,
-                ArenaRespawnCoordinates
+                ArenaRespawnCoordinates,
+                Reward
             )
         }
     }

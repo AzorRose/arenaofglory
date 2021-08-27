@@ -1,16 +1,12 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
-import ru.mainmayhem.arenaofglory.data.entities.Coordinates
-import ru.mainmayhem.arenaofglory.data.entities.Fraction
-import ru.mainmayhem.arenaofglory.data.entities.LocationCoordinates
-import ru.mainmayhem.arenaofglory.data.entities.RespawnCoordinates
+import ru.mainmayhem.arenaofglory.data.entities.*
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import javax.inject.Inject
 
 /**
- * Подтягивает данные из таблиц, если они были изменены
- * Таблицы fractions, waiting_room_coordinates заполняет данными, если они были пусты
+ * Заполняет таблицы данными по умолчанию, если они были пусты
  */
 class InitDataUseCase @Inject constructor(
     private val database: PluginDatabase,
@@ -22,6 +18,7 @@ class InitDataUseCase @Inject constructor(
         checkFractions()
         checkWaitingRoomCoordinates()
         checkArenaRespawns()
+        checkReward()
     }
 
     private suspend fun checkFractions(){
@@ -99,6 +96,19 @@ class InitDataUseCase @Inject constructor(
         )
         dao.insert(respawns)
         logger.info("Таблица с координатами респавнов заполнена данными по умолчанию: $respawns")
+    }
+
+    private suspend fun checkReward(){
+        logger.info("Проверка награды")
+        val dao = database.getRewardDao()
+        if (dao.get() != null) return
+        logger.info("Таблица с наградами пуста, заполняем значениями по умолчанию")
+        val reward = ArenaReward(
+            victory = 2,
+            draw = 1,
+            loss = 1
+        )
+        dao.insert(reward)
     }
 
 }

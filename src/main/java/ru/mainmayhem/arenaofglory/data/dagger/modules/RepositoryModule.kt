@@ -4,6 +4,7 @@ import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
+import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.*
 import ru.mainmayhem.arenaofglory.data.local.repositories.impls.*
@@ -66,5 +67,19 @@ class RepositoryModule {
         database: PluginDatabase
     ): ArenaRespawnCoordinatesRepository =
         ArenaRespawnCoordinatesRepositoryImpl(calculator, database, coroutineScope)
+
+    @Provides
+    @Singleton
+    fun getRewardRepository(
+        c: CoroutineScope,
+        l: PluginLogger,
+        db: PluginDatabase,
+        d: CoroutineDispatchers
+    ): RewardRepository = RewardRepositoryImpl(
+        coroutineScope = c,
+        logger = l,
+        database = db,
+        dispatchers = d
+    )
 
 }

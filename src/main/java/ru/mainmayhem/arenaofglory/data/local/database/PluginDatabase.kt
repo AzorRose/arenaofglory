@@ -1,9 +1,6 @@
 package ru.mainmayhem.arenaofglory.data.local.database
 
-import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaPlayersDao
-import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaRespawnCoordinatesDao
-import ru.mainmayhem.arenaofglory.data.local.database.dao.FractionDao
-import ru.mainmayhem.arenaofglory.data.local.database.dao.WaitingRoomCoordinatesDao
+import ru.mainmayhem.arenaofglory.data.local.database.dao.*
 
 interface PluginDatabase {
 
@@ -14,6 +11,8 @@ interface PluginDatabase {
     fun getWaitingRoomCoordinatesDao(): WaitingRoomCoordinatesDao
 
     fun getArenaRespawnCoordinatesDao(): ArenaRespawnCoordinatesDao
+
+    fun getRewardDao(): RewardDao
 
     fun close()
 

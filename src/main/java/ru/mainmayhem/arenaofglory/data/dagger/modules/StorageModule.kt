@@ -5,14 +5,8 @@ import dagger.Provides
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.local.database.JetbrainsExposedDatabase
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
-import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaPlayersDao
-import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaRespawnCoordinatesDao
-import ru.mainmayhem.arenaofglory.data.local.database.dao.FractionDao
-import ru.mainmayhem.arenaofglory.data.local.database.dao.WaitingRoomCoordinatesDao
-import ru.mainmayhem.arenaofglory.data.local.database.dao.exposed.JEArenaRespawnCoordinatesDao
-import ru.mainmayhem.arenaofglory.data.local.database.dao.exposed.JEWaitingRoomCoordinatesDao
-import ru.mainmayhem.arenaofglory.data.local.database.dao.exposed.JetbrainsExposedArenaPlayersDao
-import ru.mainmayhem.arenaofglory.data.local.database.dao.exposed.JetbrainsExposedFractionDao
+import ru.mainmayhem.arenaofglory.data.local.database.dao.*
+import ru.mainmayhem.arenaofglory.data.local.database.dao.exposed.*
 import ru.mainmayhem.arenaofglory.data.local.repositories.DbConfigFileRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import javax.inject.Singleton
@@ -28,22 +22,25 @@ class StorageModule {
     @Singleton
     fun getArenaPlayersDao(
         d: CoroutineDispatchers
-    ): ArenaPlayersDao =
-        JetbrainsExposedArenaPlayersDao(d)
+    ): ArenaPlayersDao = JetbrainsExposedArenaPlayersDao(d)
 
     @Provides
     @Singleton
     fun getWaitingRoomCoordinatesDao(
         d: CoroutineDispatchers
-    ): WaitingRoomCoordinatesDao =
-        JEWaitingRoomCoordinatesDao(d)
+    ): WaitingRoomCoordinatesDao = JEWaitingRoomCoordinatesDao(d)
 
     @Provides
     @Singleton
     fun getArenaRespawnCoordinatesDao(
         d: CoroutineDispatchers
-    ): ArenaRespawnCoordinatesDao =
-        JEArenaRespawnCoordinatesDao(d)
+    ): ArenaRespawnCoordinatesDao = JEArenaRespawnCoordinatesDao(d)
+
+    @Provides
+    @Singleton
+    fun getRewardDao(
+        d: CoroutineDispatchers
+    ): RewardDao = JERewardDao(d)
 
     @Provides
     @Singleton
@@ -52,6 +49,7 @@ class StorageModule {
         apd: ArenaPlayersDao,
         wrcd: WaitingRoomCoordinatesDao,
         arcd: ArenaRespawnCoordinatesDao,
+        rewardDao: RewardDao,
         dbCfgRep: DbConfigFileRepository,
         logger: PluginLogger
     ): PluginDatabase =
@@ -60,6 +58,7 @@ class StorageModule {
             playersDao = apd,
             waitingRoomCoordinatesDao = wrcd,
             arenaRespawnCoordinatesDao = arcd,
+            rewardDao = rewardDao,
             dbConfigRepository = dbCfgRep,
             logger = logger
         )
