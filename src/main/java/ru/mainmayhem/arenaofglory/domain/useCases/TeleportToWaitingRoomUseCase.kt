@@ -2,8 +2,7 @@ package ru.mainmayhem.arenaofglory.domain.useCases
 
 import kotlinx.coroutines.withContext
 import org.bukkit.plugin.java.JavaPlugin
-import ru.mainmayhem.arenaofglory.data.Constants
-import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
+import ru.mainmayhem.arenaofglory.data.*
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.local.repositories.*
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
@@ -30,7 +29,8 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
     private val emptyTeamJob: EmptyTeamJob,
-    private val dispatchers: CoroutineDispatchers
+    private val dispatchers: CoroutineDispatchers,
+    private val settingsRepository: PluginSettingsRepository
 ) {
 
     @Throws(NullPointerException::class)
@@ -65,6 +65,7 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
                 arenaMatchMetaRepository.insert(arenaPlayer)
                 location = coordinates.getLocation(world)
             }
+            !isMatchActive -> player.sendMessage("До начала матча: ${getTimeToStartMatch()} мин")
         }
 
         if (!disbalanceFinder.hasEmptyFractions()){
@@ -82,6 +83,12 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
             ?: throw NullPointerException("Не найдены координаты комнаты ожидания")
         val randomInt = Random.nextInt(coordinates.size)
         return coordinates[randomInt]
+    }
+
+    private fun getTimeToStartMatch(): Long{
+        val startArenaMatch = settingsRepository.getSettings().startArenaMatch
+        val start = startArenaMatch.asCalendar().setCurrentDate().time
+        return start diffInMinutes Date()
     }
 
 }

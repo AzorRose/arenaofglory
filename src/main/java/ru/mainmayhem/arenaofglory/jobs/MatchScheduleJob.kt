@@ -51,6 +51,7 @@ class MatchScheduleJob @Inject constructor(
                             val start = startArenaMatch.asCalendar().setCurrentDate().time
                             val diff = start diffInMinutes date
                             sendMessageToPlayersInQueue("До начала матча: $diff мин")
+                            delay(60_000)
                         }
                         else -> delay(1_000)
                     }
