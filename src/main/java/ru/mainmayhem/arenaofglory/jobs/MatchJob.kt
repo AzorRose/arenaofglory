@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.ArenaMatchEndedUseCase
 import java.util.*
@@ -24,7 +25,8 @@ class MatchJob @Inject constructor(
     private val logger: PluginLogger,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val javaPlugin: JavaPlugin,
-    private val arenaMatchEndedUseCase: ArenaMatchEndedUseCase
+    private val arenaMatchEndedUseCase: ArenaMatchEndedUseCase,
+    private val fractionsRepository: FractionsRepository
 ) {
 
     private val millisInOneMinute = 60_000L
@@ -44,6 +46,7 @@ class MatchJob @Inject constructor(
         .asFlow()
         .onEach {
             leftTime = Constants.MATCH_TIME_IN_MINUTES - it
+            printCurrentResults()
             sendMessageToAllPlayersInMatch(
                 "До конца матча: $leftTime мин"
             )
@@ -83,6 +86,16 @@ class MatchJob @Inject constructor(
                 UUID.fromString(it.player.id)
             )?.sendMessage(message)
         }
+    }
+
+    private fun printCurrentResults(){
+        val fractions = fractionsRepository.getCachedFractions()
+        val message = StringBuilder()
+        message.append("Результаты:\n")
+        arenaMatchMetaRepository.getFractionsPoints().forEach { res ->
+            message.append("${fractions.find { it.id ==  res.key}?.name}: ${res.value}\n")
+        }
+        sendMessageToAllPlayersInMatch(message.toString())
     }
 
 }
