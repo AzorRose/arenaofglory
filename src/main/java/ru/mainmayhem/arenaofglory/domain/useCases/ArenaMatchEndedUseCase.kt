@@ -1,7 +1,9 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
+import kotlinx.coroutines.withContext
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
+import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.ArenaMatchMember
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
@@ -19,10 +21,11 @@ class ArenaMatchEndedUseCase @Inject constructor(
     private val arenaQueueRepository: ArenaQueueRepository,
     private val rewardRepository: RewardRepository,
     private val logger: PluginLogger,
-    private val javaPlugin: JavaPlugin
+    private val javaPlugin: JavaPlugin,
+    private val dispatchers: CoroutineDispatchers
 ) {
 
-    fun handle(){
+    suspend fun handle(){
         logger.info("Матч закончен")
         kickPlayersInArena()
         kickPlayersInQueue()
@@ -31,13 +34,13 @@ class ArenaMatchEndedUseCase @Inject constructor(
         arenaMatchMetaRepository.setPlayers(emptyList())
     }
 
-    private fun kickPlayersInArena(){
+    private suspend fun kickPlayersInArena(){
         arenaMatchMetaRepository.getPlayers().forEach {
             it.player.teleportToServerSpawn()
         }
     }
 
-    private fun kickPlayersInQueue(){
+    private suspend fun kickPlayersInQueue(){
         arenaQueueRepository.getAll().forEach {
             it.teleportToServerSpawn()
         }
@@ -100,9 +103,11 @@ class ArenaMatchEndedUseCase @Inject constructor(
         //todo
     }
 
-    private fun ArenaPlayer.teleportToServerSpawn(){
-        javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let {
-            javaPlugin.server.getPlayer(UUID.fromString(id))?.teleport(it.spawnLocation)
+    private suspend fun ArenaPlayer.teleportToServerSpawn(){
+        withContext(dispatchers.main){
+            javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let {
+                javaPlugin.server.getPlayer(UUID.fromString(id))?.teleport(it.spawnLocation)
+            }
         }
     }
 

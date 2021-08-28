@@ -50,6 +50,9 @@ class PlayerQuitArenaHandler @Inject constructor(
                 logger.info("Невозможно взять нового игрока из очереди: очередь фракции пуста")
                 emptyTeamJob.start()
             }
+            newPlayer?.let {
+                arenaMatchMetaRepository.insert(newPlayer)
+            }
             newPlayer?.teleportPlayerToArena()
             //телепортируем игрока на спавн, чтобы при след. заходе он не оказался на арене
             javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let {

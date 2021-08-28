@@ -3,7 +3,9 @@ package ru.mainmayhem.arenaofglory.jobs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
@@ -29,25 +31,21 @@ class EmptyTeamJob @Inject constructor(
     var leftTime = 0
         private set
 
-    private val timer = (0 until Constants.EMPTY_TEAM_DELAY_IN_SECONDS)
-        .asSequence()
-        .asFlow()
-        .onStart {
-            sendMessageToAllPlayersInMatch(
-                "Команда противника покинула матч"
-            )
-        }
-        .onEach {
+    private val timer = flow<Int> {
+        repeat(Constants.EMPTY_TEAM_DELAY_IN_SECONDS){
             leftTime = Constants.EMPTY_TEAM_DELAY_IN_SECONDS - it
             sendMessageToAllPlayersInMatch(
                 "До автоматической победы: $leftTime сек"
             )
-            delay(10000)
+            delay(1000)
         }
-        .onCompletion {
-            matchJob.stop()
-            arenaMatchEndedUseCase.handle()
-        }
+        matchJob.stop()
+        arenaMatchEndedUseCase.handle()
+    }.onStart {
+        sendMessageToAllPlayersInMatch(
+            "Команда противника покинула матч"
+        )
+    }
 
     private var job: Job? = null
 

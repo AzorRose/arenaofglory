@@ -1,7 +1,6 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
 import kotlinx.coroutines.withContext
-import org.bukkit.Location
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
@@ -84,7 +83,9 @@ class StartArenaMatchUseCase @Inject constructor(
         }
         //todo возможно, стоит что-то написать тем игрокам, которые не попали на арену
         logger.info("Уравновесили команды, переносим на арену")
-        teleportPlayersAndStartJob(players)
+        logger.info("Новые команды: $newPlayers")
+        savePlayersInArenaMeta(newPlayers)
+        teleportPlayersAndStartJob(newPlayers)
     }
 
     private fun getMinPlayersInFraction(players: Map<Long, Set<ArenaPlayer>>): Int {
@@ -116,12 +117,7 @@ class StartArenaMatchUseCase @Inject constructor(
                         val random = it.coordinates[Random.nextInt(it.coordinates.size)]
                         val serverPlayer = javaPlugin.server.getPlayer(UUID.fromString(player.id))
                         serverPlayer?.teleport(
-                            Location(
-                                javaPlugin.server.getWorld(Constants.WORLD_NAME),
-                                random.x.toDouble(),
-                                random.y.toDouble(),
-                                random.z.toDouble()
-                            )
+                            random.getLocation(javaPlugin.server.getWorld(Constants.WORLD_NAME))
                         )
                     }
                 }
