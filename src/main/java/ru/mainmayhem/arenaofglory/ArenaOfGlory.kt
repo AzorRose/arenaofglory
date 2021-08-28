@@ -10,6 +10,7 @@ import ru.mainmayhem.arenaofglory.commands.executors.*
 import ru.mainmayhem.arenaofglory.data.dagger.components.DaggerAppComponent
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.InitDataUseCase
+import ru.mainmayhem.arenaofglory.domain.useCases.KickAllArenaPLayersUseCase
 import ru.mainmayhem.arenaofglory.jobs.MatchScheduleJob
 import java.text.SimpleDateFormat
 import java.util.*
@@ -22,6 +23,7 @@ class ArenaOfGlory: JavaPlugin() {
     @Inject internal lateinit var enterWaitingRoomCommandExecutor: EnterWaitingRoomCommandExecutor
     @Inject internal lateinit var quitWaitingRoomCommandExecutor: QuitWaitingRoomCommandExecutor
     @Inject internal lateinit var initDataUseCase: InitDataUseCase
+    @Inject internal lateinit var kickAllArenaPLayersUseCase: KickAllArenaPLayersUseCase
     @Inject internal lateinit var coroutineScope: CoroutineScope
     @Inject internal lateinit var logger: PluginLogger
     @Inject internal lateinit var eventsListener: EventsListener
@@ -37,6 +39,7 @@ class ArenaOfGlory: JavaPlugin() {
     }
 
     override fun onDisable() {
+        kickAllArenaPLayersUseCase.doKickPlayers()
         matchScheduleJob.stop()
         coroutineScope.cancel(CancellationException())
         DIHolder.clear()
