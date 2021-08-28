@@ -20,7 +20,7 @@ class DbConfigFileRepoImpl(
         password = ""
     )
 
-    private val dbConfigAdapter = moshi.adapter(DbConfig::class.java)
+    private val dbConfigAdapter = moshi.adapter(DbConfig::class.java).indent("  ")
 
     private val filePath = jarFilePath + Constants.PLUGIN_META_FOLDER_NAME + "/"
 

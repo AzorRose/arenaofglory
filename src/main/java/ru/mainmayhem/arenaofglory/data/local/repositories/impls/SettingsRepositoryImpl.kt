@@ -18,7 +18,7 @@ class SettingsRepositoryImpl(
 
     private val fileName = "settings.txt"
 
-    private val settingsAdapter = moshi.adapter(Settings::class.java)
+    private val settingsAdapter = moshi.adapter(Settings::class.java).indent("  ")
 
     private val filePath = jarFilePath + Constants.PLUGIN_META_FOLDER_NAME + "/"
 

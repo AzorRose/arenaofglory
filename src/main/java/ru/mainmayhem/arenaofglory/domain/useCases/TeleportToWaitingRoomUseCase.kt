@@ -50,10 +50,13 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
 
         var location = randomCoordinates.getLocation(world)
 
+        if (!isFractionDisbalanced){
+            arenaQueueRepository.put(arenaPlayer)
+        }
+
         when{
             isMatchActive && !isFractionDisbalanced -> {
                 player.sendMessage("До конца матча: ${matchJob.leftTime} мин")
-                arenaQueueRepository.put(arenaPlayer)
             }
             isMatchActive && isFractionDisbalanced -> {
                 val coordinates = arenaRespawnCoordinatesRepository
@@ -65,10 +68,10 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
                 arenaMatchMetaRepository.insert(arenaPlayer)
                 location = coordinates.getLocation(world)
             }
-            isQueueEmpty -> arenaQueueDelayJob.start()
-            else -> {
-                player.sendMessage("До начала матча: ${arenaQueueDelayJob.leftTime} мин")
-            }
+//            isQueueEmpty -> arenaQueueDelayJob.start()
+//            else -> {
+//                player.sendMessage("До начала матча: ${arenaQueueDelayJob.leftTime} мин")
+//            }
         }
 
         if (!disbalanceFinder.hasEmptyFractions()){

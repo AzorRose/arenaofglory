@@ -40,7 +40,7 @@ class MatchScheduleJob @Inject constructor(
                             startArenaMatchUseCase.handle()
                             delay(60_000)
                         }
-                        else -> delay(10_000)
+                        else -> delay(1_000)
                     }
                 }
             } catch (t: Throwable){

@@ -28,8 +28,8 @@ class ArenaOfGlory: JavaPlugin() {
     @Inject internal lateinit var matchScheduleJob: MatchScheduleJob
 
     override fun onEnable() {
-        printCurrentServerDate()
         initDI()
+        printCurrentServerDate()
         initData()
         server.pluginManager.registerEvents(eventsListener, this)
         initCommands()
