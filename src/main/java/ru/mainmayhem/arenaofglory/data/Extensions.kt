@@ -42,3 +42,10 @@ infix fun Date.timeEqualsWith(date: Date): Boolean{
     val second = date.asCalendar()
     return first.hours() == second.hours() && first.minutes() == second.minutes()
 }
+
+//разница между датами в минутах
+infix fun Date.diffInMinutes(date: Date): Long{
+    val first = asCalendar()
+    val second = asCalendar()
+    return (first.timeInMillis - second.timeInMillis) / 60_000
+}

@@ -2,9 +2,14 @@ package ru.mainmayhem.arenaofglory.jobs
 
 import kotlinx.coroutines.*
 import org.bukkit.plugin.java.JavaPlugin
+import ru.mainmayhem.arenaofglory.data.asCalendar
+import ru.mainmayhem.arenaofglory.data.diffInMinutes
+import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import ru.mainmayhem.arenaofglory.data.setCurrentDate
 import ru.mainmayhem.arenaofglory.data.timeEqualsWith
+import ru.mainmayhem.arenaofglory.domain.WaitingRoomScheduleHelper
 import ru.mainmayhem.arenaofglory.domain.useCases.StartArenaMatchUseCase
 import java.util.*
 import javax.inject.Inject
@@ -16,7 +21,9 @@ class MatchScheduleJob @Inject constructor(
     private val logger: PluginLogger,
     settingsRepository: PluginSettingsRepository,
     private val startArenaMatchUseCase: StartArenaMatchUseCase,
-    private val javaPlugin: JavaPlugin
+    private val javaPlugin: JavaPlugin,
+    private val arenaQueueRepository: ArenaQueueRepository,
+    private val waitingRoomScheduleHelper: WaitingRoomScheduleHelper
 ) {
 
     private var job: Job? = null
@@ -39,6 +46,11 @@ class MatchScheduleJob @Inject constructor(
                         date timeEqualsWith startArenaMatch -> {
                             startArenaMatchUseCase.handle()
                             delay(60_000)
+                        }
+                        waitingRoomScheduleHelper.preparingForMatch() -> {
+                            val start = startArenaMatch.asCalendar().setCurrentDate().time
+                            val diff = start diffInMinutes date
+                            sendMessageToPlayersInQueue("До начала матча: $diff мин")
                         }
                         else -> delay(1_000)
                     }
@@ -63,6 +75,12 @@ class MatchScheduleJob @Inject constructor(
     private fun sendMessageToAllPlayers(message: String){
         javaPlugin.server.onlinePlayers.forEach {
             it.sendMessage(message)
+        }
+    }
+
+    private fun sendMessageToPlayersInQueue(message: String){
+        arenaQueueRepository.getAll().forEach {
+            javaPlugin.server.getPlayer(UUID.fromString(it.id))?.sendMessage(message)
         }
     }
 
