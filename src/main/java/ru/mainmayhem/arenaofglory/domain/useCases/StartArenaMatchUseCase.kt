@@ -19,7 +19,7 @@ import kotlin.random.Random
 /**
  * Логика начала матча, когда закончилось ожидание в 5 минут
  */
-class ArenaQueueDelayCompletedUseCase @Inject constructor(
+class StartArenaMatchUseCase @Inject constructor(
     private val arenaQueueRepository: ArenaQueueRepository,
     private val logger: PluginLogger,
     private val javaPlugin: JavaPlugin,

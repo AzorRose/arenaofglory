@@ -12,7 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import ru.mainmayhem.arenaofglory.domain.useCases.ArenaQueueDelayCompletedUseCase
+import ru.mainmayhem.arenaofglory.domain.useCases.StartArenaMatchUseCase
 import java.util.*
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
@@ -25,7 +25,7 @@ class ArenaQueueDelayJob @Inject constructor(
     private val logger: PluginLogger,
     private val arenaQueueRepository: ArenaQueueRepository,
     private val javaPlugin: JavaPlugin,
-    private val arenaQueueDelayCompletedUseCase: ArenaQueueDelayCompletedUseCase
+    private val startArenaMatchUseCase: StartArenaMatchUseCase
 ) {
 
     private val millisInOneMinute = 60_000L
@@ -46,7 +46,7 @@ class ArenaQueueDelayJob @Inject constructor(
         }
         .onCompletion {
             logger.info("Время ожидания игроков вышло")
-            arenaQueueDelayCompletedUseCase.handle()
+            startArenaMatchUseCase.handle()
         }
 
     private var job: Job? = null

@@ -22,3 +22,23 @@ fun Calendar.hours(): Int{
 fun Calendar.minutes(): Int{
     return get(Calendar.MINUTE)
 }
+
+fun Date.asCalendar(): Calendar{
+    return Calendar.getInstance().apply {
+        time = this@asCalendar
+    }
+}
+
+fun Calendar.setCurrentDate(): Calendar{
+    val cal = Calendar.getInstance()
+    set(Calendar.DAY_OF_MONTH, cal.get(Calendar.DAY_OF_MONTH))
+    set(Calendar.MONTH, cal.get(Calendar.MONTH))
+    set(Calendar.YEAR, cal.get(Calendar.YEAR))
+    return this
+}
+
+infix fun Date.timeEqualsWith(date: Date): Boolean{
+    val first = asCalendar()
+    val second = date.asCalendar()
+    return first.hours() == second.hours() && first.minutes() == second.minutes()
+}

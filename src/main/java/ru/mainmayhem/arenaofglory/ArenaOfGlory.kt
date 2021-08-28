@@ -11,6 +11,8 @@ import ru.mainmayhem.arenaofglory.data.dagger.components.DaggerAppComponent
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.InitDataUseCase
 import ru.mainmayhem.arenaofglory.jobs.MatchScheduleJob
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 class ArenaOfGlory: JavaPlugin() {
@@ -26,6 +28,7 @@ class ArenaOfGlory: JavaPlugin() {
     @Inject internal lateinit var matchScheduleJob: MatchScheduleJob
 
     override fun onEnable() {
+        printCurrentServerDate()
         initDI()
         initData()
         server.pluginManager.registerEvents(eventsListener, this)
@@ -72,6 +75,11 @@ class ArenaOfGlory: JavaPlugin() {
                 }
             )
         }
+    }
+
+    private fun printCurrentServerDate(){
+        val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
+        logger.info("Серверное время: ${sdf.format(Date())}")
     }
 
 }
