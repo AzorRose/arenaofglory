@@ -7,7 +7,6 @@ import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import ru.mainmayhem.arenaofglory.jobs.ArenaQueueDelayJob
 import java.util.*
 import javax.inject.Inject
 
@@ -18,7 +17,6 @@ import javax.inject.Inject
  */
 class QuitWaitingRoomCommandExecutor @Inject constructor(
     private val arenaQueueRepository: ArenaQueueRepository,
-    private val arenaQueueDelayJob: ArenaQueueDelayJob,
     private val javaPlugin: JavaPlugin,
     private val logger: PluginLogger
 ): CommandExecutor {
@@ -45,9 +43,6 @@ class QuitWaitingRoomCommandExecutor @Inject constructor(
             logger.info("Переносим игрока в локацию: ${it.spawnLocation}")
             player.teleport(it.spawnLocation)
         }
-
-        if (arenaQueueRepository.isEmpty())
-            arenaQueueDelayJob.stop()
 
         return true
 

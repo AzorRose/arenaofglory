@@ -44,12 +44,13 @@ class MatchScheduleJob @Inject constructor(
                     }
                 }
             } catch (t: Throwable){
-                //todo игнор ошибки об отмене
-                logger.error(
-                    className = "MatchScheduleJob",
-                    methodName = "job",
-                    throwable = t
-                )
+                if (t !is CancellationException) {
+                    logger.error(
+                        className = "MatchScheduleJob",
+                        methodName = "job",
+                        throwable = t
+                    )
+                }
             }
         }
     }

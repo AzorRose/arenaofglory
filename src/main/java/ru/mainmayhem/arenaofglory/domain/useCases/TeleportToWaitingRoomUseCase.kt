@@ -8,7 +8,6 @@ import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.local.repositories.*
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.DisbalanceFinder
-import ru.mainmayhem.arenaofglory.jobs.ArenaQueueDelayJob
 import ru.mainmayhem.arenaofglory.jobs.EmptyTeamJob
 import ru.mainmayhem.arenaofglory.jobs.MatchJob
 import java.util.*
@@ -24,7 +23,6 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
     private val javaPlugin: JavaPlugin,
     private val waitingRoomCoordsRepository: WaitingRoomCoordinatesRepository,
     private val logger: PluginLogger,
-    private val arenaQueueDelayJob: ArenaQueueDelayJob,
     private val arenaQueueRepository: ArenaQueueRepository,
     private val arenaPlayersRepository: ArenaPlayersRepository,
     private val matchJob: MatchJob,
@@ -44,7 +42,6 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
         val world = javaPlugin.server.getWorld(Constants.WORLD_NAME)
         val randomCoordinates = getRandomWRCoordinate()
 
-        val isQueueEmpty = arenaQueueRepository.isEmpty()
         val isMatchActive = matchJob.isActive
         val isFractionDisbalanced = disbalanceFinder.isFractionDisbalanced(arenaPlayer.fractionId)
 
@@ -68,10 +65,6 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
                 arenaMatchMetaRepository.insert(arenaPlayer)
                 location = coordinates.getLocation(world)
             }
-//            isQueueEmpty -> arenaQueueDelayJob.start()
-//            else -> {
-//                player.sendMessage("До начала матча: ${arenaQueueDelayJob.leftTime} мин")
-//            }
         }
 
         if (!disbalanceFinder.hasEmptyFractions()){

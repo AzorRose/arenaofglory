@@ -9,7 +9,6 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.events.BaseEventHandler
-import ru.mainmayhem.arenaofglory.jobs.ArenaQueueDelayJob
 import javax.inject.Inject
 
 /**
@@ -21,7 +20,6 @@ class PlayerQuitWRQueueHandler @Inject constructor(
     private val arenaQueueRepository: ArenaQueueRepository,
     private val arenaPlayersRepository: ArenaPlayersRepository,
     private val logger: PluginLogger,
-    private val arenaQueueDelayJob: ArenaQueueDelayJob,
     private val javaPlugin: JavaPlugin
 ): BaseEventHandler<PlayerEvent>() {
 
@@ -36,8 +34,7 @@ class PlayerQuitWRQueueHandler @Inject constructor(
         } else{
             logger.info("Игрок ${event.player.getShortInfo()} не найден в очереди на арену")
         }
-        if (arenaQueueRepository.isEmpty())
-            arenaQueueDelayJob.stop()
+
         super.handle(event)
     }
 
