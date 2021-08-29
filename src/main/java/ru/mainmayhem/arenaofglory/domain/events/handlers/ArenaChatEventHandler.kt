@@ -22,7 +22,7 @@ class ArenaChatEventHandler @Inject constructor(
 
     override fun handle(event: AsyncPlayerChatEvent) {
 
-        if (matchJob.isActive){
+        if (!matchJob.isActive){
             super.handle(event)
             return
         }
@@ -50,7 +50,7 @@ class ArenaChatEventHandler @Inject constructor(
         val playerId = uniqueId.toString()
         val playerFractionId = arenaPlayersRepository.getCachedPlayerById(playerId)?.fractionId ?: return
         players
-            .filter { it.player.fractionId == playerFractionId && it.player.id != playerId }
+            .filter { it.player.fractionId == playerFractionId }
             .forEach {
                 javaPlugin.server.getPlayer(
                     UUID.fromString(it.player.id)
