@@ -8,8 +8,10 @@ import ru.mainmayhem.arenaofglory.data.entities.ArenaMatchMember
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.RewardRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import ru.mainmayhem.arenaofglory.inventory.items.token.TokenFactory
 import java.util.*
 import javax.inject.Inject
 
@@ -22,16 +24,21 @@ class ArenaMatchEndedUseCase @Inject constructor(
     private val rewardRepository: RewardRepository,
     private val logger: PluginLogger,
     private val javaPlugin: JavaPlugin,
-    private val dispatchers: CoroutineDispatchers
+    private val dispatchers: CoroutineDispatchers,
+    private val tokenFactory: TokenFactory,
+    private val fractionsRepository: FractionsRepository
 ) {
 
     suspend fun handle(){
         logger.info("Матч закончен")
-        kickPlayersInArena()
-        kickPlayersInQueue()
-        giveRewardToPlayers()
-        arenaQueueRepository.clear()
-        arenaMatchMetaRepository.setPlayers(emptyList())
+        withContext(dispatchers.io){
+            printResults()
+            kickPlayersInArena()
+            kickPlayersInQueue()
+            giveRewardToPlayers()
+            arenaQueueRepository.clear()
+            arenaMatchMetaRepository.setPlayers(emptyList())
+        }
     }
 
     private suspend fun kickPlayersInArena(){
@@ -100,7 +107,7 @@ class ArenaMatchEndedUseCase @Inject constructor(
             logger.warning("Невозможно выдать награду игроку $player, игрок не найден")
             return
         }
-        //todo
+        player.inventory.addItem(tokenFactory.getTokens(amount))
     }
 
     private suspend fun ArenaPlayer.teleportToServerSpawn(){
@@ -115,6 +122,31 @@ class ArenaMatchEndedUseCase @Inject constructor(
         return arenaMatchMetaRepository.getFractionsPoints()
             .map { it.value }
             .toSet().size == 1
+    }
+
+    private fun getWinningFractionName(): String?{
+        val id = arenaMatchMetaRepository.getFractionsPoints()
+            .map { Pair(it.key, it.value) }
+            .maxByOrNull { it.second }?.first
+        id ?: return null
+        return fractionsRepository.getCachedFractions().find { it.id == id }?.name
+    }
+
+    private fun printResults(){
+        if (isDraw()){
+            sendMessageToPlayersInArenaAndQueue("Матч закончен. Ничья.")
+        } else {
+            sendMessageToPlayersInArenaAndQueue("Матч закончен. Победила команда: ${getWinningFractionName()}")
+        }
+    }
+
+    private fun sendMessageToPlayersInArenaAndQueue(message: String){
+        arenaMatchMetaRepository.getPlayers()
+            .map { it.player }
+            .plus(arenaQueueRepository.getAll())
+            .forEach {
+                javaPlugin.server.getPlayer(UUID.fromString(it.id))?.sendMessage(message)
+            }
     }
 
 }
