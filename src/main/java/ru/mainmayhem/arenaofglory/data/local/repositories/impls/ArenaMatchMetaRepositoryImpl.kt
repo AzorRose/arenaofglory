@@ -1,20 +1,31 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
+import org.bukkit.Bukkit
+import org.bukkit.entity.Player
+import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.scoreboard.Scoreboard
 import ru.mainmayhem.arenaofglory.data.entities.ArenaMatchMember
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import java.util.*
 
 class ArenaMatchMetaRepositoryImpl(
     private val logger: PluginLogger,
-    private val fractionsRepository: FractionsRepository
+    private val fractionsRepository: FractionsRepository,
+    private val javaPlugin: JavaPlugin,
+    private val arenaPlayersRepository: ArenaPlayersRepository
 ): ArenaMatchMetaRepository {
+
+    //todo сделать подсчет убийств в scoreBoard
 
     private val players = Collections.synchronizedList(mutableListOf<ArenaMatchMember>())
 
     private val fractions = Collections.synchronizedMap(mutableMapOf<Long, Int>())
+
+    private lateinit var scoreBoard: Scoreboard
 
     override fun setPlayers(players: List<ArenaPlayer>) {
         logger.info("Обновляем участников арены, сбрасываем очки фракций")
@@ -25,19 +36,30 @@ class ArenaMatchMetaRepositoryImpl(
                 ArenaMatchMember(it, 0)
             }
         )
-        fractionsRepository.getCachedFractions().forEach {
-            fractions[it.id] = 0
+        scoreBoard = Bukkit.getScoreboardManager()!!.newScoreboard.apply {
+            //registerNewObjective("name", "playerKillCount", "Статистика")
+        }
+        fractionsRepository.getCachedFractions().forEach {fraction ->
+            fractions[fraction.id] = 0
+            scoreBoard.registerNewTeam(fraction.name).also {
+                it.prefix = fraction.name
+            }
+        }
+        players.forEach { arenaPlayer ->
+            arenaPlayer.addToTeam()
         }
     }
 
     override fun remove(playerId: String) {
         logger.info("Удаляем из матча игрока с id = $playerId")
         players.removeIf { it.player.id == playerId }
+        removeFromTeam(playerId)
     }
 
     override fun insert(player: ArenaPlayer) {
         logger.info("Добавляем нового участника: $player")
         players.add(ArenaMatchMember(player, 0))
+        player.addToTeam()
     }
 
     override fun incrementPlayerKills(playerId: String) {
@@ -47,6 +69,7 @@ class ArenaMatchMetaRepositoryImpl(
             logger.warning("Игрок не найден в данных текущего матча")
             return
         }
+        //scoreBoard.getObjective("name")?.getScore(player.player.name)?.score = player.kills.inc()
         val index = players.indexOf(player)
         players[index] = player.copy(kills = player.kills.inc())
         logger.info("Новые данные по игрокам: $players")
@@ -66,5 +89,29 @@ class ArenaMatchMetaRepositoryImpl(
     override fun getFractionsPoints(): Map<Long, Int> = fractions
 
     override fun getPlayers(): List<ArenaMatchMember> = players
+
+    private fun getPlayer(playerId: String): Player?{
+        return javaPlugin.server.getPlayer(UUID.fromString(playerId))
+    }
+
+    private fun ArenaPlayer.addToTeam(){
+        val fractionName = fractionsRepository.getCachedFractions()
+            .find { it.id == fractionId }?.name
+            .orEmpty()
+        getPlayer(id)?.let {
+            scoreBoard.getTeam(fractionName)?.addEntry(it.name)
+            it.scoreboard = scoreBoard
+        }
+    }
+
+    private fun removeFromTeam(playerId: String){
+        val fractionId = arenaPlayersRepository.getCachedPlayerById(playerId)?.fractionId
+        val fractionName = fractionsRepository.getCachedFractions()
+            .find { it.id == fractionId }?.name
+            .orEmpty()
+        getPlayer(playerId)?.let {
+            scoreBoard.getTeam(fractionName)?.removeEntry(it.name)
+        }
+    }
 
 }
