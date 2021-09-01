@@ -112,7 +112,8 @@ class ArenaMatchMetaRepositoryImpl(
         init {
             fractionsRepository.getCachedFractions().forEach {fraction ->
                 scoreBoard.registerNewTeam(fraction.name).also {
-                    it.prefix = "[${fraction.name}] "
+                    it.prefix = "[${fraction.name}] \n"
+                    it.setAllowFriendlyFire(false)
                 }
             }
         }
