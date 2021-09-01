@@ -9,7 +9,7 @@ interface ArenaMatchMetaRepository {
      * Заменяет текущий список игроков на новый, сбрасывает очки фракций
      * Нужно в начале матча
      */
-    fun setPlayers(players: List<ArenaPlayer>)
+    suspend fun setPlayers(players: List<ArenaPlayer>)
 
     /**
      * Удаляет игрока
@@ -44,5 +44,10 @@ interface ArenaMatchMetaRepository {
      * Возвращает всех участников матча
      */
     fun getPlayers(): List<ArenaMatchMember>
+
+    /**
+     * Очистить данные, нужно после матча
+     */
+    fun clear()
 
 }

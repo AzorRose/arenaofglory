@@ -1,9 +1,10 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
+import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.scoreboard.Scoreboard
+import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.ArenaMatchMember
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
@@ -16,50 +17,47 @@ class ArenaMatchMetaRepositoryImpl(
     private val logger: PluginLogger,
     private val fractionsRepository: FractionsRepository,
     private val javaPlugin: JavaPlugin,
-    private val arenaPlayersRepository: ArenaPlayersRepository
+    private val arenaPlayersRepository: ArenaPlayersRepository,
+    private val dispatchers: CoroutineDispatchers
 ): ArenaMatchMetaRepository {
-
-    //todo сделать подсчет убийств в scoreBoard
 
     private val players = Collections.synchronizedList(mutableListOf<ArenaMatchMember>())
 
     private val fractions = Collections.synchronizedMap(mutableMapOf<Long, Int>())
 
-    private lateinit var scoreBoard: Scoreboard
+    private var arenaScoreBoard: ArenaScoreBoard? = null
 
-    override fun setPlayers(players: List<ArenaPlayer>) {
-        logger.info("Обновляем участников арены, сбрасываем очки фракций")
-        this.players.clear()
-        fractions.clear()
-        this.players.addAll(
-            players.map {
-                ArenaMatchMember(it, 0)
+
+    override suspend fun setPlayers(players: List<ArenaPlayer>) {
+        withContext(dispatchers.main){
+            logger.info("Обновляем участников арены, сбрасываем очки фракций")
+            this@ArenaMatchMetaRepositoryImpl.players.clear()
+            fractions.clear()
+            this@ArenaMatchMetaRepositoryImpl.players.addAll(
+                players.map {
+                    ArenaMatchMember(it, 0)
+                }
+            )
+            arenaScoreBoard = ArenaScoreBoard()
+            fractionsRepository.getCachedFractions().forEach {fraction ->
+                fractions[fraction.id] = 0
             }
-        )
-        scoreBoard = Bukkit.getScoreboardManager()!!.newScoreboard.apply {
-            //registerNewObjective("name", "playerKillCount", "Статистика")
-        }
-        fractionsRepository.getCachedFractions().forEach {fraction ->
-            fractions[fraction.id] = 0
-            scoreBoard.registerNewTeam(fraction.name).also {
-                it.prefix = fraction.name
+            players.forEach { arenaPlayer ->
+                arenaScoreBoard?.addToTeam(arenaPlayer)
             }
-        }
-        players.forEach { arenaPlayer ->
-            arenaPlayer.addToTeam()
         }
     }
 
     override fun remove(playerId: String) {
         logger.info("Удаляем из матча игрока с id = $playerId")
         players.removeIf { it.player.id == playerId }
-        removeFromTeam(playerId)
+        arenaScoreBoard?.removeFromTeam(playerId)
     }
 
     override fun insert(player: ArenaPlayer) {
         logger.info("Добавляем нового участника: $player")
         players.add(ArenaMatchMember(player, 0))
-        player.addToTeam()
+        arenaScoreBoard?.addToTeam(player)
     }
 
     override fun incrementPlayerKills(playerId: String) {
@@ -90,28 +88,48 @@ class ArenaMatchMetaRepositoryImpl(
 
     override fun getPlayers(): List<ArenaMatchMember> = players
 
+    override fun clear() {
+        TODO("Not yet implemented")
+    }
+
     private fun getPlayer(playerId: String): Player?{
         return javaPlugin.server.getPlayer(UUID.fromString(playerId))
     }
 
-    private fun ArenaPlayer.addToTeam(){
-        val fractionName = fractionsRepository.getCachedFractions()
-            .find { it.id == fractionId }?.name
-            .orEmpty()
-        getPlayer(id)?.let {
-            scoreBoard.getTeam(fractionName)?.addEntry(it.name)
-            it.scoreboard = scoreBoard
-        }
-    }
+    private inner class ArenaScoreBoard{
 
-    private fun removeFromTeam(playerId: String){
-        val fractionId = arenaPlayersRepository.getCachedPlayerById(playerId)?.fractionId
-        val fractionName = fractionsRepository.getCachedFractions()
-            .find { it.id == fractionId }?.name
-            .orEmpty()
-        getPlayer(playerId)?.let {
-            scoreBoard.getTeam(fractionName)?.removeEntry(it.name)
+        //todo сделать подсчет убийств в scoreBoard
+        //todo узнать как удалять scoreBoard у игроков
+        private val scoreBoard = Bukkit.getScoreboardManager()!!.newScoreboard
+
+        init {
+            fractionsRepository.getCachedFractions().forEach {fraction ->
+                scoreBoard.registerNewTeam(fraction.name).also {
+                    it.prefix = "[${fraction.name}] "
+                }
+            }
         }
+
+        fun addToTeam(arenaPlayer: ArenaPlayer){
+            val fractionName = fractionsRepository.getCachedFractions()
+                .find { it.id == arenaPlayer.fractionId }?.name
+                .orEmpty()
+            getPlayer(arenaPlayer.id)?.let {
+                scoreBoard.getTeam(fractionName)?.addEntry(it.name)
+                it.scoreboard = scoreBoard
+            }
+        }
+
+        fun removeFromTeam(playerId: String){
+            val fractionId = arenaPlayersRepository.getCachedPlayerById(playerId)?.fractionId
+            val fractionName = fractionsRepository.getCachedFractions()
+                .find { it.id == fractionId }?.name
+                .orEmpty()
+            getPlayer(playerId)?.let {
+                scoreBoard.getTeam(fractionName)?.removeEntry(it.name)
+            }
+        }
+
     }
 
 }

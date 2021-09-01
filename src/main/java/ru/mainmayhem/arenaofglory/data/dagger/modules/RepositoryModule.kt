@@ -59,8 +59,9 @@ class RepositoryModule {
        l: PluginLogger,
        fr: FractionsRepository,
        jp: JavaPlugin,
-       apr: ArenaPlayersRepository
-    ): ArenaMatchMetaRepository = ArenaMatchMetaRepositoryImpl(l, fr, jp, apr)
+       apr: ArenaPlayersRepository,
+       d: CoroutineDispatchers
+    ): ArenaMatchMetaRepository = ArenaMatchMetaRepositoryImpl(l, fr, jp, apr, d)
 
     @Provides
     @Singleton
