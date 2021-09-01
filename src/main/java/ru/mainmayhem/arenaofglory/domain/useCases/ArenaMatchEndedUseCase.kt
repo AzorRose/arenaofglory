@@ -37,7 +37,7 @@ class ArenaMatchEndedUseCase @Inject constructor(
             kickPlayersInQueue()
             giveRewardToPlayers()
             arenaQueueRepository.clear()
-            arenaMatchMetaRepository.setPlayers(emptyList())
+            arenaMatchMetaRepository.clear()
         }
     }
 

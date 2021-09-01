@@ -4,6 +4,7 @@ import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.scoreboard.Criterias
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.ArenaMatchMember
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
@@ -89,7 +90,12 @@ class ArenaMatchMetaRepositoryImpl(
     override fun getPlayers(): List<ArenaMatchMember> = players
 
     override fun clear() {
-        TODO("Not yet implemented")
+        players.forEach {
+            arenaScoreBoard?.removeFromTeam(it.player.id)
+        }
+        arenaScoreBoard = null
+        players.clear()
+        fractions.clear()
     }
 
     private fun getPlayer(playerId: String): Player?{
@@ -98,9 +104,10 @@ class ArenaMatchMetaRepositoryImpl(
 
     private inner class ArenaScoreBoard{
 
-        //todo сделать подсчет убийств в scoreBoard
-        //todo узнать как удалять scoreBoard у игроков
-        private val scoreBoard = Bukkit.getScoreboardManager()!!.newScoreboard
+        private val scoreBoard = Bukkit.getScoreboardManager()!!.newScoreboard.apply {
+            //все критерии описаны тут https://minecraft.fandom.com/wiki/Scoreboard#Criteria
+            registerNewObjective("arena_stats", Criterias.PLAYER_KILLS, "Статистика")
+        }
 
         init {
             fractionsRepository.getCachedFractions().forEach {fraction ->
