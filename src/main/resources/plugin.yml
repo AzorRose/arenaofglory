@@ -5,11 +5,16 @@ api-version: 1.16
 commands:
   arenahelp:
     description: Отображает все команды с описанием
+    default: op
   arenachoosefraction:
     description: Выбор фракции
+    default: op
   arenachangefraction:
     description: Смена фракции
+    default: op
   arenaenterwaitingroom:
-      description: Войти в комнату ожидания
+    description: Войти в комнату ожидания
+    default: op
   arenaquitwaitingroom:
-      description: Выйти из комнаты ожидания
+    description: Выйти из комнаты ожидания
+    default: op
