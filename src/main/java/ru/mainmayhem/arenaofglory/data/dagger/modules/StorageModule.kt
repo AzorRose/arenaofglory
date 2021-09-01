@@ -44,12 +44,19 @@ class StorageModule {
 
     @Provides
     @Singleton
+    fun getArenaCoordinatesDao(
+        d: CoroutineDispatchers
+    ): ArenaCoordinatesDao = JEArenaCoordinatesDao(d)
+
+    @Provides
+    @Singleton
     fun getDatabase(
         fd: FractionDao,
         apd: ArenaPlayersDao,
         wrcd: WaitingRoomCoordinatesDao,
         arcd: ArenaRespawnCoordinatesDao,
         rewardDao: RewardDao,
+        acd: ArenaCoordinatesDao,
         dbCfgRep: DbConfigFileRepository,
         logger: PluginLogger
     ): PluginDatabase =
@@ -60,7 +67,8 @@ class StorageModule {
             arenaRespawnCoordinatesDao = arcd,
             rewardDao = rewardDao,
             dbConfigRepository = dbCfgRep,
-            logger = logger
+            logger = logger,
+            arenaCoordsDao = acd
         )
 
 }

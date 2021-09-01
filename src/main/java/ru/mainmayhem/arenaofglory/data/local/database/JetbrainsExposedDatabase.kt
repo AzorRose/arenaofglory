@@ -16,6 +16,7 @@ class JetbrainsExposedDatabase(
     private val waitingRoomCoordinatesDao: WaitingRoomCoordinatesDao,
     private val arenaRespawnCoordinatesDao: ArenaRespawnCoordinatesDao,
     private val rewardDao: RewardDao,
+    private val arenaCoordsDao: ArenaCoordinatesDao,
     private val dbConfigRepository: DbConfigFileRepository,
     private val logger: PluginLogger
 ): PluginDatabase {
@@ -35,6 +36,8 @@ class JetbrainsExposedDatabase(
 
     override fun getRewardDao(): RewardDao = rewardDao
 
+    override fun getArenaCoordinatesDao(): ArenaCoordinatesDao = arenaCoordsDao
+
     override fun close() {}
 
     private fun createTables(){
@@ -44,7 +47,8 @@ class JetbrainsExposedDatabase(
                 ArenaPlayers,
                 WaitingRoomCoordinates,
                 ArenaRespawnCoordinates,
-                Reward
+                Reward,
+                ArenaCoordinates
             )
         }
     }
