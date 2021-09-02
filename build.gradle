@@ -12,6 +12,8 @@ version = '1.0'
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
+
+
 repositories {
     mavenCentral()
     google()
@@ -38,6 +40,14 @@ dependencies {
     implementation 'com.google.dagger:dagger:2.38.1'
     kapt 'com.google.dagger:dagger-compiler:2.38.1'
 
+    //бд
+    implementation('org.jetbrains.exposed:exposed-core:0.33.1')
+    implementation('org.jetbrains.exposed:exposed-dao:0.33.1')
+    implementation('org.jetbrains.exposed:exposed-jdbc:0.33.1')
+    implementation('org.xerial:sqlite-jdbc:3.36.0.1')
+
+    implementation("com.squareup.moshi:moshi-kotlin:1.12.0")
+
 }
 
 jar {
@@ -45,6 +55,7 @@ jar {
 }
 
 processResources {
+    expand project.properties
     from(sourceSets.main.resources.srcDirs) {
         filter ReplaceTokens, tokens: [version: version]
     }
