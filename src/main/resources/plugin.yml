@@ -1,5 +1,5 @@
 name: ArenaOfGlory
-version: 1.0
+version: ${version}
 main: ru.mainmayhem.arenaofglory.ArenaOfGlory
 api-version: 1.16
 commands:
