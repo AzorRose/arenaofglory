@@ -3,7 +3,6 @@ package ru.mainmayhem.arenaofglory.commands.executors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.bukkit.command.Command
-import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import ru.mainmayhem.arenaofglory.commands.Commands
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
@@ -18,9 +17,13 @@ class ChangeFractionCommandExecutor @Inject constructor(
     private val fractionsRepository: FractionsRepository,
     private val logger: PluginLogger,
     private val coroutineScope: CoroutineScope
-): CommandExecutor {
+): BaseOpCommandExecutor() {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+
+        if (!super.onCommand(sender, command, label, args)){
+            return false
+        }
 
         if (args.size != 2){
             sender.sendMessage("Некорректные аргументы")
