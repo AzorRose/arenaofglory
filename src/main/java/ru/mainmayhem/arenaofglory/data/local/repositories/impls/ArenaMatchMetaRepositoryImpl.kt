@@ -148,6 +148,7 @@ class ArenaMatchMetaRepositoryImpl(
                 .orEmpty()
             getPlayer(playerId)?.let {
                 scoreBoard.getTeam(fractionName)?.removeEntry(it.name)
+                it.scoreboard = Bukkit.getScoreboardManager()!!.mainScoreboard
             }
         }
 
