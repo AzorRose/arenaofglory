@@ -100,7 +100,7 @@ class StartArenaMatchUseCase @Inject constructor(
         return res
     }
 
-    private fun savePlayersInArenaMeta(players: Map<Long, Set<ArenaPlayer>>){
+    private suspend fun savePlayersInArenaMeta(players: Map<Long, Set<ArenaPlayer>>){
         val res = mutableListOf<ArenaPlayer>()
         players.values.forEach {
             res.addAll(it)

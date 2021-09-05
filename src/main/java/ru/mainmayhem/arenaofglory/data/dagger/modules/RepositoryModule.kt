@@ -4,6 +4,7 @@ import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
+import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.*
@@ -56,8 +57,11 @@ class RepositoryModule {
     @Singleton
     fun getArenaMatchMetaRepository(
        l: PluginLogger,
-       fr: FractionsRepository
-    ): ArenaMatchMetaRepository = ArenaMatchMetaRepositoryImpl(l, fr)
+       fr: FractionsRepository,
+       jp: JavaPlugin,
+       apr: ArenaPlayersRepository,
+       d: CoroutineDispatchers
+    ): ArenaMatchMetaRepository = ArenaMatchMetaRepositoryImpl(l, fr, jp, apr, d)
 
     @Provides
     @Singleton

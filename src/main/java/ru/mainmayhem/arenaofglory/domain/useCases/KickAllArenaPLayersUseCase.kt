@@ -30,7 +30,7 @@ class KickAllArenaPLayersUseCase @Inject constructor(
         arenaMatchMetaRepository.getPlayers().forEach {
             it.player.kick()
         }
-        arenaMatchMetaRepository.setPlayers(emptyList())
+        arenaMatchMetaRepository.clear()
         matchJob.stop()
         emptyTeamJob.stop()
     }

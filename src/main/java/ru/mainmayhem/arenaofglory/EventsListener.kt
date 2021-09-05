@@ -41,7 +41,7 @@ class EventsListener @Inject constructor(
 
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onPlayerDamaged(event: EntityDamageByEntityEvent){
-        playerDamageEventInteractor.handle(event)
+        //playerDamageEventInteractor.handle(event)
     }
 
     @EventHandler

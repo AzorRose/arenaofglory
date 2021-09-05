@@ -3,7 +3,6 @@ package ru.mainmayhem.arenaofglory.commands.executors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.bukkit.command.Command
-import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
@@ -26,9 +25,13 @@ class EnterWaitingRoomCommandExecutor @Inject constructor(
     private val teleportToWaitingRoomUseCase: TeleportToWaitingRoomUseCase,
     private val coroutineScope: CoroutineScope,
     private val waitingRoomScheduleHelper: WaitingRoomScheduleHelper
-): CommandExecutor {
+): BaseOpCommandExecutor() {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+
+        if (!super.onCommand(sender, command, label, args)){
+            return false
+        }
 
         if (args.isEmpty()){
             sender.sendMessage("Укажите в аргументах id игрока")

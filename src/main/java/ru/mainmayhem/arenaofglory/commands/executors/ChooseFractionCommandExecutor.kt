@@ -3,7 +3,6 @@ package ru.mainmayhem.arenaofglory.commands.executors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.bukkit.command.Command
-import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.commands.Commands
@@ -28,10 +27,13 @@ class ChooseFractionCommandExecutor @Inject constructor(
     private val coroutineScope: CoroutineScope,
     private val plugin: JavaPlugin,
     private val logger: PluginLogger
-): CommandExecutor {
+): BaseOpCommandExecutor() {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-        if (command.name.lowercase() != Commands.CHOOSE_FRACTION.cmdName) return false
+
+        if (!super.onCommand(sender, command, label, args)){
+            return false
+        }
 
         if (args.argumentsNotCorrect()){
             sender.sendMessage("Некорректные аргументы")
