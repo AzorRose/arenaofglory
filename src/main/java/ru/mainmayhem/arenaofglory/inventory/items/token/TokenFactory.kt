@@ -14,9 +14,13 @@ class TokenFactory @Inject constructor() {
 
     fun getTokens(amount: Int): ItemStack{
         val token = ItemStack(Material.MAGMA_CREAM, amount)
+        val loreFontSettings = RESET.toString() + WHITE.toString()
         val meta = token.itemMeta?.apply {
             setDisplayName(RESET.toString() + "Жетон войны")
-            lore = listOf(RESET.toString() + WHITE.toString() + "Жетон, полученный за участие \nв кровопролитной битве")
+            lore = listOf(
+                loreFontSettings + "Жетон, полученный за участие",
+                loreFontSettings + "в кровопролитной битве"
+            )
             addEnchant(Enchantment.LOOT_BONUS_BLOCKS, 6, true)
         }
         token.itemMeta = meta

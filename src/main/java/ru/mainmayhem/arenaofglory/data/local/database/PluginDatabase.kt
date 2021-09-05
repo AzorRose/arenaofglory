@@ -14,6 +14,8 @@ interface PluginDatabase {
 
     fun getRewardDao(): RewardDao
 
+    fun getArenaCoordinatesDao(): ArenaCoordinatesDao
+
     fun close()
 
 }

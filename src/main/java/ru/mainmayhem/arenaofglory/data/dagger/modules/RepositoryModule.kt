@@ -94,4 +94,12 @@ class RepositoryModule {
             logger = l
         )
 
+    @Provides
+    @Singleton
+    fun getArenaCoordinatesRepository(
+        calculator: CoordinatesCalculator,
+        coroutineScope: CoroutineScope,
+        database: PluginDatabase
+    ): ArenaCoordinatesRepository = ArenaCoordinatesRepositoryImpl(calculator, database, coroutineScope)
+
 }

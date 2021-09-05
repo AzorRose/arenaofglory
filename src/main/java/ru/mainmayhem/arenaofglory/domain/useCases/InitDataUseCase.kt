@@ -19,6 +19,7 @@ class InitDataUseCase @Inject constructor(
         checkWaitingRoomCoordinates()
         checkArenaRespawns()
         checkReward()
+        checkArenaCoordinates()
     }
 
     private suspend fun checkFractions(){
@@ -109,6 +110,19 @@ class InitDataUseCase @Inject constructor(
             loss = 1
         )
         dao.insert(reward)
+    }
+
+    private suspend fun checkArenaCoordinates(){
+        logger.info("Проверка координат арены")
+        val dao = database.getArenaCoordinatesDao()
+        if (dao.isEmpty().not()) return
+        logger.info("Таблица с координатами арены пуста, заполняем данными")
+        val locationCoordinates = LocationCoordinates(
+            leftTop = Coordinates(0,0,0),
+            rightBottom = Coordinates(10,10,10)
+        )
+        dao.insert(locationCoordinates)
+        logger.info("Таблица заполнена данными по умолчанию: $locationCoordinates")
     }
 
 }

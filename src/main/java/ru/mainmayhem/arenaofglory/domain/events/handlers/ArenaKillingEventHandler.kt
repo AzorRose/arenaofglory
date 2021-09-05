@@ -29,9 +29,6 @@ class ArenaKillingEventHandler @Inject constructor(
             return
         }
         if (checkPlayersInArena(killed, killer)){
-            sendMessageToAllPlayersInMatch(
-                "Игрок ${killer.playerListName} убивает ${killed.playerListName}"
-            )
             arenaMatchMetaRepository.incrementPlayerKills(killer.uniqueId.toString())
             arenaMatchMetaRepository.increaseFractionPoints(
                 fractionId = getFractionId(killer.uniqueId.toString()),

@@ -1,7 +1,6 @@
 package ru.mainmayhem.arenaofglory.commands.executors
 
 import org.bukkit.command.Command
-import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
@@ -19,9 +18,13 @@ class QuitWaitingRoomCommandExecutor @Inject constructor(
     private val arenaQueueRepository: ArenaQueueRepository,
     private val javaPlugin: JavaPlugin,
     private val logger: PluginLogger
-): CommandExecutor {
+): BaseOpCommandExecutor() {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+
+        if (!super.onCommand(sender, command, label, args)){
+            return false
+        }
 
         if (args.isEmpty()){
             sender.sendMessage("Укажите в аргументах id игрока")

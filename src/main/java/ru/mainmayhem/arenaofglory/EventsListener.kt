@@ -21,7 +21,8 @@ class EventsListener @Inject constructor(
     private val playerRespawnEventInteractor: PlayerRespawnEventInteractor,
     private val playerDeathEventInteractor: PlayerDeathEventInteractor,
     private val playerChatEventInteractor: PlayerChatEventInteractor,
-    private val playerMoveEventInteractor: PlayerMoveEventInteractor
+    private val playerMoveEventInteractor: PlayerMoveEventInteractor,
+    private val playerTeleportEventInteractor: PlayerTeleportEventInteractor
 ): Listener {
 
     @EventHandler
@@ -57,6 +58,11 @@ class EventsListener @Inject constructor(
     @EventHandler
     fun onPlayerMoved(event: PlayerMoveEvent){
         playerMoveEventInteractor.handle(event)
+    }
+
+    @EventHandler
+    fun onPlayerTeleported(event: PlayerTeleportEvent){
+        playerTeleportEventInteractor.handle(event)
     }
 
 }
