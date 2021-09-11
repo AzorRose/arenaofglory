@@ -39,7 +39,8 @@ class SettingsRepositoryImpl(
     private fun File.fillWithDefaultSettings(): PluginSettings{
         val default = Settings(
             openWaitingRoom = "18:50",
-            startArenaMatch = "19:00"
+            startArenaMatch = "19:00",
+            minKillsForReward = 5
         )
         writeBytes(settingsAdapter.toJson(default).toByteArray())
         return default.toModel()
@@ -59,7 +60,8 @@ class SettingsRepositoryImpl(
         val sdf = SimpleDateFormat(timePattern, Locale.getDefault())
         return PluginSettings(
             openWaitingRoom = sdf.parse(openWaitingRoom),
-            startArenaMatch = sdf.parse(startArenaMatch)
+            startArenaMatch = sdf.parse(startArenaMatch),
+            minKillsForReward = minKillsForReward
         )
     }
 
@@ -75,7 +77,9 @@ class SettingsRepositoryImpl(
         @Json(name = "open_waiting_room")
         val openWaitingRoom: String,
         @Json(name = "start_arena_match")
-        val startArenaMatch: String
+        val startArenaMatch: String,
+        @Json(name = "min_kills_for_reward")
+        val minKillsForReward: Int
     )
 
 }

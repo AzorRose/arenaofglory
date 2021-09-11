@@ -23,7 +23,4 @@ object Constants {
     //кол-во очков, выдаваемое фракции за убийство
     const val FRACTION_KILL_PONTS = 100
 
-    //кол-во убийств, которое надо заработать игроку для получения награды
-    const val KILLS_AMOUNT_FOR_REWARD = 5
-
 }

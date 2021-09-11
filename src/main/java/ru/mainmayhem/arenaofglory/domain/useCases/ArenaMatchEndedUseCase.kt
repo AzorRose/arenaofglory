@@ -6,10 +6,7 @@ import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.ArenaMatchMember
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
-import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
-import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
-import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
-import ru.mainmayhem.arenaofglory.data.local.repositories.RewardRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.*
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.inventory.items.token.TokenFactory
 import java.util.*
@@ -26,7 +23,8 @@ class ArenaMatchEndedUseCase @Inject constructor(
     private val javaPlugin: JavaPlugin,
     private val dispatchers: CoroutineDispatchers,
     private val tokenFactory: TokenFactory,
-    private val fractionsRepository: FractionsRepository
+    private val fractionsRepository: FractionsRepository,
+    private val settingsRepository: PluginSettingsRepository
 ) {
 
     suspend fun handle(){
@@ -85,15 +83,16 @@ class ArenaMatchEndedUseCase @Inject constructor(
     }
 
     private fun List<ArenaMatchMember>.giveReward(amount: Int){
+        val minKills = settingsRepository.getSettings().minKillsForReward
         forEach {
-            if (it.kills >= Constants.KILLS_AMOUNT_FOR_REWARD){
+            if (it.kills >= minKills){
                 it.player.giveReward(amount)
             } else {
                 javaPlugin.server.getPlayer(
                     UUID.fromString(it.player.id)
                 )?.sendMessage(
                     "Недостаточное количество убийств для получения награды " +
-                            "(${it.kills}). Необходимо - ${Constants.KILLS_AMOUNT_FOR_REWARD}"
+                            "(${it.kills}). Необходимо - $minKills"
                 )
             }
         }
