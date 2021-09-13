@@ -27,13 +27,17 @@ class ArenaMatchEndedUseCase @Inject constructor(
     private val settingsRepository: PluginSettingsRepository
 ) {
 
-    suspend fun handle(){
+    /**
+     * @param autoWin - команда полностью вышла и время ожидания истекло
+     * Считаем, что команда, которая осталась на арене, победила
+     */
+    suspend fun handle(autoWin: Boolean){
         logger.info("Матч закончен")
         withContext(dispatchers.io){
-            printResults()
+            printResults(autoWin)
             kickPlayersInArena()
             kickPlayersInQueue()
-            giveRewardToPlayers()
+            giveRewardToPlayers(autoWin)
             arenaQueueRepository.clear()
             arenaMatchMetaRepository.clear()
         }
@@ -51,34 +55,40 @@ class ArenaMatchEndedUseCase @Inject constructor(
         }
     }
 
-    private fun giveRewardToPlayers(){
+    private fun giveRewardToPlayers(autoWin: Boolean){
         val reward = rewardRepository.get()
         if (reward == null){
             logger.warning("Невозможно выдать награду игрокам. Данные в БД отсутствуют, либо некорректны")
             return
         }
-        if (isDraw()){
-            arenaMatchMetaRepository.getPlayers().giveReward(reward.draw)
-        } else{
-            val descFractionPoints = arenaMatchMetaRepository.getFractionsPoints()
-                .map { Pair(it.key, it.value) }
-                .sortedByDescending { it.second }
-            val maxPoints = descFractionPoints.first().second
-            //делаю на случай, если в будущем будет больше 2 фракций
-            val winningFractions = descFractionPoints
-                .filter { it.second == maxPoints }
-                .map { it.first }
-            val winners = mutableListOf<ArenaMatchMember>()
-            val losers = mutableListOf<ArenaMatchMember>()
-            arenaMatchMetaRepository.getPlayers().forEach {
-                if (winningFractions.contains(it.player.fractionId)){
-                    winners.add(it)
-                } else {
-                    losers.add(it)
-                }
+        when{
+            autoWin -> {
+                arenaMatchMetaRepository.getPlayers().giveReward(reward.victory)
             }
-            winners.giveReward(reward.victory)
-            losers.giveReward(reward.loss)
+            isDraw() -> {
+                arenaMatchMetaRepository.getPlayers().giveReward(reward.draw)
+            }
+            else -> {
+                val descFractionPoints = arenaMatchMetaRepository.getFractionsPoints()
+                    .map { Pair(it.key, it.value) }
+                    .sortedByDescending { it.second }
+                val maxPoints = descFractionPoints.first().second
+                //делаю на случай, если в будущем будет больше 2 фракций
+                val winningFractions = descFractionPoints
+                    .filter { it.second == maxPoints }
+                    .map { it.first }
+                val winners = mutableListOf<ArenaMatchMember>()
+                val losers = mutableListOf<ArenaMatchMember>()
+                arenaMatchMetaRepository.getPlayers().forEach {
+                    if (winningFractions.contains(it.player.fractionId)){
+                        winners.add(it)
+                    } else {
+                        losers.add(it)
+                    }
+                }
+                winners.giveReward(reward.victory)
+                losers.giveReward(reward.loss)
+            }
         }
     }
 
@@ -131,11 +141,26 @@ class ArenaMatchEndedUseCase @Inject constructor(
         return fractionsRepository.getCachedFractions().find { it.id == id }?.name
     }
 
-    private fun printResults(){
-        if (isDraw()){
-            sendMessageToPlayersInArenaAndQueue("Матч закончен. Ничья.")
-        } else {
-            sendMessageToPlayersInArenaAndQueue("Матч закончен. Победила команда: ${getWinningFractionName()}")
+
+    private fun getAutoWonFractionName(): String?{
+        //так как у нас 2 команды, то при автопобеде на арене будет одна фракция
+        val fractionId = arenaMatchMetaRepository.getPlayers().firstOrNull()?.player?.fractionId
+        return fractionId?.let {fraction ->
+            fractionsRepository.getCachedFractions().find { it.id == fraction }?.name
+        }
+    }
+
+    private fun printResults(autoWin: Boolean){
+        when{
+            autoWin -> {
+                sendMessageToPlayersInArenaAndQueue("Матч закончен. Победила команда: ${getAutoWonFractionName()}")
+            }
+            isDraw() -> {
+                sendMessageToPlayersInArenaAndQueue("Матч закончен. Ничья.")
+            }
+            else -> {
+                sendMessageToPlayersInArenaAndQueue("Матч закончен. Победила команда: ${getWinningFractionName()}")
+            }
         }
     }
 

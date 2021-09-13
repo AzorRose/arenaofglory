@@ -40,7 +40,7 @@ class EmptyTeamJob @Inject constructor(
             delay(1000)
         }
         matchJob.stop()
-        arenaMatchEndedUseCase.handle()
+        arenaMatchEndedUseCase.handle(true)
     }.onStart {
         sendMessageToAllPlayersInMatch(
             "Команда противника покинула матч"
