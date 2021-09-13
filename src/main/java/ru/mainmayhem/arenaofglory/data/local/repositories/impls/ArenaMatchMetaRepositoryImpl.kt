@@ -4,8 +4,6 @@ import kotlinx.coroutines.withContext
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.scoreboard.DisplaySlot
-import org.bukkit.scoreboard.Objective
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.ArenaMatchMember
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
@@ -69,7 +67,6 @@ class ArenaMatchMetaRepositoryImpl(
             logger.warning("Игрок не найден в данных текущего матча")
             return
         }
-        //scoreBoard.getObjective("name")?.getScore(player.player.name)?.score = player.kills.inc()
         val index = players.indexOf(player)
         players[index] = player.copy(kills = player.kills.inc())
         logger.info("Новые данные по игрокам: $players")
@@ -82,10 +79,8 @@ class ArenaMatchMetaRepositoryImpl(
             logger.warning("Фракция не найдена в данных текущего матча")
             return
         }
-        val fractionName = fractionsRepository.getCachedFractions().find { it.id == fractionId }?.name.orEmpty()
         val newPoints = currentPoints + points
         fractions[fractionId] = newPoints
-        arenaScoreBoard?.setNewFractionPoints(fractionName, newPoints)
         logger.info("Новые данные по фракциям: $fractions")
     }
 
@@ -108,14 +103,7 @@ class ArenaMatchMetaRepositoryImpl(
 
     private inner class ArenaScoreBoard{
 
-        private val fractionsObjective: Objective
-
-        private val scoreBoard = Bukkit.getScoreboardManager()!!.newScoreboard.apply {
-            //все критерии описаны тут https://minecraft.fandom.com/wiki/Scoreboard#Criteria
-            fractionsObjective = registerNewObjective("fractions_stats", "dummy", "Статистика фракций").apply {
-                displaySlot = DisplaySlot.SIDEBAR
-            }
-        }
+        private val scoreBoard = Bukkit.getScoreboardManager()!!.newScoreboard
 
         init {
             fractionsRepository.getCachedFractions().forEach {fraction ->
@@ -123,7 +111,6 @@ class ArenaMatchMetaRepositoryImpl(
                     it.prefix = "[${fraction.name}] \n"
                     it.setAllowFriendlyFire(false)
                 }
-                fractionsObjective.getScore(fraction.name).score = 0
             }
         }
 
@@ -135,10 +122,6 @@ class ArenaMatchMetaRepositoryImpl(
                 scoreBoard.getTeam(fractionName)?.addEntry(it.name)
                 it.scoreboard = scoreBoard
             }
-        }
-
-        fun setNewFractionPoints(fractionName: String, newPoints: Int){
-            fractionsObjective.getScore(fractionName).score = newPoints
         }
 
         fun removeFromTeam(playerId: String){
