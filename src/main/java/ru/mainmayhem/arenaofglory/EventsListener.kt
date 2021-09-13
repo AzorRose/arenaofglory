@@ -1,11 +1,13 @@
 package ru.mainmayhem.arenaofglory
 
+import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.*
+import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.events.interactors.*
 import javax.inject.Inject
 
@@ -22,7 +24,8 @@ class EventsListener @Inject constructor(
     private val playerDeathEventInteractor: PlayerDeathEventInteractor,
     private val playerChatEventInteractor: PlayerChatEventInteractor,
     private val playerMoveEventInteractor: PlayerMoveEventInteractor,
-    private val playerTeleportEventInteractor: PlayerTeleportEventInteractor
+    private val playerTeleportEventInteractor: PlayerTeleportEventInteractor,
+    private val logger: PluginLogger
 ): Listener {
 
     @EventHandler
@@ -52,6 +55,8 @@ class EventsListener @Inject constructor(
 
     @EventHandler
     fun onChatMessage(event: AsyncPlayerChatEvent){
+        val fraction = "fraction = %arena_fraction_name%"
+        logger.warning(PlaceholderAPI.setPlaceholders(event.player, fraction))
         playerChatEventInteractor.handle(event)
     }
 

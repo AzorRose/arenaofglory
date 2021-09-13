@@ -2,6 +2,7 @@ name: ArenaOfGlory
 version: ${version}
 main: ru.mainmayhem.arenaofglory.ArenaOfGlory
 api-version: 1.16
+softdepend: [PlaceholderAPI]
 commands:
   arenahelp:
     description: Отображает все команды с описанием
