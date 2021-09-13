@@ -151,26 +151,30 @@ class ArenaMatchEndedUseCase @Inject constructor(
     }
 
     private fun printResults(autoWin: Boolean){
+        val title = "Битва за честь и славу была закончена."
         when{
             autoWin -> {
-                sendMessageToPlayersInArenaAndQueue("Матч закончен. Победила команда: ${getAutoWonFractionName()}")
+                sendMessageToAllPlayers(title, "Победителем в ней стала нация - ${getAutoWonFractionName()} !!!")
             }
             isDraw() -> {
-                sendMessageToPlayersInArenaAndQueue("Матч закончен. Ничья.")
+                sendMessageToAllPlayers(title, "В этой кровавой схватке победить не был определён!!")
             }
             else -> {
-                sendMessageToPlayersInArenaAndQueue("Матч закончен. Победила команда: ${getWinningFractionName()}")
+                sendMessageToAllPlayers(title, "Победителем в ней стала нация - ${getWinningFractionName()} !!!")
             }
         }
     }
 
-    private fun sendMessageToPlayersInArenaAndQueue(message: String){
-        arenaMatchMetaRepository.getPlayers()
-            .map { it.player }
-            .plus(arenaQueueRepository.getAll())
-            .forEach {
-                javaPlugin.server.getPlayer(UUID.fromString(it.id))?.sendMessage(message)
-            }
+    private fun sendMessageToAllPlayers(title: String, subtitle: String){
+        javaPlugin.server.onlinePlayers.forEach {
+            it.sendTitle(
+                title,
+                subtitle,
+                10,
+                70,
+                20
+            )
+        }
     }
 
 }
