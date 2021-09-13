@@ -26,7 +26,7 @@ repositories {
         url = 'https://oss.sonatype.org/content/groups/public/'
     }
     maven {
-        url = 'http://repo.extendedclip.com/content/repositories/placeholderapi/'
+        url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
     }
 }
 
@@ -56,7 +56,9 @@ dependencies {
 }
 
 jar {
-    from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    from {
+        configurations.runtimeClasspath.filter{ it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 processResources {
