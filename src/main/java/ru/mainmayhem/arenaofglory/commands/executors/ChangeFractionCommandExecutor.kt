@@ -19,11 +19,7 @@ class ChangeFractionCommandExecutor @Inject constructor(
     private val coroutineScope: CoroutineScope
 ): BaseOpCommandExecutor() {
 
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-
-        if (!super.onCommand(sender, command, label, args)){
-            return false
-        }
+    override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
 
         if (args.size != 2){
             sender.sendMessage("Некорректные аргументы")

@@ -6,11 +6,7 @@ import ru.mainmayhem.arenaofglory.commands.Commands
 
 class HelpCommandExecutor: BaseOpCommandExecutor() {
 
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-
-        if (!super.onCommand(sender, command, label, args)){
-            return false
-        }
+    override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
 
         val result = StringBuilder()
         Commands.values().forEach {

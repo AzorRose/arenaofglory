@@ -11,7 +11,14 @@ abstract class BaseOpCommandExecutor: CommandExecutor {
             sender.sendMessage("Данную команду может выполнить только оператор сервера")
             return false
         }
-        return true
+        return executeCommand(sender, command, label, args)
     }
+
+    protected abstract fun executeCommand(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        args: Array<out String>
+    ): Boolean
     
 }

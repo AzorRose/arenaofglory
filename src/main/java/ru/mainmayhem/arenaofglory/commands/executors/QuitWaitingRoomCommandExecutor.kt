@@ -20,11 +20,7 @@ class QuitWaitingRoomCommandExecutor @Inject constructor(
     private val logger: PluginLogger
 ): BaseOpCommandExecutor() {
 
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-
-        if (!super.onCommand(sender, command, label, args)){
-            return false
-        }
+    override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
 
         if (args.isEmpty()){
             sender.sendMessage("Укажите в аргументах id игрока")

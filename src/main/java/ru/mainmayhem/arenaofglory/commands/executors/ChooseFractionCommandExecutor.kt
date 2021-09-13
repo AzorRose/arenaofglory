@@ -29,11 +29,7 @@ class ChooseFractionCommandExecutor @Inject constructor(
     private val logger: PluginLogger
 ): BaseOpCommandExecutor() {
 
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-
-        if (!super.onCommand(sender, command, label, args)){
-            return false
-        }
+    override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
 
         if (args.argumentsNotCorrect()){
             sender.sendMessage("Некорректные аргументы")
