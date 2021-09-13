@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.bukkit.ChatColor.*
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
@@ -91,10 +92,18 @@ class MatchJob @Inject constructor(
     private fun printCurrentResults(){
         val fractions = fractionsRepository.getCachedFractions()
         val message = StringBuilder()
-        message.append("Результаты:\n")
-        arenaMatchMetaRepository.getFractionsPoints().forEach { res ->
-            message.append("${fractions.find { it.id ==  res.key}?.name}: ${res.value}\n")
-        }
+        val scoreFontSettings = GOLD.toString() + BOLD.toString()
+        val resultsFontSettings = YELLOW.toString()
+        val evenFractionFontSettings = LIGHT_PURPLE.toString()
+        val oddFractionFontSettings = AQUA.toString()
+        message.append("${resultsFontSettings}Результаты:\n")
+        arenaMatchMetaRepository.getFractionsPoints()
+            .map { Pair(it.key, it.value) }
+            .forEachIndexed { index, res ->
+                val font = if (index == 0 || index % 2 == 0) evenFractionFontSettings else oddFractionFontSettings
+                val fractionName = font + fractions.find { it.id ==  res.first}?.name
+                message.append("$fractionName: $scoreFontSettings${res.second}\n")
+            }
         sendMessageToAllPlayersInMatch(message.toString())
     }
 
