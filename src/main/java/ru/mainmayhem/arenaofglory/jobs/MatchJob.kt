@@ -54,7 +54,7 @@ class MatchJob @Inject constructor(
             delay(millisInOneMinute)
         }
         .onCompletion {
-            arenaMatchEndedUseCase.handle()
+            arenaMatchEndedUseCase.handle(false)
         }
 
     fun start(){
