@@ -38,6 +38,12 @@ enum class Commands(
         cmdDescription = "Выйти из комнаты ожидания"
     ),
 
+    RELOAD_PLUGIN(
+        cmdName = "arenareloadplugin",
+        cmdDescription = "Перезагружает плагин",
+        cmdAttributesName = null
+    ),
+
     HELP(
         cmdName = "arenahelp",
         cmdAttributesName = null,

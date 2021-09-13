@@ -24,6 +24,7 @@ class ArenaOfGlory: JavaPlugin() {
     @Inject internal lateinit var quitWaitingRoomCommandExecutor: QuitWaitingRoomCommandExecutor
     @Inject internal lateinit var initDataUseCase: InitDataUseCase
     @Inject internal lateinit var kickAllArenaPLayersUseCase: KickAllArenaPLayersUseCase
+    @Inject internal lateinit var reloadPluginCommandExecutor: ReloadPluginCommandExecutor
     @Inject internal lateinit var coroutineScope: CoroutineScope
     @Inject internal lateinit var logger: PluginLogger
     @Inject internal lateinit var eventsListener: EventsListener
@@ -71,6 +72,7 @@ class ArenaOfGlory: JavaPlugin() {
             getCommand(it.cmdName)!!.setExecutor(
                 when(it){
                     Commands.HELP -> HelpCommandExecutor()
+                    Commands.RELOAD_PLUGIN -> reloadPluginCommandExecutor
                     Commands.CHOOSE_FRACTION -> chooseFractionCommandExecutor
                     Commands.CHANGE_FRACTION -> changeFractionCommandExecutor
                     Commands.ENTER_WAITING_ROOM -> enterWaitingRoomCommandExecutor

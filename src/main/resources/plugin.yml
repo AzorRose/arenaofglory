@@ -13,3 +13,5 @@ commands:
     description: Войти в комнату ожидания
   arenaquitwaitingroom:
     description: Выйти из комнаты ожидания
+  arenareloadplugin:
+    description: Перезагружает плагин
