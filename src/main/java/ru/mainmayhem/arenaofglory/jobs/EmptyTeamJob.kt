@@ -32,12 +32,13 @@ class EmptyTeamJob @Inject constructor(
         private set
 
     private val timer = flow<Int> {
-        repeat(Constants.EMPTY_TEAM_DELAY_IN_SECONDS){
-            leftTime = Constants.EMPTY_TEAM_DELAY_IN_SECONDS - it
+        val deltaInSeconds = 10
+        repeat(Constants.EMPTY_TEAM_DELAY_IN_SECONDS / deltaInSeconds){
+            leftTime = Constants.EMPTY_TEAM_DELAY_IN_SECONDS - it * deltaInSeconds
             sendMessageToAllPlayersInMatch(
                 "До автоматической победы: $leftTime сек"
             )
-            delay(1000)
+            delay(deltaInSeconds * 1000L)
         }
         matchJob.stop()
         arenaMatchEndedUseCase.handle(true)
