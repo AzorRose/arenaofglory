@@ -29,13 +29,11 @@ class JetbrainsExposedArenaPlayersDao(
         }
     }
 
-    override suspend fun update(player: ArenaPlayer) {
+    override suspend fun updateFraction(playerId: String, newFractionId: Long) {
         return withContext(dispatchers.io){
             transaction {
-                ArenaPlayers.update {
-                    it[id] = player.id
-                    it[name] = player.name
-                    it[fractionId] = player.fractionId
+                ArenaPlayers.update({ArenaPlayers.id eq playerId}){
+                    it[fractionId] = newFractionId
                 }
             }
             stateFlow?.value = getAll()

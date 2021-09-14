@@ -42,24 +42,32 @@ class ChangeFractionCommandExecutor @Inject constructor(
             return false
         }
 
-        return updatePlayerFraction(playerId, fractionName)
+        return updatePlayerFraction(playerId, fractionName, sender)
 
     }
 
-    private fun updatePlayerFraction(playerId: String, fractionName: String): Boolean{
+    private fun updatePlayerFraction(
+        playerId: String,
+        fractionName: String,
+        sender: CommandSender
+    ): Boolean{
         val fractionId = fractionsRepository.getCachedFractions().find { it.nameInEnglish == fractionName }?.id
         //асинхронно обновляем игрока в таблице
         //99,99% это будет успешно, поэтому считаем, что команда выполнена
         coroutineScope.launch {
             try {
-                val player = database.getArenaPlayersDao().getByPlayerId(playerId)
-                database.getArenaPlayersDao().update(player!!.copy(fractionId = fractionId!!))
+                database.getArenaPlayersDao().updateFraction(
+                    playerId = playerId,
+                    newFractionId = fractionId!!
+                )
+                sender.sendMessage("Команда выполнена")
             } catch (t: Throwable){
                 logger.error(
                     className = "ChooseFractionCommandExecutor",
                     methodName = "insertNewPlayer",
                     throwable = t
                 )
+                sender.sendMessage("Ошибка при обновлении БД")
             }
         }
         return true
