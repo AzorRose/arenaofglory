@@ -22,7 +22,7 @@ class QuitWaitingRoomCommandExecutor @Inject constructor(
     override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
 
         if (args.isEmpty()){
-            sender.sendMessage("Укажите в аргументах id или имя игрока")
+            sender.sendMessage("Укажите в аргументах имя игрока")
             return false
         }
 

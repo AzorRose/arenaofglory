@@ -44,7 +44,7 @@ class EmptyTeamJob @Inject constructor(
         arenaMatchEndedUseCase.handle(true)
     }.onStart {
         sendMessageToAllPlayersInMatch(
-            "Команда противника покинула матч"
+            "${org.bukkit.ChatColor.AQUA}Команда противника покинула битву"
         )
     }
 

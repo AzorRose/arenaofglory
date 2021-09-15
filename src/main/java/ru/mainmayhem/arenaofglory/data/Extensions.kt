@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.data
 
+import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import ru.mainmayhem.arenaofglory.ArenaOfGlory
 import java.util.*
@@ -48,4 +49,8 @@ infix fun Date.diffInMinutes(date: Date): Long{
     val first = asCalendar()
     val second = date.asCalendar()
     return ((first.timeInMillis - second.timeInMillis) / 60_000).inc()
+}
+
+fun startMatchTimeMessage(leftTimeInMinutes: Long): String{
+    return "${ChatColor.GOLD}До начала матча: ${ChatColor.YELLOW}$leftTimeInMinutes мин"
 }

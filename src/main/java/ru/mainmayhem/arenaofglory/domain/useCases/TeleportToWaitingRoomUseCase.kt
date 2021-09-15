@@ -65,7 +65,7 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
                 arenaMatchMetaRepository.insert(arenaPlayer)
                 location = coordinates.getLocation(world)
             }
-            !isMatchActive -> player.sendMessage("До начала матча: ${getTimeToStartMatch()} мин")
+            !isMatchActive -> player.sendMessage(startMatchTimeMessage(getTimeToStartMatch()))
         }
 
         if (!disbalanceFinder.hasEmptyFractions()){

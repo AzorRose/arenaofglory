@@ -39,7 +39,7 @@ class StartMatchDelayJob @Inject constructor(
         .onEach {
             leftTime = Constants.ARENA_START_MATCH_DELAY_IN_SECONDS - it
             sendMessageToAllPlayersInMatch(
-                "До начала матча: $leftTime сек"
+                "${org.bukkit.ChatColor.GOLD}До начала матча: ${org.bukkit.ChatColor.YELLOW}$leftTime сек"
             )
             delay(1000)
         }

@@ -1,6 +1,7 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
 import kotlinx.coroutines.withContext
+import org.bukkit.ChatColor
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
@@ -63,10 +64,10 @@ class ArenaMatchEndedUseCase @Inject constructor(
         }
         when{
             autoWin -> {
-                arenaMatchMetaRepository.getPlayers().giveReward(reward.victory)
+                arenaMatchMetaRepository.getPlayers().giveReward(reward.victory, autoWin)
             }
             isDraw() -> {
-                arenaMatchMetaRepository.getPlayers().giveReward(reward.draw)
+                arenaMatchMetaRepository.getPlayers().giveReward(reward.draw, autoWin)
             }
             else -> {
                 val descFractionPoints = arenaMatchMetaRepository.getFractionsPoints()
@@ -86,23 +87,22 @@ class ArenaMatchEndedUseCase @Inject constructor(
                         losers.add(it)
                     }
                 }
-                winners.giveReward(reward.victory)
-                losers.giveReward(reward.loss)
+                winners.giveReward(reward.victory, autoWin)
+                losers.giveReward(reward.loss, autoWin)
             }
         }
     }
 
-    private fun List<ArenaMatchMember>.giveReward(amount: Int){
+    private fun List<ArenaMatchMember>.giveReward(amount: Int, autoWin: Boolean){
         val minKills = settingsRepository.getSettings().minKillsForReward
         forEach {
-            if (it.kills >= minKills){
+            if (it.kills >= minKills || autoWin){
                 it.player.giveReward(amount)
             } else {
-                javaPlugin.server.getPlayer(
-                    UUID.fromString(it.player.id)
-                )?.sendMessage(
-                    "Недостаточное количество убийств для получения награды " +
-                            "(${it.kills}). Необходимо - $minKills"
+                printNotEnoughKillsMessage(
+                    playerName = it.player.name,
+                    neededKills = minKills,
+                    playerKills = it.kills
                 )
             }
         }
@@ -151,16 +151,26 @@ class ArenaMatchEndedUseCase @Inject constructor(
     }
 
     private fun printResults(autoWin: Boolean){
-        val title = "Битва за честь и славу была закончена."
+        val title = "${ChatColor.GOLD}Битва за честь и славу была закончена."
+        val subtitleFontSettings = ChatColor.YELLOW.toString()
+        val fractionFontSettings = ChatColor.DARK_RED.toString()
         when{
             autoWin -> {
-                sendMessageToAllPlayers(title, "Победителем в ней стала нация - ${getAutoWonFractionName()} !!!")
+                sendMessageToAllPlayers(
+                    title,
+                    "${subtitleFontSettings}Победителем в ней стала нация - " +
+                            "${fractionFontSettings + getAutoWonFractionName()} ${subtitleFontSettings}!!!"
+                )
             }
             isDraw() -> {
-                sendMessageToAllPlayers(title, "В этой кровавой схватке победить не был определён!!")
+                sendMessageToAllPlayers(title, "${subtitleFontSettings}В этой кровавой схватке победить не был определён!!")
             }
             else -> {
-                sendMessageToAllPlayers(title, "Победителем в ней стала нация - ${getWinningFractionName()} !!!")
+                sendMessageToAllPlayers(
+                    title,
+                    "${subtitleFontSettings}Победителем в ней стала нация - " +
+                            "${fractionFontSettings + getWinningFractionName()} ${subtitleFontSettings}!!!"
+                )
             }
         }
     }
@@ -175,6 +185,20 @@ class ArenaMatchEndedUseCase @Inject constructor(
                 20
             )
         }
+    }
+
+    private fun printNotEnoughKillsMessage(
+        playerName: String,
+        playerKills: Int,
+        neededKills: Int
+    ){
+        val commonFontSettings = ChatColor.AQUA.toString()
+        val paramsFontSettings = ChatColor.GOLD.toString()
+        javaPlugin.server.getPlayer(playerName)?.sendMessage(
+            "${commonFontSettings}Вы бились как чемпион, но в этот раз этого было недостаточно. " +
+                    "Вами повержено ${paramsFontSettings+playerKills} ${commonFontSettings}противников, для получения " +
+                    "награды требуется - ${"$paramsFontSettings$neededKills $commonFontSettings !"}"
+        )
     }
 
 }

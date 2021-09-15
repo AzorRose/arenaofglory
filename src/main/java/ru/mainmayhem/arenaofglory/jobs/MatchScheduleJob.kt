@@ -1,14 +1,12 @@
 package ru.mainmayhem.arenaofglory.jobs
 
 import kotlinx.coroutines.*
+import org.bukkit.ChatColor
 import org.bukkit.plugin.java.JavaPlugin
-import ru.mainmayhem.arenaofglory.data.asCalendar
-import ru.mainmayhem.arenaofglory.data.diffInMinutes
+import ru.mainmayhem.arenaofglory.data.*
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import ru.mainmayhem.arenaofglory.data.setCurrentDate
-import ru.mainmayhem.arenaofglory.data.timeEqualsWith
 import ru.mainmayhem.arenaofglory.domain.WaitingRoomScheduleHelper
 import ru.mainmayhem.arenaofglory.domain.useCases.StartArenaMatchUseCase
 import java.util.*
@@ -40,7 +38,10 @@ class MatchScheduleJob @Inject constructor(
                     val date = Date()
                     when{
                         date timeEqualsWith openWaitingRoom-> {
-                            sendMessageToAllPlayers("Открыт набор участников на арену")
+                            sendMessageToAllPlayers(
+                                title = "Война за честь и славу скоро начнется!!",
+                                subtitle = "Все подробности вам расскажет фракционный наставник Кайл!"
+                            )
                             delay(60_000)//чтобы не спамило
                         }
                         date timeEqualsWith startArenaMatch -> {
@@ -50,7 +51,7 @@ class MatchScheduleJob @Inject constructor(
                         waitingRoomScheduleHelper.preparingForMatch() -> {
                             val start = startArenaMatch.asCalendar().setCurrentDate().time
                             val diff = start diffInMinutes date
-                            sendMessageToPlayersInQueue("До начала матча: $diff мин")
+                            sendMessageToPlayersInQueue(startMatchTimeMessage(diff))
                             delay(60_000)
                         }
                         else -> delay(1_000)
@@ -73,9 +74,17 @@ class MatchScheduleJob @Inject constructor(
         job = null
     }
 
-    private fun sendMessageToAllPlayers(message: String){
+    private fun sendMessageToAllPlayers(title: String, subtitle: String){
+        val titleFontSettings = ChatColor.GOLD.toString()
+        val subtitleFontSettings = ChatColor.GREEN.toString()
         javaPlugin.server.onlinePlayers.forEach {
-            it.sendMessage(message)
+            it.sendTitle(
+                titleFontSettings + title,
+                subtitleFontSettings + subtitle,
+                10,
+                70,
+                20
+            )
         }
     }
 
