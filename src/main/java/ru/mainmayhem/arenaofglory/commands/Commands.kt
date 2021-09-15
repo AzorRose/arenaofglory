@@ -16,25 +16,25 @@ enum class Commands(
 
     CHOOSE_FRACTION(
         cmdName = "arenachoosefraction",
-        cmdAttributesName = listOf("<fraction name>", "<player id>"),
+        cmdAttributesName = listOf("<fraction name>", "<player name>"),
         cmdDescription = "Выбор фракции"
     ),
 
     CHANGE_FRACTION(
         cmdName = "arenachangefraction",
-        cmdAttributesName = listOf("<new fraction name>", "<player id>"),
+        cmdAttributesName = listOf("<new fraction name>", "<player name>"),
         cmdDescription = "Смена фракции"
     ),
 
     ENTER_WAITING_ROOM(
         cmdName = "arenaenterwaitingroom",
-        cmdAttributesName = listOf("<player id>"),
+        cmdAttributesName = listOf("<player name>"),
         cmdDescription = "Войти в комнату ожидания"
     ),
 
     QUIT_WAITING_ROOM(
         cmdName = "arenaquitwaitingroom",
-        cmdAttributesName = listOf("<player id>"),
+        cmdAttributesName = listOf("<player name>"),
         cmdDescription = "Выйти из комнаты ожидания"
     ),
 

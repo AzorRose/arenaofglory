@@ -9,13 +9,12 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.WaitingRoomScheduleHelper
 import ru.mainmayhem.arenaofglory.domain.useCases.TeleportToWaitingRoomUseCase
-import java.util.*
 import javax.inject.Inject
 
 /**
  * Команда для входа в комнату ожидания
  * Выполняется только если игрок принадлежит к одной из фракции
- * usage:<название команды> <id игрока>
+ * usage:<название команды> <имя игрока>
  */
 
 class EnterWaitingRoomCommandExecutor @Inject constructor(
@@ -34,15 +33,28 @@ class EnterWaitingRoomCommandExecutor @Inject constructor(
             return false
         }
 
-        val playerId = args.first()
+        val playerName = args.first()
 
-        if (arenaPlayersRepository.getCachedPlayerById(playerId) == null){
-            sendMessageToPlayer(playerId, "Вы не принадлежите к фракции")
+        if (arenaPlayersRepository.getCachedPlayerByName(playerName) == null){
+            sendMessageToPlayer(playerName, "Вы не принадлежите к фракции")
             return false
         }
 
         if (!waitingRoomScheduleHelper.isWaitingRoomOpened()){
-            sendMessageToPlayer(playerId,"Комната ожидания закрыта")
+            sendMessageToPlayer(playerName,"Комната ожидания закрыта")
+            return false
+        }
+
+        val playerId = javaPlugin.server.getPlayer(playerName)?.uniqueId?.toString()
+
+        if (playerId == null){
+            sendMessageToPlayer(playerName, "Ошибка при выполнении команды")
+            pluginLogger.error(
+                className = "EnterWaitingRoomCommandExecutor",
+                methodName = "executeCommand",
+                throwable = NullPointerException(),
+                message = "Игрок с именем $playerName не найден на сервере"
+            )
             return false
         }
 
@@ -58,8 +70,8 @@ class EnterWaitingRoomCommandExecutor @Inject constructor(
         return true
     }
 
-    private fun sendMessageToPlayer(playerId: String, message: String){
-        javaPlugin.server.getPlayer(UUID.fromString(playerId))?.sendMessage(message)
+    private fun sendMessageToPlayer(playerName: String, message: String){
+        javaPlugin.server.getPlayer(playerName)?.sendMessage(message)
     }
 
 }

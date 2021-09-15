@@ -11,7 +11,6 @@ import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import java.util.*
 import javax.inject.Inject
 
 /**
@@ -38,7 +37,7 @@ class ChooseFractionCommandExecutor @Inject constructor(
         }
 
         val fractionName = args.first()
-        val playerId = args[1]
+        val playerName = args[1]
 
         if (!isFractionNameValid(fractionName)){
             sender.sendMessage("Некорректное название фракции")
@@ -46,22 +45,22 @@ class ChooseFractionCommandExecutor @Inject constructor(
             return false
         }
 
-        if (hasPlayerInFraction(playerId)){
+        if (hasPlayerInFraction(playerName)){
             sender.sendMessage("Игрок принадлежит к фракции")
-            logger.info("${sender.name} выполнил команду ${Commands.CHOOSE_FRACTION} с игроком $playerId, который принадлежит к фракции")
+            logger.info("${sender.name} выполнил команду ${Commands.CHOOSE_FRACTION} с игроком $playerName, который принадлежит к фракции")
             return false
         }
 
-        return insertNewPlayer(playerId, fractionName)
+        return insertNewPlayer(playerName, fractionName)
     }
 
     private fun Array<out String>.argumentsNotCorrect(): Boolean{
         return size != 2
     }
 
-    private fun insertNewPlayer(playerId: String, fractionName: String): Boolean{
-        val playerName = plugin.server.getPlayer(UUID.fromString(playerId))?.displayName
-        if (playerName == null){
+    private fun insertNewPlayer(playerName: String, fractionName: String): Boolean{
+        val playerId = plugin.server.getPlayer(playerName)?.uniqueId?.toString()
+        if (playerId == null){
             logger.error(
                 message = "Игрок с id = $playerId не найден",
                 className = "ChooseFractionCommandExecutor",
@@ -111,9 +110,9 @@ class ChooseFractionCommandExecutor @Inject constructor(
         return false
     }
 
-    private fun hasPlayerInFraction(playerId: String): Boolean{
+    private fun hasPlayerInFraction(playerName: String): Boolean{
         val players = arenaPlayersRepository.getCachedPlayers()
-        return players.find { it.id == playerId } != null
+        return players.find { it.name == playerName } != null
     }
 
 }

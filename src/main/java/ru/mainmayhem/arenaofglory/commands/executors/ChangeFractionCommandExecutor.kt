@@ -28,7 +28,7 @@ class ChangeFractionCommandExecutor @Inject constructor(
         }
 
         val fractionName = args.first()
-        val playerId = args[1]
+        val playerName = args[1]
 
         if (!isFractionNameValid(fractionName)){
             sender.sendMessage("Некорректное название фракции")
@@ -36,18 +36,18 @@ class ChangeFractionCommandExecutor @Inject constructor(
             return false
         }
 
-        if (!hasPlayerInFraction(playerId)){
+        if (!hasPlayerInFraction(playerName)){
             sender.sendMessage("Игрок не принадлежит к фракции")
-            logger.info("${sender.name} выполнил команду ${Commands.CHOOSE_FRACTION} с игроком $playerId, который не принадлежит к фракции")
+            logger.info("${sender.name} выполнил команду ${Commands.CHOOSE_FRACTION} с игроком $playerName, который не принадлежит к фракции")
             return false
         }
 
-        return updatePlayerFraction(playerId, fractionName, sender)
+        return updatePlayerFraction(playerName, fractionName, sender)
 
     }
 
     private fun updatePlayerFraction(
-        playerId: String,
+        playerName: String,
         fractionName: String,
         sender: CommandSender
     ): Boolean{
@@ -57,7 +57,7 @@ class ChangeFractionCommandExecutor @Inject constructor(
         coroutineScope.launch {
             try {
                 database.getArenaPlayersDao().updateFraction(
-                    playerId = playerId,
+                    playerName = playerName,
                     newFractionId = fractionId!!
                 )
                 sender.sendMessage("Команда выполнена")
@@ -82,9 +82,9 @@ class ChangeFractionCommandExecutor @Inject constructor(
         return false
     }
 
-    private fun hasPlayerInFraction(playerId: String): Boolean{
+    private fun hasPlayerInFraction(playerName: String): Boolean{
         val players = arenaPlayersRepository.getCachedPlayers()
-        return players.find { it.id == playerId } != null
+        return players.find { it.name == playerName } != null
     }
 
 }

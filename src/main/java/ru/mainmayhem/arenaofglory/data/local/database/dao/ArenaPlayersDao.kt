@@ -7,7 +7,7 @@ interface ArenaPlayersDao {
 
     suspend fun insert(player: ArenaPlayer)
 
-    suspend fun updateFraction(playerId: String, newFractionId: Long)
+    suspend fun updateFraction(playerName: String, newFractionId: Long)
 
     suspend fun getByPlayerId(playerId: String): ArenaPlayer?
 

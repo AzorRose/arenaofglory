@@ -32,4 +32,8 @@ class ArenaPlayersRepositoryImpl(
         return players.find { it.id == playerId }
     }
 
+    override fun getCachedPlayerByName(playerName: String): ArenaPlayer? {
+        return players.find { it.name == playerName }
+    }
+
 }

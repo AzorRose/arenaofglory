@@ -12,4 +12,6 @@ interface ArenaPlayersRepository {
 
     fun getCachedPlayerById(playerId: String): ArenaPlayer?
 
+    fun getCachedPlayerByName(playerName: String): ArenaPlayer?
+
 }

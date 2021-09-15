@@ -29,10 +29,10 @@ class JetbrainsExposedArenaPlayersDao(
         }
     }
 
-    override suspend fun updateFraction(playerId: String, newFractionId: Long) {
+    override suspend fun updateFraction(playerName: String, newFractionId: Long) {
         return withContext(dispatchers.io){
             transaction {
-                ArenaPlayers.update({ArenaPlayers.id eq playerId}){
+                ArenaPlayers.update({ArenaPlayers.name eq playerName}){
                     it[fractionId] = newFractionId
                 }
             }
