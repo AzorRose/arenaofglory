@@ -24,8 +24,8 @@ class ArenaSuicideEventHandler @Inject constructor(
             super.handle(event)
             return
         }
-        val playerFractionId = getFractionId(killed.uniqueId.toString())
         if (killed.isInArena()){
+            val playerFractionId = getFractionId(killed.uniqueId.toString())
             fractionsRepository.getCachedFractions().forEach {
                 if (it.id != playerFractionId){
                     arenaMatchMetaRepository.increaseFractionPoints(
@@ -42,7 +42,7 @@ class ArenaSuicideEventHandler @Inject constructor(
         val id = arenaPlayersRepository.getCachedPlayerById(playerId)?.fractionId
         if (id == null){
             logger.error(
-                className = "ArenaKillingEventHandler",
+                className = "ArenaSuicideEventHandler",
                 methodName = "handle",
                 throwable = NullPointerException(
                     "Невозможно увеличить очко фракции: фракция не найдена для игрока с id = $playerId"
