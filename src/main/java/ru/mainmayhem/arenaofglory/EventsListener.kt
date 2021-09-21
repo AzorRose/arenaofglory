@@ -3,7 +3,6 @@ package ru.mainmayhem.arenaofglory
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
-import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.*
 import ru.mainmayhem.arenaofglory.domain.events.interactors.*
@@ -17,7 +16,6 @@ import javax.inject.Inject
 class EventsListener @Inject constructor(
     private val playerQuitServerEventInteractor: PlayerQuitServerEventInteractor,
     private val playerKickedEventInteractor: PlayerKickedEventInteractor,
-    private val playerDamageEventInteractor: PlayerDamageEventInteractor,
     private val playerRespawnEventInteractor: PlayerRespawnEventInteractor,
     private val playerDeathEventInteractor: PlayerDeathEventInteractor,
     private val playerChatEventInteractor: PlayerChatEventInteractor,
@@ -38,11 +36,6 @@ class EventsListener @Inject constructor(
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onPlayerRespawn(event: PlayerRespawnEvent){
         playerRespawnEventInteractor.handle(event)
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    fun onPlayerDamaged(event: EntityDamageByEntityEvent){
-        //playerDamageEventInteractor.handle(event)
     }
 
     @EventHandler

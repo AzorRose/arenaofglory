@@ -31,10 +31,7 @@ class PlayerQuitWRQueueHandler @Inject constructor(
             javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let {
                 event.player.teleport(it.spawnLocation)
             }
-        } else{
-            logger.info("Игрок ${event.player.getShortInfo()} не найден в очереди на арену")
         }
-
         super.handle(event)
     }
 

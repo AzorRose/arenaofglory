@@ -26,7 +26,6 @@ class ArenaRespawnEventHandler @Inject constructor(
         val playerId = event.player.uniqueId.toString()
         val player = arenaMatchMetaRepository.getPlayers().find { it.player.id == playerId }
         if (player != null){
-            logger.info("Игрок ${event.player.getShortInfo()} является участником арены")
             val coordinate = getRandomCoordinate(player.player.fractionId)
             if (coordinate == null){
                 logger.error(
@@ -42,8 +41,6 @@ class ArenaRespawnEventHandler @Inject constructor(
                     coordinate.z.toDouble()
                 )
             }
-        } else{
-            logger.info("Игрок ${event.player.getShortInfo()} не является участником арены")
         }
         super.handle(event)
     }

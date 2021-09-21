@@ -58,8 +58,6 @@ class PlayerQuitArenaHandler @Inject constructor(
             javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let {
                 event.player.teleport(it.spawnLocation)
             }
-        } else{
-            logger.info("Игрок ${event.player.getShortInfo()} не является участником арены")
         }
         super.handle(event)
     }

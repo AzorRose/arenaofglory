@@ -1,7 +1,6 @@
 package ru.mainmayhem.arenaofglory.domain.events.interactors
 
 import org.bukkit.event.player.PlayerQuitEvent
-import ru.mainmayhem.arenaofglory.data.getShortInfo
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerQuitArenaHandler
 import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerQuitWRQueueHandler
@@ -17,7 +16,6 @@ class PlayerQuitServerEventInteractor @Inject constructor(
 ) {
 
     fun handle(event: PlayerQuitEvent){
-        logger.info("Игрок ${event.player.getShortInfo()} вышел с сервера")
         playerQuitWRQueue.apply {
             setNext(playerQuitArena)
         }.handle(event)
