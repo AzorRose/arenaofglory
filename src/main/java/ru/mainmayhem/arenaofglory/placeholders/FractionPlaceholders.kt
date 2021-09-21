@@ -18,12 +18,13 @@ class FractionPlaceholders @Inject constructor(
 
     private val fractionNamePlaceholder = "name"
     private val fractionQueueAmountPlaceholder = "queueamount"
+    private val fractionMembersAmount = "membersamount"
 
     override fun getIdentifier(): String = "fractions"
 
     override fun getAuthor(): String = "vkomarov"
 
-    override fun getVersion(): String = "1.0.1"
+    override fun getVersion(): String = "1.0.2"
 
     override fun canRegister(): Boolean {
         return true
@@ -33,6 +34,7 @@ class FractionPlaceholders @Inject constructor(
         return when{
             params == fractionNamePlaceholder -> player?.getFractionName().orEmpty()
             params.startsWith(fractionQueueAmountPlaceholder) -> getQueueAmount(params)
+            params.startsWith(fractionMembersAmount) -> getMembersAmount(params)
             else -> ""
         }
     }
@@ -49,6 +51,16 @@ class FractionPlaceholders @Inject constructor(
         }
         val queue = queueRepository.get()[fractionId]
         return (queue?.size ?: 0).toString()
+    }
+
+    private fun getMembersAmount(rawParams: String): String{
+        val fractionId = rawParams.replace(fractionMembersAmount, "").toLongOrNull()
+        if (fractionId == null){
+            logger.warning("Некорректный id фракции для плейсхолдера $fractionId")
+            return ""
+        }
+        val players = arenaPlayersRepository.getCachedPlayers()
+        return players.filter { it.fractionId == fractionId }.size.toString()
     }
 
     private fun OfflinePlayer.getFractionName(): String{
