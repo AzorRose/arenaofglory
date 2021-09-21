@@ -17,4 +17,9 @@ interface ArenaPlayersDao {
 
     suspend fun getPlayersFlow(): Flow<List<ArenaPlayer>>
 
+    /**
+     * Увеличивает кол-во убийств у игрока с playerId на кол-во, переданное в kills
+     */
+    suspend fun increaseKills(playerId: String, kills: Int)
+
 }

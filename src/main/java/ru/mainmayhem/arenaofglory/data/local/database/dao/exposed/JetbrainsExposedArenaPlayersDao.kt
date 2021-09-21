@@ -9,9 +9,12 @@ import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaPlayersDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaPlayers
+import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import ru.mainmayhem.arenaofglory.data.updateFirst
 
 class JetbrainsExposedArenaPlayersDao(
-    private val dispatchers: CoroutineDispatchers
+    private val dispatchers: CoroutineDispatchers,
+    private val pluginLogger: PluginLogger
 ): ArenaPlayersDao {
 
     private var stateFlow: MutableStateFlow<List<ArenaPlayer>>? = null
@@ -23,6 +26,7 @@ class JetbrainsExposedArenaPlayersDao(
                     it[id] = player.id
                     it[name] = player.name
                     it[fractionId] = player.fractionId
+                    it[kills] = player.kills
                 }
             }
             stateFlow?.value = getAll()
@@ -70,11 +74,33 @@ class JetbrainsExposedArenaPlayersDao(
         }
     }
 
+    override suspend fun increaseKills(playerId: String, playerKills: Int) {
+        return withContext(dispatchers.io){
+            transaction {
+                ArenaPlayers.update({ArenaPlayers.id eq playerId}){
+                    with(SqlExpressionBuilder){
+                        it.update(kills, kills + playerKills)
+                    }
+                }
+            }
+            stateFlow?.value = stateFlow?.value?.updateFirst(
+                condition = {
+                    it.id == playerId
+                },
+                update = {
+                    it.copy(kills = it.kills + playerKills)
+                }
+            ).orEmpty()
+            pluginLogger.info("new players = ${stateFlow?.value}")
+        }
+    }
+
     private fun ResultRow.toModel(): ArenaPlayer{
         return ArenaPlayer(
             id = get(ArenaPlayers.id),
             name = get(ArenaPlayers.name),
-            fractionId = get(ArenaPlayers.fractionId)
+            fractionId = get(ArenaPlayers.fractionId),
+            kills = get(ArenaPlayers.kills)
         )
     }
 

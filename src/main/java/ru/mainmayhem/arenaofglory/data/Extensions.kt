@@ -51,6 +51,24 @@ infix fun Date.diffInMinutes(date: Date): Long{
     return ((first.timeInMillis - second.timeInMillis) / 60_000).inc()
 }
 
+//todo вынести в файл strings
 fun startMatchTimeMessage(leftTimeInMinutes: Long): String{
     return "${ChatColor.GOLD}До начала матча: ${ChatColor.YELLOW}$leftTimeInMinutes мин"
+}
+
+/**
+ * Обновляет первый элемент в списке, удовлетворяющий условию.
+ * В функцию update попадает элемент, который удовлетворяет условию condition.
+ * Функция update должна вернуть уже обновленный элемент, который попадет в итоговый список
+ */
+fun <T> List<T>.updateFirst(condition: (T) -> Boolean, update: (T) -> T): List<T>{
+    val element = find(condition)
+    element?.let {
+        val index = indexOf(it)
+        val updated = update(it)
+        return toMutableList().apply {
+            set(index, updated)
+        }
+    }
+    return this
 }

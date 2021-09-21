@@ -87,7 +87,8 @@ class ChooseFractionCommandExecutor @Inject constructor(
                     ArenaPlayer(
                         id = playerId,
                         name = playerName,
-                        fractionId = fractionId
+                        fractionId = fractionId,
+                        kills = 0
                     )
                 )
             } catch (t: Throwable){

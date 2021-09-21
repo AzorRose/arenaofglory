@@ -6,6 +6,7 @@ object ArenaPlayers: Table() {
     val id = varchar("id", 36)
     val fractionId = long("fraction_id").references(Fractions.id)
     val name = varchar("name", 25)
+    val kills = integer("kills").default(0)
     override val tableName: String = "arena_players"
     override val primaryKey: PrimaryKey = PrimaryKey(id)
 }

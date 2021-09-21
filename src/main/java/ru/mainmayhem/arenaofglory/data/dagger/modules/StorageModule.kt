@@ -21,8 +21,9 @@ class StorageModule {
     @Provides
     @Singleton
     fun getArenaPlayersDao(
-        d: CoroutineDispatchers
-    ): ArenaPlayersDao = JetbrainsExposedArenaPlayersDao(d)
+        d: CoroutineDispatchers,
+        l: PluginLogger
+    ): ArenaPlayersDao = JetbrainsExposedArenaPlayersDao(d, l)
 
     @Provides
     @Singleton

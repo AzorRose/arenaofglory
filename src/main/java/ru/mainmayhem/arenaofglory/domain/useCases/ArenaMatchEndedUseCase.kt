@@ -7,6 +7,7 @@ import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.ArenaMatchMember
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
+import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.*
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.inventory.items.token.TokenFactory
@@ -25,7 +26,8 @@ class ArenaMatchEndedUseCase @Inject constructor(
     private val dispatchers: CoroutineDispatchers,
     private val tokenFactory: TokenFactory,
     private val fractionsRepository: FractionsRepository,
-    private val settingsRepository: PluginSettingsRepository
+    private val settingsRepository: PluginSettingsRepository,
+    private val db: PluginDatabase
 ) {
 
     /**
@@ -36,6 +38,7 @@ class ArenaMatchEndedUseCase @Inject constructor(
         logger.info("Матч закончен")
         withContext(dispatchers.io){
             printResults(autoWin)
+            updatePlayersKills()
             kickPlayersInArena()
             kickPlayersInQueue()
             giveRewardToPlayers(autoWin)
@@ -199,6 +202,25 @@ class ArenaMatchEndedUseCase @Inject constructor(
                     "Вами повержено ${paramsFontSettings+playerKills} ${commonFontSettings}противников, для получения " +
                     "награды требуется - ${"$paramsFontSettings$neededKills $commonFontSettings !"}"
         )
+    }
+
+    private suspend fun updatePlayersKills(){
+        logger.info("Обновляем общее кол-во убийств у игроков")
+        arenaMatchMetaRepository.getPlayers().forEach {
+            try {
+                db.getArenaPlayersDao().increaseKills(
+                    playerId = it.player.id,
+                    kills = it.kills
+                )
+            } catch (t: Throwable){
+                logger.error(
+                    className = "ArenaMatchEndedUseCase",
+                    methodName = "updatePlayersKills",
+                    message = "Не удалось обновить кол-во убийств для игрока ${it.player}",
+                    throwable = t
+                )
+            }
+        }
     }
 
 }
