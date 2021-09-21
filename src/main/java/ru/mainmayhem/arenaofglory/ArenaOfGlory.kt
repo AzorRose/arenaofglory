@@ -15,6 +15,7 @@ import ru.mainmayhem.arenaofglory.domain.useCases.InitDataUseCase
 import ru.mainmayhem.arenaofglory.domain.useCases.KickAllArenaPLayersUseCase
 import ru.mainmayhem.arenaofglory.jobs.MatchScheduleJob
 import ru.mainmayhem.arenaofglory.placeholders.FractionPlaceholders
+import ru.mainmayhem.arenaofglory.placeholders.PlayersPlaceholders
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -41,6 +42,7 @@ class ArenaOfGlory: JavaPlugin() {
 
     //placeholders
     @Inject internal lateinit var fractionPlaceholders: FractionPlaceholders
+    @Inject internal lateinit var playersPlaceholders: PlayersPlaceholders
 
     override fun onEnable() {
         initDI()
@@ -102,7 +104,8 @@ class ArenaOfGlory: JavaPlugin() {
 
     private fun initPlaceholders(){
         val placeHolders: List<PlaceholderExpansion> = listOf(
-            fractionPlaceholders
+            fractionPlaceholders,
+            playersPlaceholders
         )
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             placeHolders.forEach {
