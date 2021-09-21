@@ -5,5 +5,7 @@ import java.util.*
 data class PluginSettings(
     val openWaitingRoom: Date,
     val startArenaMatch: Date,
-    val minKillsForReward: Int
+    val minKillsForReward: Int,
+    //в минутах
+    val matchDuration: Int
 )

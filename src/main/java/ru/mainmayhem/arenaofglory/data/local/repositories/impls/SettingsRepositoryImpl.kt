@@ -40,7 +40,8 @@ class SettingsRepositoryImpl(
         val default = Settings(
             openWaitingRoom = "18:50",
             startArenaMatch = "19:00",
-            minKillsForReward = 5
+            minKillsForReward = 5,
+            matchDuration = 15
         )
         writeBytes(settingsAdapter.toJson(default).toByteArray())
         return default.toModel()
@@ -61,7 +62,8 @@ class SettingsRepositoryImpl(
         return PluginSettings(
             openWaitingRoom = sdf.parse(openWaitingRoom),
             startArenaMatch = sdf.parse(startArenaMatch),
-            minKillsForReward = minKillsForReward
+            minKillsForReward = minKillsForReward,
+            matchDuration = matchDuration
         )
     }
 
@@ -79,7 +81,9 @@ class SettingsRepositoryImpl(
         @Json(name = "start_arena_match")
         val startArenaMatch: String,
         @Json(name = "min_kills_for_reward")
-        val minKillsForReward: Int
+        val minKillsForReward: Int,
+        @Json(name = "match_duration")
+        val matchDuration: Int
     )
 
 }

@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.bukkit.ChatColor.*
 import org.bukkit.plugin.java.JavaPlugin
-import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.ArenaMatchEndedUseCase
 import java.util.*
@@ -27,10 +27,13 @@ class MatchJob @Inject constructor(
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val javaPlugin: JavaPlugin,
     private val arenaMatchEndedUseCase: ArenaMatchEndedUseCase,
-    private val fractionsRepository: FractionsRepository
+    private val fractionsRepository: FractionsRepository,
+    settingsRepository: PluginSettingsRepository
 ) {
 
     private val millisInOneMinute = 60_000L
+
+    private val matchDuration = settingsRepository.getSettings().matchDuration
 
     private var job: Job? = null
 
@@ -42,11 +45,11 @@ class MatchJob @Inject constructor(
     val isActive
         get() = job?.isActive == true
 
-    private val timer = (0 until Constants.MATCH_TIME_IN_MINUTES)
+    private val timer = (0 until matchDuration)
         .asSequence()
         .asFlow()
         .onEach {
-            leftTime = Constants.MATCH_TIME_IN_MINUTES - it
+            leftTime = matchDuration - it
             printCurrentResults()
             sendMessageToAllPlayersInMatch(
                 "До конца матча: $leftTime мин"
@@ -60,7 +63,7 @@ class MatchJob @Inject constructor(
     fun start(){
         if (job?.isActive == true)
             return
-        logger.info("Начало матча в ${Constants.MATCH_TIME_IN_MINUTES} мин")
+        logger.info("Начало матча в $matchDuration мин")
         job = coroutineScope.launch {
             try {
                 timer.collect()
