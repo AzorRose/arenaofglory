@@ -10,6 +10,7 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.DbConfigFileRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import java.sql.Connection
 
+
 class JetbrainsExposedDatabase(
     private val fractionDao: FractionDao,
     private val playersDao: ArenaPlayersDao,
@@ -49,6 +50,9 @@ class JetbrainsExposedDatabase(
                 ArenaRespawnCoordinates,
                 Reward,
                 ArenaCoordinates
+            )
+            SchemaUtils.createMissingTablesAndColumns(
+                ArenaPlayers
             )
         }
     }

@@ -91,7 +91,6 @@ class JetbrainsExposedArenaPlayersDao(
                     it.copy(kills = it.kills + playerKills)
                 }
             ).orEmpty()
-            pluginLogger.info("new players = ${stateFlow?.value}")
         }
     }
 
