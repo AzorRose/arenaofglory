@@ -102,4 +102,13 @@ class RepositoryModule {
         database: PluginDatabase
     ): ArenaCoordinatesRepository = ArenaCoordinatesRepositoryImpl(calculator, database, coroutineScope)
 
+    @Provides
+    @Singleton
+    fun getOutpostsRepository(
+        calculator: CoordinatesCalculator,
+        coroutineScope: CoroutineScope,
+        database: PluginDatabase
+    ): OutpostsRepository =
+        OutpostsRepositoryImpl(calculator, database, coroutineScope)
+
 }

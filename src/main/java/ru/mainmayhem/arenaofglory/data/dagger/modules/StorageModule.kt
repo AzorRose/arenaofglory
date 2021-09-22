@@ -51,6 +51,12 @@ class StorageModule {
 
     @Provides
     @Singleton
+    fun getOutpostsDao(
+        d: CoroutineDispatchers
+    ): OutpostsDao = JetbrainsExposedOutpostsDao(d)
+
+    @Provides
+    @Singleton
     fun getDatabase(
         fd: FractionDao,
         apd: ArenaPlayersDao,
@@ -59,6 +65,7 @@ class StorageModule {
         rewardDao: RewardDao,
         acd: ArenaCoordinatesDao,
         dbCfgRep: DbConfigFileRepository,
+        outpostsDao: OutpostsDao,
         logger: PluginLogger
     ): PluginDatabase =
         JetbrainsExposedDatabase(
@@ -68,6 +75,7 @@ class StorageModule {
             arenaRespawnCoordinatesDao = arcd,
             rewardDao = rewardDao,
             dbConfigRepository = dbCfgRep,
+            dbOutpostsDao = outpostsDao,
             logger = logger,
             arenaCoordsDao = acd
         )

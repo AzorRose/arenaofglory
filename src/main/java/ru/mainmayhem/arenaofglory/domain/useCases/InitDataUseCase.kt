@@ -20,6 +20,7 @@ class InitDataUseCase @Inject constructor(
         checkArenaRespawns()
         checkReward()
         checkArenaCoordinates()
+        checkOutposts()
     }
 
     private suspend fun checkFractions(){
@@ -123,6 +124,35 @@ class InitDataUseCase @Inject constructor(
         )
         dao.insert(locationCoordinates)
         logger.info("Таблица заполнена данными по умолчанию: $locationCoordinates")
+    }
+
+    private suspend fun checkOutposts(){
+        logger.info("Проверка аванпостов")
+        val dao = database.getOutpostsDao()
+        if (dao.isEmpty().not()) return
+        logger.info("Таблица аванпостов пуста, заполняем данными")
+        val outposts = listOf(
+            Outpost(
+                id = 1,
+                name = "Аванпост А",
+                fractionId = null,
+                coordinates = LocationCoordinates(
+                    leftTop = Coordinates(100,100,100),
+                    rightBottom = Coordinates(110,110,110)
+                )
+            ),
+            Outpost(
+                id = 2,
+                name = "Аванпост Б",
+                fractionId = null,
+                coordinates = LocationCoordinates(
+                    leftTop = Coordinates(200,200,200),
+                    rightBottom = Coordinates(220,220,220)
+                )
+            )
+        )
+        dao.insert(outposts)
+        logger.info("Таблица заполнена данными по умолчанию: $outposts")
     }
 
 }
