@@ -83,7 +83,8 @@ abstract class ConquerablePlaceMeta {
             .map { Pair(it.key, it.value) }
             .sortedByDescending { it.second.size }
         val attacker = sorted.first()
-        return Pair(attacker.first, attacker.second.size - sorted[1].second.size)
+        val nextTeamSize = sorted.getOrNull(1)?.second?.size ?: 0
+        return Pair(attacker.first, attacker.second.size - nextTeamSize)
     }
 
     private fun isUnderAttack(): Boolean{
