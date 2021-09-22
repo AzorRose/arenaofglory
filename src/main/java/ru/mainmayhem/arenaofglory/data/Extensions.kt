@@ -1,8 +1,10 @@
 package ru.mainmayhem.arenaofglory.data
 
 import org.bukkit.ChatColor
+import org.bukkit.Location
 import org.bukkit.entity.Player
 import ru.mainmayhem.arenaofglory.ArenaOfGlory
+import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import java.util.*
 
 //возвращает путь в котором находится jar-файл
@@ -71,4 +73,12 @@ fun <T> List<T>.updateFirst(condition: (T) -> Boolean, update: (T) -> T): List<T
         }
     }
     return this
+}
+
+fun Location.asCoordinates(): Coordinates{
+    return Coordinates(
+        x = x.toInt(),
+        y = y.toInt(),
+        z = z.toInt()
+    )
 }
