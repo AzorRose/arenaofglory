@@ -96,7 +96,7 @@ abstract class ConquerablePlaceMeta {
     private fun getAllPlayers(): List<ArenaPlayer>{
         val res = mutableListOf<ArenaPlayer>()
         players.values.forEach {
-            res.plus(it)
+            res.addAll(it)
         }
         return res
     }
