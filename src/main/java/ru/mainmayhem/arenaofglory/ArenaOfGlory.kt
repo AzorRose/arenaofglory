@@ -14,6 +14,7 @@ import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.InitDataUseCase
 import ru.mainmayhem.arenaofglory.domain.useCases.KickAllArenaPLayersUseCase
 import ru.mainmayhem.arenaofglory.jobs.MatchScheduleJob
+import ru.mainmayhem.arenaofglory.jobs.OutpostsJob
 import ru.mainmayhem.arenaofglory.placeholders.FractionPlaceholders
 import ru.mainmayhem.arenaofglory.placeholders.PlayersPlaceholders
 import java.text.SimpleDateFormat
@@ -39,6 +40,7 @@ class ArenaOfGlory: JavaPlugin() {
     @Inject internal lateinit var eventsListener: EventsListener
 
     @Inject internal lateinit var matchScheduleJob: MatchScheduleJob
+    @Inject internal lateinit var outpostsJob: OutpostsJob
 
     //placeholders
     @Inject internal lateinit var fractionPlaceholders: FractionPlaceholders
@@ -52,11 +54,13 @@ class ArenaOfGlory: JavaPlugin() {
         server.pluginManager.registerEvents(eventsListener, this)
         initCommands()
         matchScheduleJob.start()
+        outpostsJob.start()
     }
 
     override fun onDisable() {
         kickAllArenaPLayersUseCase.doKickPlayers()
         matchScheduleJob.stop()
+        outpostsJob.stop()
         coroutineScope.cancel(CancellationException())
         DIHolder.clear()
     }

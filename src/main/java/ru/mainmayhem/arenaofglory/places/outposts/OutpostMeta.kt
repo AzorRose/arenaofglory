@@ -30,7 +30,8 @@ class OutpostMeta(
     //в минутах
     fun getProtectedModeDuration(): Int{
         val lastCapture = lastCaptureTime ?: return 0
-        return ((Date().time - lastCapture) / 60_000).toInt().inc()
+        val nextTimeCapture = lastCapture + Constants.OUTPOST_CAPTURE_DELAY * 60_000
+        return ((nextTimeCapture - Date().time) / 60_000).toInt().inc()
     }
 
 }

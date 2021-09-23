@@ -13,4 +13,6 @@ interface OutpostsDao {
 
     suspend fun isEmpty(): Boolean
 
+    suspend fun changeOwner(outpostId: Long, ownerFractionId: Long)
+
 }

@@ -6,6 +6,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.entities.LocationCoordinates
@@ -78,6 +79,17 @@ class JetbrainsExposedOutpostsDao(
             transaction {
                 Outposts.selectAll().empty()
             }
+        }
+    }
+
+    override suspend fun changeOwner(outpostId: Long, ownerFractionId: Long) {
+        withContext(dispatchers.io){
+            transaction {
+                Outposts.update({Outposts.id eq outpostId}){
+                    it[fractionId] = ownerFractionId
+                }
+            }
+            stateFlow?.value = get()
         }
     }
 

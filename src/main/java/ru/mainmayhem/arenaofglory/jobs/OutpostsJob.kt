@@ -3,6 +3,7 @@ package ru.mainmayhem.arenaofglory.jobs
 import kotlinx.coroutines.*
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
+import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.OutpostsRepository
@@ -20,6 +21,7 @@ class OutpostsJob @Inject constructor(
     private val coroutineScope: CoroutineScope,
     private val logger: PluginLogger,
     settingsRepository: PluginSettingsRepository,
+    private val pluginDatabase: PluginDatabase,
     private val javaPlugin: JavaPlugin,
     private val outpostsRepository: OutpostsRepository,
     private val outpostsHolder: OutpostsHolder,
@@ -37,10 +39,11 @@ class OutpostsJob @Inject constructor(
         job = coroutineScope.launch {
             try {
                 while (isActive){
+                    delay(1000)
                     outpostsRepository.getCachedOutposts()
                         .forEach {outpost ->
                             outpostsHolder.getOutpostMeta(outpost.first.id)?.let {meta ->
-                                if (meta.getStatus() is ConquerablePlaceStatus.UnderAttack && !meta.canBeCaptured()){
+                                if (meta.getStatus() !is ConquerablePlaceStatus.None && !meta.canBeCaptured()){
                                     meta.sendMessageToAttackers(
                                         "Данный аванпост находится под защитой, захватить его можно будет через ${meta.getProtectedModeDuration()} мин"
                                     )
@@ -66,13 +69,19 @@ class OutpostsJob @Inject constructor(
                                 if (updated == 0 || updated == 100){
                                     meta.wasNotified = false
                                 }
-                                if (updated == 100){
-                                    meta.sendMessageToAttackers("Аванпост захвачен")
-                                    meta.sendMessageToDefenders("Аванпост потерян")
-                                    meta.lastCaptureTime = Date().time
-                                } else{
-                                    meta.sendMessageToAttackers("Захват аванпоста: $updated%")
-                                    meta.sendMessageToDefenders("Потеря аванпоста: $updated%")
+                                when{
+                                    status is ConquerablePlaceStatus.UnderAttack && updated == 100 -> {
+                                        meta.sendMessageToAttackers("Аванпост захвачен")
+                                        meta.sendMessageToDefenders("Аванпост потерян")
+                                        meta.lastCaptureTime = Date().time
+                                        meta.updateState(0)
+                                        launch { changeFraction(meta.getPlaceId(), status.attackingFractionId) }
+                                        return@let
+                                    }
+                                    status !is ConquerablePlaceStatus.None -> {
+                                        meta.sendMessageToAttackers("Захват аванпоста: $updated%")
+                                        meta.sendMessageToDefenders("Потеря аванпоста: $updated%")
+                                    }
                                 }
                                 meta.updateState(updated)
                             }
@@ -93,6 +102,18 @@ class OutpostsJob @Inject constructor(
     fun stop(){
         job?.cancel(CancellationException())
         job = null
+    }
+
+    private suspend fun changeFraction(outpostId: Long, fractionId: Long){
+        try {
+            pluginDatabase.getOutpostsDao().changeOwner(outpostId, fractionId)
+        } catch (t: Throwable){
+            logger.error(
+                className = "OutpostsJob",
+                methodName = "changeFraction",
+                throwable = t
+            )
+        }
     }
 
     private fun ConquerablePlaceMeta.sendMessageToAttackers(message: String){
