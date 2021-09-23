@@ -41,7 +41,8 @@ class SettingsRepositoryImpl(
             openWaitingRoom = "18:50",
             startArenaMatch = "19:00",
             minKillsForReward = 5,
-            matchDuration = 15
+            matchDuration = 15,
+            outpostConqueringDuration = 30
         )
         writeBytes(settingsAdapter.toJson(default).toByteArray())
         return default.toModel()
@@ -63,7 +64,8 @@ class SettingsRepositoryImpl(
             openWaitingRoom = sdf.parse(openWaitingRoom),
             startArenaMatch = sdf.parse(startArenaMatch),
             minKillsForReward = minKillsForReward,
-            matchDuration = matchDuration
+            matchDuration = matchDuration,
+            outpostConqueringDuration = outpostConqueringDuration
         )
     }
 
@@ -83,7 +85,9 @@ class SettingsRepositoryImpl(
         @Json(name = "min_kills_for_reward")
         val minKillsForReward: Int,
         @Json(name = "match_duration")
-        val matchDuration: Int
+        val matchDuration: Int,
+        @Json(name = "outpost_conquering_duration")
+        val outpostConqueringDuration: Int
     )
 
 }

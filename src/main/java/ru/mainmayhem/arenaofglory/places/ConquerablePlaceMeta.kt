@@ -1,14 +1,17 @@
 package ru.mainmayhem.arenaofglory.places
 
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
-import java.math.BigDecimal
 
 abstract class ConquerablePlaceMeta {
 
     //Игроки, находящиеся на территории этой местности
     private val players = mutableMapOf<Long, Set<ArenaPlayer>>()
     //Состояние точки от 0 до 100
-    private var state: BigDecimal = BigDecimal.ZERO
+    private var state: Int = 0
+    //была ли фракция уведомлена о захвате
+    var wasNotified = false
+        @Synchronized
+        set
 
     private var status: ConquerablePlaceStatus = ConquerablePlaceStatus.None
 
@@ -28,7 +31,9 @@ abstract class ConquerablePlaceMeta {
         calculateStatus()
     }
 
-    fun updateState(newState: BigDecimal){
+    fun getPlayers() = players
+
+    fun updateState(newState: Int){
         state = newState
     }
 
