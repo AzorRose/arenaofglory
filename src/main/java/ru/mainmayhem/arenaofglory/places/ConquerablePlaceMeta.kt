@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.places
 
+import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 
 abstract class ConquerablePlaceMeta {
@@ -40,6 +41,23 @@ abstract class ConquerablePlaceMeta {
     fun getState() = state
 
     fun getStatus() = status
+
+    fun sendMessageToDefenders(message: String, javaPlugin: JavaPlugin){
+        val fractionId = defendingFractionId() ?: return
+        getPlayers()[fractionId]?.forEach {
+            javaPlugin.server.getPlayer(it.name)?.sendMessage(message)
+        }
+    }
+
+    fun sendMessageToAttackers(message: String, javaPlugin: JavaPlugin){
+        getPlayers().filter {
+            it.key != defendingFractionId()
+        }.values.forEach {
+            it.forEach { player ->
+                javaPlugin.server.getPlayer(player.name)?.sendMessage(message)
+            }
+        }
+    }
 
     private fun calculateStatus(){
         val res: ConquerablePlaceStatus

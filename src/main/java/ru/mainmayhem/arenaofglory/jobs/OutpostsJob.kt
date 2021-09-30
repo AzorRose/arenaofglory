@@ -9,8 +9,8 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.OutpostsRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import ru.mainmayhem.arenaofglory.places.ConquerablePlaceMeta
 import ru.mainmayhem.arenaofglory.places.ConquerablePlaceStatus
+import ru.mainmayhem.arenaofglory.places.outposts.OutpostChatMessagesHelper
 import ru.mainmayhem.arenaofglory.places.outposts.OutpostsHolder
 import java.util.*
 import javax.inject.Inject
@@ -26,7 +26,8 @@ class OutpostsJob @Inject constructor(
     private val outpostsRepository: OutpostsRepository,
     private val outpostsHolder: OutpostsHolder,
     private val arenaPlayersRepository: ArenaPlayersRepository,
-    private val fractionsRepository: FractionsRepository
+    private val fractionsRepository: FractionsRepository,
+    private val outpostChatMessagesHelper: OutpostChatMessagesHelper
 ) {
 
     private var job: Job? = null
@@ -45,7 +46,8 @@ class OutpostsJob @Inject constructor(
                             outpostsHolder.getOutpostMeta(outpost.first.id)?.let {meta ->
                                 if (meta.getStatus() !is ConquerablePlaceStatus.None && !meta.canBeCaptured()){
                                     meta.sendMessageToAttackers(
-                                        "Данный аванпост находится под защитой, захватить его можно будет через ${meta.getProtectedModeDuration()} мин"
+                                        "Данный аванпост находится под защитой, захватить его можно будет через ${meta.getProtectedModeDuration()} мин",
+                                        javaPlugin
                                     )
                                     return@let
                                 }
@@ -71,16 +73,16 @@ class OutpostsJob @Inject constructor(
                                 }
                                 when{
                                     status is ConquerablePlaceStatus.UnderAttack && updated == 100 -> {
-                                        meta.sendMessageToAttackers("Аванпост захвачен")
-                                        meta.sendMessageToDefenders("Аванпост потерян")
+                                        meta.sendMessageToAttackers("Аванпост захвачен", javaPlugin)
+                                        meta.sendMessageToDefenders("Аванпост потерян", javaPlugin)
                                         meta.lastCaptureTime = Date().time
                                         meta.updateState(0)
                                         launch { changeFraction(meta.getPlaceId(), status.attackingFractionId) }
                                         return@let
                                     }
                                     status !is ConquerablePlaceStatus.None -> {
-                                        meta.sendMessageToAttackers("Захват аванпоста: $updated%")
-                                        meta.sendMessageToDefenders("Потеря аванпоста: $updated%")
+                                        outpostChatMessagesHelper.sendMessageToAttackers(meta, "Захват аванпоста: $updated%")
+                                        outpostChatMessagesHelper.sendMessageToDefenders(meta, "Потеря аванпоста: $updated%")
                                     }
                                 }
                                 meta.updateState(updated)
@@ -113,23 +115,6 @@ class OutpostsJob @Inject constructor(
                 methodName = "changeFraction",
                 throwable = t
             )
-        }
-    }
-
-    private fun ConquerablePlaceMeta.sendMessageToAttackers(message: String){
-        getPlayers().filter {
-            it.key != defendingFractionId()
-        }.values.forEach {
-            it.forEach { player ->
-                javaPlugin.server.getPlayer(player.name)?.sendMessage(message)
-            }
-        }
-    }
-
-    private fun ConquerablePlaceMeta.sendMessageToDefenders(message: String){
-        val fractionId = defendingFractionId() ?: return
-        getPlayers()[fractionId]?.forEach {
-            javaPlugin.server.getPlayer(it.name)?.sendMessage(message)
         }
     }
 
