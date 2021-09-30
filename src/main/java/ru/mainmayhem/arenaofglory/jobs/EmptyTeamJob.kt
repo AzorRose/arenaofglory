@@ -69,6 +69,7 @@ class EmptyTeamJob @Inject constructor(
     }
 
     fun stop(){
+        logger.info("Останавливаем счетчик автопобеды")
         val wasActive = job?.isActive == true
         job?.cancel(CancellationException())
         job = null

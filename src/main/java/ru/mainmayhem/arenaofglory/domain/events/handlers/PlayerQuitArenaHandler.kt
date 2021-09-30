@@ -12,6 +12,7 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinatesRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import ru.mainmayhem.arenaofglory.domain.DisbalanceFinder
 import ru.mainmayhem.arenaofglory.domain.events.BaseEventHandler
 import ru.mainmayhem.arenaofglory.jobs.EmptyTeamJob
 import java.util.*
@@ -31,7 +32,8 @@ class PlayerQuitArenaHandler @Inject constructor(
     private val arenaQueueRepository: ArenaQueueRepository,
     private val arenaPlayersRepository: ArenaPlayersRepository,
     private val respawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
-    private val emptyTeamJob: EmptyTeamJob
+    private val emptyTeamJob: EmptyTeamJob,
+    private val disbalanceFinder: DisbalanceFinder
 ): BaseEventHandler<PlayerEvent>() {
 
     override fun handle(event: PlayerEvent) {
@@ -48,7 +50,6 @@ class PlayerQuitArenaHandler @Inject constructor(
             val newPlayer = arenaQueueRepository.getAndRemove(fractionId)
             if (newPlayer == null){
                 logger.info("Невозможно взять нового игрока из очереди: очередь фракции пуста")
-                emptyTeamJob.start()
             }
             newPlayer?.let {
                 arenaMatchMetaRepository.insert(newPlayer)
@@ -57,6 +58,10 @@ class PlayerQuitArenaHandler @Inject constructor(
             //телепортируем игрока на спавн, чтобы при след. заходе он не оказался на арене
             javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let {
                 event.player.teleport(it.spawnLocation)
+            }
+            if (disbalanceFinder.hasEmptyFractions()){
+                logger.info("Обнаружена пустая команда, старт таймера автоматической победы")
+                emptyTeamJob.start()
             }
         }
         super.handle(event)

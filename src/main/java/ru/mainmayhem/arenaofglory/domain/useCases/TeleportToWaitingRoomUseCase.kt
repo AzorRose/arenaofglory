@@ -57,15 +57,19 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
             arenaQueueRepository.put(arenaPlayer)
         }
 
+        logger.info("Перемещаем игрока ${player.getShortInfo()} в комнату ожидания")
+
         when{
             isMatchActive && !isFractionDisbalanced && !enemyFractionsInQueue -> {
                 player.sendMessage("До конца матча: ${matchJob.leftTime} мин")
             }
             isMatchActive && !isFractionDisbalanced && enemyFractionsInQueue -> {
+                logger.info("В очереди обнаружены игроки из другой фракции, перемещаем их вместе с игроком")
                 teleportOneFromEachFraction()
                 location = null
             }
             isMatchActive && isFractionDisbalanced -> {
+                logger.info("У фракции игрока меньшее кол-во участников, перемещаем сразу на арену")
                 location = prepareForArena(arenaPlayer)
             }
             !isMatchActive -> player.sendMessage(startMatchTimeMessage(getTimeToStartMatch()))
