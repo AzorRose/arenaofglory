@@ -20,7 +20,7 @@ abstract class ConquerablePlaceMeta {
     abstract fun getPlaceId(): Long
     abstract fun getPlaceName(): String
 
-    fun addPlayer(player: ArenaPlayer){
+    open fun addPlayer(player: ArenaPlayer){
         val players = players[player.fractionId].orEmpty()
         this.players[player.fractionId] = players.plus(player)
         calculateStatus()

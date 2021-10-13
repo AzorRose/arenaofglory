@@ -44,18 +44,19 @@ class OutpostsJob @Inject constructor(
                     outpostsRepository.getCachedOutposts()
                         .forEach {outpost ->
                             outpostsHolder.getOutpostMeta(outpost.first.id)?.let {meta ->
+
                                 if (meta.getStatus() !is ConquerablePlaceStatus.None && !meta.canBeCaptured()){
-                                    meta.sendMessageToAttackers(
-                                        "Данный аванпост находится под защитой, захватить его можно будет через ${meta.getProtectedModeDuration()} мин",
-                                        javaPlugin
-                                    )
                                     return@let
                                 }
+
+                                //высчитываем новый процент захвата
                                 val updated = getUpdatedState(
                                     oldState = meta.getState(),
                                     status = meta.getStatus()
                                 )
                                 val status = meta.getStatus()
+
+                                //уведомляем фракцию о захвате ее аванпоста (если не делали это ранее)
                                 if (status is ConquerablePlaceStatus.UnderAttack
                                     && updated >= Constants.OUTPOST_CAPTURE_PERCENT_NOTIFICATION
                                     && !meta.wasNotified
@@ -68,9 +69,11 @@ class OutpostsJob @Inject constructor(
                                     }
                                     meta.wasNotified = true
                                 }
+
                                 if (updated == 0 || updated == 100){
                                     meta.wasNotified = false
                                 }
+
                                 when{
                                     status is ConquerablePlaceStatus.UnderAttack && updated == 100 -> {
                                         meta.sendMessageToAttackers("Аванпост захвачен", javaPlugin)
@@ -80,12 +83,14 @@ class OutpostsJob @Inject constructor(
                                         launch { changeFraction(meta.getPlaceId(), status.attackingFractionId) }
                                         return@let
                                     }
-                                    status !is ConquerablePlaceStatus.None -> {
+                                    status !is ConquerablePlaceStatus.None && updated != meta.getState() -> {
                                         outpostChatMessagesHelper.sendMessageToAttackers(meta, "Захват аванпоста: $updated%")
                                         outpostChatMessagesHelper.sendMessageToDefenders(meta, "Потеря аванпоста: $updated%")
                                     }
                                 }
+
                                 meta.updateState(updated)
+
                             }
                         }
                 }

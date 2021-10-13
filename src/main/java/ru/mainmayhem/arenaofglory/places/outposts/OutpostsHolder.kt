@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.places.outposts
 
+import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.repositories.OutpostsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
@@ -9,7 +10,8 @@ import javax.inject.Singleton
 @Singleton
 class OutpostsHolder @Inject constructor(
     private val outpostsRepository: OutpostsRepository,
-    private val logger: PluginLogger
+    private val logger: PluginLogger,
+    private val javaPlugin: JavaPlugin
 ) {
 
     private val outpostsMeta: List<OutpostMeta> by lazy {
@@ -18,7 +20,8 @@ class OutpostsHolder @Inject constructor(
                 OutpostMeta(
                     outpostId = it.first.id,
                     outpostName = it.first.name,
-                    outpostsRepository = outpostsRepository
+                    outpostsRepository = outpostsRepository,
+                    javaPlugin = javaPlugin
                 )
             }
     }
