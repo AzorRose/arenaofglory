@@ -1,6 +1,7 @@
 package ru.mainmayhem.arenaofglory.jobs
 
 import kotlinx.coroutines.*
+import org.bukkit.ChatColor.*
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
@@ -11,6 +12,7 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsReposito
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.places.ConquerablePlaceStatus
 import ru.mainmayhem.arenaofglory.places.outposts.OutpostChatMessagesHelper
+import ru.mainmayhem.arenaofglory.places.outposts.OutpostMeta
 import ru.mainmayhem.arenaofglory.places.outposts.OutpostsHolder
 import java.util.*
 import javax.inject.Inject
@@ -62,10 +64,7 @@ class OutpostsJob @Inject constructor(
                                     && !meta.wasNotified
                                 ){
                                     meta.defendingFractionId()?.let {
-                                        sendMessageToFraction(
-                                            message = "Фракция ${getFractionName(status.attackingFractionId)} ведет захват аванпоста ${meta.getPlaceName()}",
-                                            fractionId = it
-                                        )
+                                        sendAttackNotification(meta, getFractionName(status.attackingFractionId).orEmpty(), it)
                                     }
                                     meta.wasNotified = true
                                 }
@@ -109,6 +108,21 @@ class OutpostsJob @Inject constructor(
     fun stop(){
         job?.cancel(CancellationException())
         job = null
+    }
+
+    private fun sendAttackNotification(
+        meta: OutpostMeta,
+        attackersName: String,
+        fractionId: Long
+    ){
+        val attackersFont = RED.toString()
+        val outpostNameFont = GOLD.toString()
+        val defendersFont = LIGHT_PURPLE.toString()
+        val default = WHITE.toString()
+        val defendersName = getFractionName(fractionId)
+        val msg = "$attackersFont$attackersName $default осаждает аванпост $outpostNameFont${meta.getPlaceName()}$default!! " +
+                "$defendersFont$defendersName$default немедленно пришлите своих воинов и организуйте защиту!!"
+        sendMessageToFraction(msg, fractionId)
     }
 
     private suspend fun changeFraction(outpostId: Long, fractionId: Long){
