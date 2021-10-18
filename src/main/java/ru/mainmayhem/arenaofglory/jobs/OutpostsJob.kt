@@ -133,7 +133,7 @@ class OutpostsJob @Inject constructor(
         val defendersFont = LIGHT_PURPLE.toString()
         val default = WHITE.toString()
         val defendersName = getFractionName(fractionId)
-        val msg = "$attackersFont$attackersName $default осаждает аванпост $outpostNameFont${meta.getPlaceName()}$default!! " +
+        val msg = "$attackersFont$attackersName$default осаждает аванпост $outpostNameFont${meta.getPlaceName()}$default!! " +
                 "$defendersFont$defendersName$default немедленно пришлите своих воинов и организуйте защиту!!"
         sendMessageToFraction(msg, fractionId)
     }
