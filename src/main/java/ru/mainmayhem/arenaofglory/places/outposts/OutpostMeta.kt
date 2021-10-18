@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.places.outposts
 
+import org.bukkit.ChatColor.GOLD
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
@@ -30,8 +31,9 @@ class OutpostMeta(
         super.addPlayer(player)
         if (getStatus() !is ConquerablePlaceStatus.None && !canBeCaptured()){
             javaPlugin.server.getPlayer(player.name)?.also {
+                val minsFont = GOLD.toString()
                 it.sendMessage(
-                    "Данный аванпост находится под защитой, захватить его можно будет через ${getProtectedModeDuration()} мин"
+                    "Данный аванпост находится под защитой, захватить его можно будет через $minsFont${getProtectedModeDuration()} мин"
                 )
             }
             return

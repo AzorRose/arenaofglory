@@ -75,16 +75,23 @@ class OutpostsJob @Inject constructor(
 
                                 when{
                                     status is ConquerablePlaceStatus.UnderAttack && updated == 100 -> {
-                                        meta.sendMessageToAttackers("Аванпост захвачен", javaPlugin)
-                                        meta.sendMessageToDefenders("Аванпост потерян", javaPlugin)
+                                        val outpostName = GOLD.toString()
+                                        val attackersName = RED.toString()
+                                        val default = WHITE.toString()
+                                        sendMessageToAllFractions(
+                                            "Аванпост $outpostName${meta.getPlaceName()}$default теперь принадлежит " +
+                                                    "фракции $attackersName${getFractionName(status.attackingFractionId)}"
+                                        )
                                         meta.lastCaptureTime = Date().time
                                         meta.updateState(0)
                                         launch { changeFraction(meta.getPlaceId(), status.attackingFractionId) }
                                         return@let
                                     }
                                     status !is ConquerablePlaceStatus.None && updated != meta.getState() -> {
-                                        outpostChatMessagesHelper.sendMessageToAttackers(meta, "Захват аванпоста: $updated%")
-                                        outpostChatMessagesHelper.sendMessageToDefenders(meta, "Потеря аванпоста: $updated%")
+                                        val default = GOLD.toString()
+                                        val percent = RED.toString()
+                                        outpostChatMessagesHelper.sendMessageToAttackers(meta, "$default Захват аванпоста: $percent$updated%")
+                                        outpostChatMessagesHelper.sendMessageToDefenders(meta, "$default Потеря аванпоста: $percent$updated%")
                                     }
                                 }
 
@@ -108,6 +115,12 @@ class OutpostsJob @Inject constructor(
     fun stop(){
         job?.cancel(CancellationException())
         job = null
+    }
+
+    private fun sendMessageToAllFractions(message: String){
+        arenaPlayersRepository.getCachedPlayers().forEach {
+            javaPlugin.server.getPlayer(it.name)?.sendMessage(message)
+        }
     }
 
     private fun sendAttackNotification(
