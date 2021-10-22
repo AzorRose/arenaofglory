@@ -13,8 +13,9 @@ import ru.mainmayhem.arenaofglory.data.entities.LocationCoordinates
 import ru.mainmayhem.arenaofglory.data.entities.Outpost
 import ru.mainmayhem.arenaofglory.data.local.database.dao.OutpostsDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.Outposts
+import javax.inject.Inject
 
-class JetbrainsExposedOutpostsDao(
+class JetbrainsExposedOutpostsDao @Inject constructor(
     private val dispatchers: CoroutineDispatchers
 ): OutpostsDao {
 

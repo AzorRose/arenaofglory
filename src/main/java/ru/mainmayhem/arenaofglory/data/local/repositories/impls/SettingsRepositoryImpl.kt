@@ -10,8 +10,9 @@ import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-class SettingsRepositoryImpl(
+class SettingsRepositoryImpl @Inject constructor(
     moshi: Moshi,
     private val logger: PluginLogger
 ): PluginSettingsRepository {

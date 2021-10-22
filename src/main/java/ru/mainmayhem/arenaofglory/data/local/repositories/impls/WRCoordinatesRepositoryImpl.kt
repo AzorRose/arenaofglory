@@ -8,8 +8,9 @@ import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.WaitingRoomCoordinatesRepository
 import ru.mainmayhem.arenaofglory.domain.CalculatedLocation
 import ru.mainmayhem.arenaofglory.domain.CoordinatesCalculator
+import javax.inject.Inject
 
-class WRCoordinatesRepositoryImpl(
+class WRCoordinatesRepositoryImpl @Inject constructor(
     private val calculator: CoordinatesCalculator,
     database: PluginDatabase,
     coroutineScope: CoroutineScope

@@ -1,114 +1,55 @@
 package ru.mainmayhem.arenaofglory.data.dagger.modules
 
-import com.squareup.moshi.Moshi
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
-import kotlinx.coroutines.CoroutineScope
-import org.bukkit.plugin.java.JavaPlugin
-import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
-import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.*
 import ru.mainmayhem.arenaofglory.data.local.repositories.impls.*
-import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import ru.mainmayhem.arenaofglory.domain.CoordinatesCalculator
 import javax.inject.Singleton
 
 @Module
-class RepositoryModule {
+abstract class RepositoryModule {
 
-    @Provides
-    fun getDbConfigRepository(logger: PluginLogger, m: Moshi): DbConfigFileRepository = DbConfigFileRepoImpl(logger, m)
+    @Binds
+    abstract fun getDbConfigRepository(impl: DbConfigFileRepoImpl): DbConfigFileRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun getArenaPlayersRepository(
-        db: PluginDatabase,
-        cs: CoroutineScope,
-    ): ArenaPlayersRepository = ArenaPlayersRepositoryImpl(
-        pluginDatabase = db,
-        coroutineScope = cs
-    )
+    abstract fun getArenaPlayersRepository(impl: ArenaPlayersRepositoryImpl): ArenaPlayersRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun getFractionsRepository(
-        db: PluginDatabase,
-        cs: CoroutineScope
-    ): FractionsRepository = FractionsRepositoryImpl(
-        pluginDatabase = db,
-        coroutineScope = cs
-    )
+    abstract fun getFractionsRepository(impl: FractionsRepositoryImpl): FractionsRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun getWRCoordinatesRepository(
-        calculator: CoordinatesCalculator,
-        coroutineScope: CoroutineScope,
-        database: PluginDatabase
-    ): WaitingRoomCoordinatesRepository = WRCoordinatesRepositoryImpl(calculator, database, coroutineScope)
+    abstract fun getWRCoordinatesRepository(impl: WRCoordinatesRepositoryImpl): WaitingRoomCoordinatesRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun getArenaQueueRepository(
-        ar: ArenaPlayersRepository
-    ): ArenaQueueRepository = ArenaQueueRepositoryImpl(ar)
+    abstract fun getArenaQueueRepository(impl: ArenaQueueRepositoryImpl): ArenaQueueRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun getArenaMatchMetaRepository(
-       l: PluginLogger,
-       fr: FractionsRepository,
-       jp: JavaPlugin,
-       apr: ArenaPlayersRepository,
-       d: CoroutineDispatchers
-    ): ArenaMatchMetaRepository = ArenaMatchMetaRepositoryImpl(l, fr, jp, apr, d)
+    abstract fun getArenaMatchMetaRepository(impl: ArenaMatchMetaRepositoryImpl): ArenaMatchMetaRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun getArenaRespawnCoordinatesRepository(
-        calculator: CoordinatesCalculator,
-        coroutineScope: CoroutineScope,
-        database: PluginDatabase
-    ): ArenaRespawnCoordinatesRepository =
-        ArenaRespawnCoordinatesRepositoryImpl(calculator, database, coroutineScope)
+    abstract fun getArenaRespawnCoordinatesRepository(impl: ArenaRespawnCoordinatesRepositoryImpl): ArenaRespawnCoordinatesRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun getRewardRepository(
-        c: CoroutineScope,
-        l: PluginLogger,
-        db: PluginDatabase,
-        d: CoroutineDispatchers
-    ): RewardRepository = RewardRepositoryImpl(
-        coroutineScope = c,
-        logger = l,
-        database = db,
-        dispatchers = d
-    )
+    abstract fun getRewardRepository(impl: RewardRepositoryImpl): RewardRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun getSettingsRepository(m: Moshi, l: PluginLogger): PluginSettingsRepository =
-        SettingsRepositoryImpl(
-            moshi = m,
-            logger = l
-        )
+    abstract fun getSettingsRepository(impl: SettingsRepositoryImpl): PluginSettingsRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun getArenaCoordinatesRepository(
-        calculator: CoordinatesCalculator,
-        coroutineScope: CoroutineScope,
-        database: PluginDatabase
-    ): ArenaCoordinatesRepository = ArenaCoordinatesRepositoryImpl(calculator, database, coroutineScope)
+    abstract fun getArenaCoordinatesRepository(impl: ArenaCoordinatesRepositoryImpl): ArenaCoordinatesRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun getOutpostsRepository(
-        calculator: CoordinatesCalculator,
-        coroutineScope: CoroutineScope,
-        database: PluginDatabase
-    ): OutpostsRepository =
-        OutpostsRepositoryImpl(calculator, database, coroutineScope)
+    abstract fun getOutpostsRepository(impl: OutpostsRepositoryImpl): OutpostsRepository
 
 }

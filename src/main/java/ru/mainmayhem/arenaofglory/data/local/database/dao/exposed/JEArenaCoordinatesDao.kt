@@ -10,8 +10,9 @@ import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.entities.LocationCoordinates
 import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaCoordinatesDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaCoordinates
+import javax.inject.Inject
 
-class JEArenaCoordinatesDao(
+class JEArenaCoordinatesDao @Inject constructor(
     private val dispatchers: CoroutineDispatchers
 ): ArenaCoordinatesDao {
 

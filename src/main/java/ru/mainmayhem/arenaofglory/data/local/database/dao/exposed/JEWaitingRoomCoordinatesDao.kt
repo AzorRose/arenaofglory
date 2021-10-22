@@ -10,8 +10,9 @@ import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.entities.LocationCoordinates
 import ru.mainmayhem.arenaofglory.data.local.database.dao.WaitingRoomCoordinatesDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.WaitingRoomCoordinates
+import javax.inject.Inject
 
-class JEWaitingRoomCoordinatesDao(
+class JEWaitingRoomCoordinatesDao @Inject constructor(
     private val dispatchers: CoroutineDispatchers
 ): WaitingRoomCoordinatesDao {
 

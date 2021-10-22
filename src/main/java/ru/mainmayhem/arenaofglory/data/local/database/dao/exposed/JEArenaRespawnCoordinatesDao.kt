@@ -12,8 +12,9 @@ import ru.mainmayhem.arenaofglory.data.entities.LocationCoordinates
 import ru.mainmayhem.arenaofglory.data.entities.RespawnCoordinates
 import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaRespawnCoordinatesDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaRespawnCoordinates
+import javax.inject.Inject
 
-class JEArenaRespawnCoordinatesDao(
+class JEArenaRespawnCoordinatesDao @Inject constructor(
     private val dispatchers: CoroutineDispatchers
 ): ArenaRespawnCoordinatesDao {
 

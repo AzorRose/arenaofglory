@@ -7,8 +7,9 @@ import ru.mainmayhem.arenaofglory.data.local.DbConfig
 import ru.mainmayhem.arenaofglory.data.local.repositories.DbConfigFileRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import java.io.File
+import javax.inject.Inject
 
-class DbConfigFileRepoImpl(
+class DbConfigFileRepoImpl @Inject constructor(
     private val logger: PluginLogger,
     moshi: Moshi
 ): DbConfigFileRepository {

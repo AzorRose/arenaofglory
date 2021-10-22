@@ -11,8 +11,9 @@ import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.Fraction
 import ru.mainmayhem.arenaofglory.data.local.database.dao.FractionDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.Fractions
+import javax.inject.Inject
 
-class JetbrainsExposedFractionDao(
+class JetbrainsExposedFractionDao @Inject constructor(
     private val dispatchers: CoroutineDispatchers
 ): FractionDao {
 

@@ -210,7 +210,7 @@ class ArenaMatchEndedUseCase @Inject constructor(
             try {
                 db.getArenaPlayersDao().increaseKills(
                     playerId = it.player.id,
-                    kills = it.kills
+                    playerKills = it.kills
                 )
             } catch (t: Throwable){
                 logger.error(

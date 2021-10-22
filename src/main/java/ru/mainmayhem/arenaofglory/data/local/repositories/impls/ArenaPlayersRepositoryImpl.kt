@@ -7,8 +7,9 @@ import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import java.util.*
+import javax.inject.Inject
 
-class ArenaPlayersRepositoryImpl(
+class ArenaPlayersRepositoryImpl @Inject constructor(
     pluginDatabase: PluginDatabase,
     coroutineScope: CoroutineScope
 ): ArenaPlayersRepository {

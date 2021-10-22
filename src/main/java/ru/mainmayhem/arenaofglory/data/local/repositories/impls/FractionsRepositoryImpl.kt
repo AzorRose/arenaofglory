@@ -7,8 +7,9 @@ import ru.mainmayhem.arenaofglory.data.entities.Fraction
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import java.util.*
+import javax.inject.Inject
 
-class FractionsRepositoryImpl(
+class FractionsRepositoryImpl @Inject constructor(
     pluginDatabase: PluginDatabase,
     coroutineScope: CoroutineScope
 ): FractionsRepository {

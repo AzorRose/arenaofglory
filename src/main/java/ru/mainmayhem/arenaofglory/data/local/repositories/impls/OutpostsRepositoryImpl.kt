@@ -9,8 +9,9 @@ import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.OutpostsRepository
 import ru.mainmayhem.arenaofglory.domain.CalculatedLocation
 import ru.mainmayhem.arenaofglory.domain.CoordinatesCalculator
+import javax.inject.Inject
 
-class OutpostsRepositoryImpl(
+class OutpostsRepositoryImpl @Inject constructor(
     private val calculator: CoordinatesCalculator,
     database: PluginDatabase,
     coroutineScope: CoroutineScope
