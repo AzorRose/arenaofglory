@@ -29,7 +29,7 @@ class OutpostPlaceholders @Inject constructor(
         return when{
             params.startsWith(ownerPlaceholder) -> getOwnerByParams(params)
             params.startsWith(percentPlaceholder) -> getPercentStatusByParams(params)
-            params.startsWith(percentPlaceholder) -> getStatusByParams(params)
+            params.startsWith(statusPlaceholder) -> getStatusByParams(params)
             else -> ""
         }
     }
