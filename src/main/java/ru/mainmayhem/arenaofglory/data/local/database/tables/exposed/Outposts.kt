@@ -12,6 +12,7 @@ object Outposts: Table() {
     val bottomRightCornerX = integer("bottom_right_corner_x")
     val bottomRightCornerY = integer("bottom_right_corner_y")
     val bottomRightCornerZ = integer("bottom_right_corner_z")
+    val rewardCommands = varchar("reward_commands", 500).nullable()
     override val tableName: String = "outposts"
     override val primaryKey: PrimaryKey = PrimaryKey(id)
 }

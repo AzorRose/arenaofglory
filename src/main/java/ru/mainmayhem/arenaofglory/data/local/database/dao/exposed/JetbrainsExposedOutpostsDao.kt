@@ -8,6 +8,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
+import ru.mainmayhem.arenaofglory.data.entities.Command
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.entities.LocationCoordinates
 import ru.mainmayhem.arenaofglory.data.entities.Outpost
@@ -36,6 +37,7 @@ class JetbrainsExposedOutpostsDao @Inject constructor(
                         it[bottomRightCornerX] = outpost.coordinates.rightBottom.x
                         it[bottomRightCornerY] = outpost.coordinates.rightBottom.y
                         it[bottomRightCornerZ] = outpost.coordinates.rightBottom.z
+                        it[rewardCommands] = outpost.rewardCommands.joinToString(";") { it.cmd }
                     }
                 }
             }
@@ -62,7 +64,8 @@ class JetbrainsExposedOutpostsDao @Inject constructor(
                                 y = it[Outposts.bottomRightCornerY],
                                 z = it[Outposts.bottomRightCornerZ],
                             )
-                        )
+                        ),
+                        rewardCommands = it[Outposts.rewardCommands].orEmpty().split(";").map { cmd -> Command(cmd) }
                     )
                 }
             }

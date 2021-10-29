@@ -10,6 +10,7 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.OutpostsRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import ru.mainmayhem.arenaofglory.domain.useCases.SendOutpostRewardUseCase
 import ru.mainmayhem.arenaofglory.places.ConquerablePlaceStatus
 import ru.mainmayhem.arenaofglory.places.outposts.OutpostChatMessagesHelper
 import ru.mainmayhem.arenaofglory.places.outposts.OutpostMeta
@@ -29,20 +30,34 @@ class OutpostsJob @Inject constructor(
     private val outpostsHolder: OutpostsHolder,
     private val arenaPlayersRepository: ArenaPlayersRepository,
     private val fractionsRepository: FractionsRepository,
-    private val outpostChatMessagesHelper: OutpostChatMessagesHelper
+    private val outpostChatMessagesHelper: OutpostChatMessagesHelper,
+    private val sendOutpostRewardUseCase: SendOutpostRewardUseCase
 ) {
 
     private var job: Job? = null
 
     private val outpostConqueringDuration = settingsRepository.getSettings().outpostConqueringDuration
 
+    //время последней раздачи награды
+    private var lastRewardTimeMillis = System.currentTimeMillis()
+
+    //период в минутах раз в который идет награда игроков за удержание аванпостов
+    private val rewardTimePeriodMillis = 10 * 60 * 1000
+
     fun start(){
         if (job?.isActive == true)
             return
+        lastRewardTimeMillis = System.currentTimeMillis()
         job = coroutineScope.launch {
             try {
                 while (isActive){
                     delay(1000)
+
+                    if (System.currentTimeMillis() - lastRewardTimeMillis >= rewardTimePeriodMillis){
+                        launch { sendOutpostRewardUseCase.sendReward() }
+                        lastRewardTimeMillis = System.currentTimeMillis()
+                    }
+
                     outpostsRepository.getCachedOutposts()
                         .forEach {outpost ->
                             outpostsHolder.getOutpostMeta(outpost.first.id)?.let {meta ->

@@ -139,7 +139,8 @@ class InitDataUseCase @Inject constructor(
                 coordinates = LocationCoordinates(
                     leftTop = Coordinates(100,100,100),
                     rightBottom = Coordinates(110,110,110)
-                )
+                ),
+                rewardCommands = emptyList()
             ),
             Outpost(
                 id = 2,
@@ -148,7 +149,8 @@ class InitDataUseCase @Inject constructor(
                 coordinates = LocationCoordinates(
                     leftTop = Coordinates(200,200,200),
                     rightBottom = Coordinates(220,220,220)
-                )
+                ),
+                rewardCommands = emptyList()
             )
         )
         dao.insert(outposts)

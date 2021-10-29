@@ -57,7 +57,7 @@ class JetbrainsExposedDatabase @Inject constructor(
                 Outposts
             )
             SchemaUtils.createMissingTablesAndColumns(
-                ArenaPlayers
+                ArenaPlayers, Outposts
             )
         }
     }
