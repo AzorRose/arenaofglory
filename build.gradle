@@ -63,7 +63,6 @@ jar {
 
 processResources {
     expand project.properties
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(sourceSets.main.resources.srcDirs) {
         filter ReplaceTokens, tokens: [version: version]
     }
