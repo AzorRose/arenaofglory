@@ -30,35 +30,38 @@ class SendOutpostRewardUseCase @Inject constructor (
                 .filter { it.fractionId != null }
                 .forEach { outpost ->
                     val fractionId = outpost.fractionId!!
-                    arenaPlayersRepository.getCachedPlayers()
+                    val players = arenaPlayersRepository.getCachedPlayers()
                         .filter { it.fractionId == fractionId }
                         .filter { javaPlugin.server.getPlayer(it.name)?.isOnline == true }
                         .map { it.name }
-                        .forEach { player ->
+                    withContext(dispatchers.main){
+                        players.forEach { player ->
                             outpost.rewardCommands.forEach { command ->
-                              command.cmd performWith player
+                                command.cmd performWith player
                             }
                         }
+                    }
                 }
         }
     }
 
     private infix fun String.performWith(player: String){
+        val command = replace("{player_name}", player)
         kotlin.runCatching {
             val isExecuted = Bukkit.dispatchCommand(
                 Bukkit.getConsoleSender(),
-                replace("{player_name}", player)
+                command
             )
             if (!isExecuted){
                 logger.warning(
-                    message = "Команда {$this} не была выполнена",
+                    message = "Команда {$command} не была выполнена",
                 )
             }
         }.exceptionOrNull()?.let {
             logger.error(
                 className = "SendOutpostRewardUseCase",
                 methodName = "String.performWith",
-                message = "Ошибка при выполнении команды: $this",
+                message = "Ошибка при выполнении команды: $command",
                 throwable = it
             )
         }

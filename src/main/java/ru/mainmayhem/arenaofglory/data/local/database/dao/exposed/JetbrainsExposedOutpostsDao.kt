@@ -65,7 +65,11 @@ class JetbrainsExposedOutpostsDao @Inject constructor(
                                 z = it[Outposts.bottomRightCornerZ],
                             )
                         ),
-                        rewardCommands = it[Outposts.rewardCommands].orEmpty().split(";").map { cmd -> Command(cmd) }
+                        rewardCommands = it[Outposts.rewardCommands]
+                            .orEmpty()
+                            .split(";")
+                            .filter { it.isNotBlank() }
+                            .map { cmd -> Command(cmd) }
                     )
                 }
             }
