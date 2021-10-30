@@ -38,8 +38,6 @@ class OutpostsHolder @Inject constructor(
             return
         }
         meta.addPlayer(arenaPlayer)
-        logger.info("Игрок ${arenaPlayer.name} зашел на территорию аванпоста ${meta.getPlaceName()}")
-        logger.info("Новый статус аванпоста = ${meta.getStatus()}")
     }
 
     @Synchronized
@@ -50,8 +48,6 @@ class OutpostsHolder @Inject constructor(
             return
         }
         meta.removePlayer(arenaPlayer.id, arenaPlayer.fractionId)
-        logger.info("Игрок ${arenaPlayer.name} вышел с территории аванпоста ${meta.getPlaceName()}")
-        logger.info("Новый статус аванпоста = ${meta.getStatus()}")
     }
 
 }
