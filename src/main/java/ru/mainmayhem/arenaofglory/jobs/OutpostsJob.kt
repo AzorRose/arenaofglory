@@ -4,6 +4,7 @@ import kotlinx.coroutines.*
 import org.bukkit.ChatColor.*
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
+import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
@@ -22,6 +23,7 @@ import javax.inject.Singleton
 @Singleton
 class OutpostsJob @Inject constructor(
     private val coroutineScope: CoroutineScope,
+    private val dispatchers: CoroutineDispatchers,
     private val logger: PluginLogger,
     settingsRepository: PluginSettingsRepository,
     private val pluginDatabase: PluginDatabase,
@@ -48,7 +50,7 @@ class OutpostsJob @Inject constructor(
         if (job?.isActive == true)
             return
         lastRewardTimeMillis = System.currentTimeMillis()
-        job = coroutineScope.launch {
+        job = coroutineScope.launch(dispatchers.default) {
             try {
                 while (isActive){
                     delay(1000)

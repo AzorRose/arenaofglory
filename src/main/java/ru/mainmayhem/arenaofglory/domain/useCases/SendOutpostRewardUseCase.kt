@@ -24,7 +24,7 @@ class SendOutpostRewardUseCase @Inject constructor (
 
     suspend fun sendReward(){
         logger.info("Идет выдача награды за удержание аванпостов")
-        withContext(dispatchers.io){
+        withContext(dispatchers.default){
             outpostsRepository.getCachedOutposts()
                 .map { it.first }
                 .filter { it.fractionId != null }

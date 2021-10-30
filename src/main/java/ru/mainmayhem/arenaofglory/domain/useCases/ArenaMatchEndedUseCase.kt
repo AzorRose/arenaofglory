@@ -36,7 +36,7 @@ class ArenaMatchEndedUseCase @Inject constructor(
      */
     suspend fun handle(autoWin: Boolean){
         logger.info("Матч закончен")
-        withContext(dispatchers.io){
+        withContext(dispatchers.default){
             printResults(autoWin)
             updatePlayersKills()
             kickPlayersInArena()

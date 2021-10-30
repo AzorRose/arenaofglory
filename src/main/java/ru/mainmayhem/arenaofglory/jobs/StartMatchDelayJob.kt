@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
+import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import java.util.*
@@ -23,6 +24,7 @@ import javax.inject.Singleton
 @Singleton
 class StartMatchDelayJob @Inject constructor(
     private val coroutineScope: CoroutineScope,
+    private val dispatchers: CoroutineDispatchers,
     private val logger: PluginLogger,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val javaPlugin: JavaPlugin,
@@ -44,7 +46,6 @@ class StartMatchDelayJob @Inject constructor(
             delay(1000)
         }
         .onCompletion {
-            //todo открыть ворота
             matchJob.start()
         }
 
@@ -53,7 +54,7 @@ class StartMatchDelayJob @Inject constructor(
     fun start(){
         if (job?.isActive == true)
             return
-        job = coroutineScope.launch {
+        job = coroutineScope.launch(dispatchers.default) {
             try {
                 timer.collect()
             }catch (t: Throwable){

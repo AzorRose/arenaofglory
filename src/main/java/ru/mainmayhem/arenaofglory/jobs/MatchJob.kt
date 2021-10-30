@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.bukkit.ChatColor.*
 import org.bukkit.plugin.java.JavaPlugin
+import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsRepository
@@ -23,6 +24,7 @@ import javax.inject.Singleton
 @Singleton
 class MatchJob @Inject constructor(
     private val coroutineScope: CoroutineScope,
+    private val dispatchers: CoroutineDispatchers,
     private val logger: PluginLogger,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val javaPlugin: JavaPlugin,
@@ -64,7 +66,7 @@ class MatchJob @Inject constructor(
         if (job?.isActive == true)
             return
         logger.info("Начало матча в $matchDuration мин")
-        job = coroutineScope.launch {
+        job = coroutineScope.launch(dispatchers.default) {
             try {
                 timer.collect()
             }catch (t: Throwable){
