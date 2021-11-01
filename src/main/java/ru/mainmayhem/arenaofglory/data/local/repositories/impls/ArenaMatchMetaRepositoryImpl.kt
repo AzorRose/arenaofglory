@@ -85,9 +85,9 @@ class ArenaMatchMetaRepositoryImpl @Inject constructor(
         logger.info("Новые данные по фракциям: $fractions")
     }
 
-    override fun getFractionsPoints(): Map<Long, Int> = fractions
+    override fun getFractionsPoints(): Map<Long, Int> = fractions.toMap()
 
-    override fun getPlayers(): List<ArenaMatchMember> = players
+    override fun getPlayers(): List<ArenaMatchMember> = players.toList()
 
     override fun clear() {
         players.forEach {
