@@ -6,7 +6,7 @@ import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.async.dispatchers.PluginMainDispatcher
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
@@ -20,7 +20,7 @@ class AppModule {
     @Provides
     @Singleton
     fun getAppCoroutineScope(d: CoroutineDispatchers): CoroutineScope =
-        CoroutineScope(d.io + Job())
+        CoroutineScope(d.io + SupervisorJob())
 
     @Provides
     fun getDispatchers(m: PluginMainDispatcher): CoroutineDispatchers{
