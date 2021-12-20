@@ -30,8 +30,8 @@ class ClosestMatchDateProvider @Inject constructor(
                 //отдаст  null, если сегодня уже не будет матчей
                 currDate.timeEqualsWith(date) || currDate.before(date.asCalendar().setCurrentDate().time)
             }
-        logger.info("closestMatchToday = $closestMatchToday")
-        logger.info("matchTimes = $matchTimes")
+        logger.info("Время ближайшего матча сегодня: $closestMatchToday")
+        logger.info("Расписание матчей: $matchTimes")
         return closestMatchToday ?: matchTimes.first()
     }
 
