@@ -9,6 +9,7 @@ import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.local.repositories.*
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.DisbalanceFinder
+import ru.mainmayhem.arenaofglory.domain.providers.ClosestMatchDateProvider
 import ru.mainmayhem.arenaofglory.jobs.EmptyTeamJob
 import ru.mainmayhem.arenaofglory.jobs.MatchJob
 import java.util.*
@@ -32,8 +33,8 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
     private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
     private val emptyTeamJob: EmptyTeamJob,
     private val dispatchers: CoroutineDispatchers,
-    private val settingsRepository: PluginSettingsRepository,
-    private val fractionsRepository: FractionsRepository
+    private val fractionsRepository: FractionsRepository,
+    private val closestMatchDateProvider: ClosestMatchDateProvider
 ) {
 
     @Throws(NullPointerException::class)
@@ -144,7 +145,7 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
     }
 
     private fun getTimeToStartMatch(): Long{
-        val startArenaMatch = settingsRepository.getSettings().startArenaMatch
+        val startArenaMatch = closestMatchDateProvider.provide()
         val start = startArenaMatch.asCalendar().setCurrentDate().time
         return start diffInMinutes Date()
     }

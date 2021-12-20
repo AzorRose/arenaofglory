@@ -23,4 +23,7 @@ object Constants {
     //сколько нужно ждать в минутах после последнего захвата аванпоста, чтобы захватить по новой
     const val OUTPOST_CAPTURE_DELAY = 60
 
+    //время
+    const val MILLIS_IN_MINUTE = 60_000
+
 }

@@ -39,8 +39,8 @@ class SettingsRepositoryImpl @Inject constructor(
 
     private fun File.fillWithDefaultSettings(): PluginSettings{
         val default = Settings(
-            openWaitingRoom = "18:50",
-            startArenaMatch = "19:00",
+            openWaitingRoomMins = 10,
+            startArenaMatch = getDefaultArenaMatchTimes(),
             minKillsForReward = 5,
             matchDuration = 15,
             outpostConqueringDuration = 30
@@ -62,8 +62,8 @@ class SettingsRepositoryImpl @Inject constructor(
         val timePattern = "HH:mm"
         val sdf = SimpleDateFormat(timePattern, Locale.getDefault())
         return PluginSettings(
-            openWaitingRoom = sdf.parse(openWaitingRoom),
-            startArenaMatch = sdf.parse(startArenaMatch),
+            openWaitingRoomMins = openWaitingRoomMins,
+            startArenaMatch = startArenaMatch.map(sdf::parse),
             minKillsForReward = minKillsForReward,
             matchDuration = matchDuration,
             outpostConqueringDuration = outpostConqueringDuration
@@ -78,11 +78,22 @@ class SettingsRepositoryImpl @Inject constructor(
         }
     }
 
+    private fun getDefaultArenaMatchTimes(): List<String> {
+        return listOf(
+            "0:00",
+            "4:00",
+            "8:00",
+            "12:00",
+            "16:00",
+            "20:00"
+        )
+    }
+
     private data class Settings(
-        @Json(name = "open_waiting_room")
-        val openWaitingRoom: String,
+        @Json(name = "open_waiting_room_mins")
+        val openWaitingRoomMins: Int,
         @Json(name = "start_arena_match")
-        val startArenaMatch: String,
+        val startArenaMatch: List<String>,
         @Json(name = "min_kills_for_reward")
         val minKillsForReward: Int,
         @Json(name = "match_duration")
