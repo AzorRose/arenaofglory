@@ -17,4 +17,7 @@ object Constants {
     //кол-во очков, выдаваемое фракции за убийство
     const val FRACTION_KILL_PONTS = 100
 
+    //время
+    const val MILLIS_IN_MINUTE = 60_000
+
 }

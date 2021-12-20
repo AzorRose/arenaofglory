@@ -1,11 +1,10 @@
 package ru.mainmayhem.arenaofglory.domain
 
+import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.asCalendar
 import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsRepository
 import ru.mainmayhem.arenaofglory.data.setCurrentDate
-import ru.mainmayhem.arenaofglory.data.timeEqualsWith
 import ru.mainmayhem.arenaofglory.jobs.MatchJob
-import java.util.*
 import javax.inject.Inject
 
 class WaitingRoomScheduleHelper @Inject constructor(
@@ -24,12 +23,17 @@ class WaitingRoomScheduleHelper @Inject constructor(
      * Находимся ли мы в данный момент между датами открытия комнаты ожидания и началом матча
      */
     fun preparingForMatch(): Boolean {
-        val currentDate = Date().asCalendar()
-        val openWaitingRoomDate = settingsRepository.getSettings().openWaitingRoom.asCalendar().setCurrentDate()
-        val matchStartDate = settingsRepository.getSettings().startArenaMatch.asCalendar().setCurrentDate()
-        return (currentDate.time timeEqualsWith openWaitingRoomDate.time
-                || currentDate.time timeEqualsWith matchStartDate.time
-                || (currentDate.after(openWaitingRoomDate) && currentDate.before(matchStartDate)))
+        if (matchJob.isActive) return false
+        val openWaitingRoomBeforeMatchMillis = settingsRepository.getSettings().openWaitingRoomMins * Constants.MILLIS_IN_MINUTE
+        val currDateMillis = System.currentTimeMillis()
+        settingsRepository.getSettings().startArenaMatch.forEach { startArenaDate ->
+            val startDateMillis = startArenaDate.asCalendar().setCurrentDate().timeInMillis
+            val openWaitingRoomMillis = startDateMillis - openWaitingRoomBeforeMatchMillis
+            if (currDateMillis in openWaitingRoomMillis..startDateMillis) {
+                return true
+            }
+        }
+        return false
     }
 
 }
