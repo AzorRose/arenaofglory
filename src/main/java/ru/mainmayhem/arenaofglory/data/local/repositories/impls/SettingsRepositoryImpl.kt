@@ -41,7 +41,8 @@ class SettingsRepositoryImpl(
             openWaitingRoomMins = 10,
             startArenaMatch = getDefaultArenaMatchTimes(),
             minKillsForReward = 5,
-            matchDuration = 15
+            matchDuration = 15,
+            fractionBoostDefeats = 2
         )
         writeBytes(settingsAdapter.toJson(default).toByteArray())
         return default.toModel()
@@ -63,7 +64,8 @@ class SettingsRepositoryImpl(
             openWaitingRoomMins = openWaitingRoomMins,
             startArenaMatch = startArenaMatch.map(sdf::parse),
             minKillsForReward = minKillsForReward,
-            matchDuration = matchDuration
+            matchDuration = matchDuration,
+            fractionBoostDefeats = fractionBoostDefeats
         )
     }
 
@@ -94,7 +96,9 @@ class SettingsRepositoryImpl(
         @Json(name = "min_kills_for_reward")
         val minKillsForReward: Int,
         @Json(name = "match_duration")
-        val matchDuration: Int
+        val matchDuration: Int,
+        @Json(name = "fraction_boost_defeats")
+        val fractionBoostDefeats: Int
     )
 
 }

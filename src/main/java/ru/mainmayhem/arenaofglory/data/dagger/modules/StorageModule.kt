@@ -50,6 +50,11 @@ class StorageModule {
     ): ArenaCoordinatesDao = JEArenaCoordinatesDao(d)
 
     @Provides
+    fun getMatchResultsDao(
+        d: CoroutineDispatchers
+    ): MatchResultsDao = JEMatchResultsDao(d)
+
+    @Provides
     @Singleton
     fun getDatabase(
         fd: FractionDao,
@@ -58,6 +63,7 @@ class StorageModule {
         arcd: ArenaRespawnCoordinatesDao,
         rewardDao: RewardDao,
         acd: ArenaCoordinatesDao,
+        mrd: MatchResultsDao,
         dbCfgRep: DbConfigFileRepository,
         logger: PluginLogger
     ): PluginDatabase =
@@ -69,7 +75,8 @@ class StorageModule {
             rewardDao = rewardDao,
             dbConfigRepository = dbCfgRep,
             logger = logger,
-            arenaCoordsDao = acd
+            arenaCoordsDao = acd,
+            matchResDao = mrd
         )
 
 }

@@ -8,5 +8,6 @@ data class PluginSettings(
     val startArenaMatch: List<Date>,
     val minKillsForReward: Int,
     //в минутах
-    val matchDuration: Int
+    val matchDuration: Int,
+    val fractionBoostDefeats: Int
 )

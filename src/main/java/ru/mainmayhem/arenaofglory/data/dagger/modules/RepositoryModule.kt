@@ -102,4 +102,11 @@ class RepositoryModule {
         database: PluginDatabase
     ): ArenaCoordinatesRepository = ArenaCoordinatesRepositoryImpl(calculator, database, coroutineScope)
 
+    @Provides
+    @Singleton
+    fun getMatchResultsRepository(
+        coroutineScope: CoroutineScope,
+        database: PluginDatabase
+    ): MatchResultsRepository = MatchResultRepositoryImpl(coroutineScope, database)
+
 }
