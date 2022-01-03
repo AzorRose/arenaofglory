@@ -6,6 +6,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import org.bukkit.Bukkit
+import org.bukkit.event.HandlerList
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.commands.Commands
 import ru.mainmayhem.arenaofglory.commands.executors.*
@@ -64,6 +65,8 @@ class ArenaOfGlory: JavaPlugin() {
         matchScheduleJob.stop()
         outpostsJob.stop()
         coroutineScope.cancel(CancellationException())
+        clearExecutorCommands()
+        HandlerList.unregisterAll(eventsListener)
         DIHolder.clear()
     }
 
@@ -100,6 +103,12 @@ class ArenaOfGlory: JavaPlugin() {
                     Commands.QUIT_WAITING_ROOM -> quitWaitingRoomCommandExecutor
                 }
             )
+        }
+    }
+
+    private fun clearExecutorCommands() {
+        Commands.values().forEach { command ->
+            getCommand(command.cmdName)!!.setExecutor(null)
         }
     }
 
