@@ -25,5 +25,7 @@ object Constants {
 
     //время
     const val MILLIS_IN_MINUTE = 60_000
+    const val TICKS_IN_SECOND = 20
+    const val SECONDS_IN_MINUTE = 60
 
 }

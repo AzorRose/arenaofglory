@@ -26,4 +26,9 @@ class MatchResultRepositoryImpl @Inject constructor(
         matchResultsDao.add(winnerFractionId, looserFractionId)
     }
 
+    override suspend fun addDrawResult() {
+        cache.add(MatchResult(null, null))
+        matchResultsDao.addDrawResult()
+    }
+
 }

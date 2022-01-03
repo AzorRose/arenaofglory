@@ -8,4 +8,6 @@ interface MatchResultsRepository {
 
     suspend fun addResult(winnerFractionId: Long, looserFractionId: Long)
 
+    suspend fun addDrawResult()
+
 }

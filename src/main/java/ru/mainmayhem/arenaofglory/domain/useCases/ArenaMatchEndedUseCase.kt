@@ -27,7 +27,8 @@ class ArenaMatchEndedUseCase @Inject constructor(
     private val tokenFactory: TokenFactory,
     private val fractionsRepository: FractionsRepository,
     private val settingsRepository: PluginSettingsRepository,
-    private val db: PluginDatabase
+    private val db: PluginDatabase,
+    private val matchResultsRepository: MatchResultsRepository
 ) {
 
     /**
@@ -37,6 +38,7 @@ class ArenaMatchEndedUseCase @Inject constructor(
     suspend fun handle(autoWin: Boolean){
         logger.info("Матч закончен")
         withContext(dispatchers.default){
+            saveMatchResults()
             printResults(autoWin)
             updatePlayersKills()
             kickPlayersInArena()
@@ -137,13 +139,19 @@ class ArenaMatchEndedUseCase @Inject constructor(
     }
 
     private fun getWinningFractionName(): String?{
-        val id = arenaMatchMetaRepository.getFractionsPoints()
-            .map { Pair(it.key, it.value) }
-            .maxByOrNull { it.second }?.first
-        id ?: return null
+        val id = getWinningFractionId() ?: return null
         return fractionsRepository.getCachedFractions().find { it.id == id }?.name
     }
 
+    private fun getWinningFractionId(): Long? {
+        return arenaMatchMetaRepository.getFractionsPoints()
+            .maxByOrNull { it.value }?.key
+    }
+
+    private fun getLooserFractionId(): Long? {
+        return arenaMatchMetaRepository.getFractionsPoints()
+            .minByOrNull { it.value }?.key
+    }
 
     private fun getAutoWonFractionName(): String?{
         //так как у нас 2 команды, то при автопобеде на арене будет одна фракция
@@ -221,6 +229,16 @@ class ArenaMatchEndedUseCase @Inject constructor(
                 )
             }
         }
+    }
+
+    private suspend fun saveMatchResults() {
+        if (isDraw()) {
+            matchResultsRepository.addDrawResult()
+            return
+        }
+        val winner = getWinningFractionId() ?: return
+        val looser = getLooserFractionId() ?: return
+        matchResultsRepository.addResult(winner, looser)
     }
 
 }

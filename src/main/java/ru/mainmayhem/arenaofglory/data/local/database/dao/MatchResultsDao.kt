@@ -8,4 +8,6 @@ interface MatchResultsDao {
 
     suspend fun add(winnerId: Long, looserId: Long)
 
+    suspend fun addDrawResult()
+
 }

@@ -57,10 +57,11 @@ class JetbrainsExposedDatabase @Inject constructor(
                 ArenaRespawnCoordinates,
                 Reward,
                 ArenaCoordinates,
-                Outposts
+                Outposts,
+                MatchResults
             )
             SchemaUtils.createMissingTablesAndColumns(
-                ArenaPlayers, Outposts
+                ArenaPlayers, Outposts, MatchResults
             )
         }
     }

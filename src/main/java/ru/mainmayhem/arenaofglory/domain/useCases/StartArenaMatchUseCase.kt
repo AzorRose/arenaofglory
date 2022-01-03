@@ -10,6 +10,7 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaReposito
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinatesRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import ru.mainmayhem.arenaofglory.domain.providers.StartMatchEffectProvider
 import ru.mainmayhem.arenaofglory.jobs.StartMatchDelayJob
 import java.util.*
 import javax.inject.Inject
@@ -25,7 +26,8 @@ class StartArenaMatchUseCase @Inject constructor(
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
     private val startMatchDelayJob: StartMatchDelayJob,
-    private val dispatchers: CoroutineDispatchers
+    private val dispatchers: CoroutineDispatchers,
+    private val startMatchEffectProvider: StartMatchEffectProvider
 ) {
 
     suspend fun handle(){
@@ -63,6 +65,8 @@ class StartArenaMatchUseCase @Inject constructor(
             savePlayersInArenaMeta(queue)
             logger.info("Переносим на арену")
             teleportPlayersAndStartJob(queue)
+            logger.info("Применяем эффект зелий у игроков слабой фракции")
+            withContext(dispatchers.main) { updatePlayersEffects(queue) }
         } else {
             logger.info("Игроков неравное кол-во")
             startMatchWithEqualPlayersSize(queue)
@@ -143,6 +147,17 @@ class StartArenaMatchUseCase @Inject constructor(
             res += value.size
         }
         return res
+    }
+
+    private fun updatePlayersEffects(players: Map<Long, Set<ArenaPlayer>>) {
+        players.forEach { (fractionId, players) ->
+            val effect = startMatchEffectProvider.provideEffect(fractionId)
+            if (effect != null) {
+                players.forEach { arenaPlayer ->
+                    javaPlugin.server.getPlayer(arenaPlayer.name)?.addPotionEffect(effect)
+                }
+            }
+        }
     }
 
 }

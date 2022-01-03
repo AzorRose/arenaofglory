@@ -34,6 +34,17 @@ class JEMatchResultsDao @Inject constructor(
         }
     }
 
+    override suspend fun addDrawResult() {
+        withContext(dispatchers.io) {
+            transaction {
+                MatchResults.insert {
+                    it[winnerFractionId] = null
+                    it[looserFractionId] = null
+                }
+            }
+        }
+    }
+
     private fun ResultRow.toModel(): MatchResult {
         return MatchResult(
             winnerFractionId = get(MatchResults.winnerFractionId),
