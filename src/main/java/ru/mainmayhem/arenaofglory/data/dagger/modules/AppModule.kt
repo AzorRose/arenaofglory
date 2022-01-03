@@ -15,7 +15,7 @@ import ru.mainmayhem.arenaofglory.data.logger.implementations.IBukkitLogger
 import javax.inject.Singleton
 
 @Module
-class AppModule {
+object AppModule {
 
     @Provides
     @Singleton

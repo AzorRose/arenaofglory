@@ -20,6 +20,6 @@ interface ArenaPlayersDao {
     /**
      * Увеличивает кол-во убийств у игрока с playerId на кол-во, переданное в kills
      */
-    suspend fun increaseKills(playerId: String, kills: Int)
+    suspend fun increaseKills(playerId: String, playerKills: Int)
 
 }

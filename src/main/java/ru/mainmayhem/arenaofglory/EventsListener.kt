@@ -53,7 +53,7 @@ class EventsListener @Inject constructor(
         playerMoveEventInteractor.handle(event)
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     fun onPlayerTeleported(event: PlayerTeleportEvent){
         playerTeleportEventInteractor.handle(event)
     }

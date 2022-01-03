@@ -1,82 +1,49 @@
 package ru.mainmayhem.arenaofglory.data.dagger.modules
 
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
-import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.local.database.JetbrainsExposedDatabase
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.database.dao.*
 import ru.mainmayhem.arenaofglory.data.local.database.dao.exposed.*
-import ru.mainmayhem.arenaofglory.data.local.repositories.DbConfigFileRepository
-import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import javax.inject.Singleton
 
 @Module
-class StorageModule {
+abstract class StorageModule {
 
-    @Provides
+    @Binds
     @Singleton
-    fun getFractionDao(d: CoroutineDispatchers): FractionDao = JetbrainsExposedFractionDao(d)
+    abstract fun getFractionDao(impl: JetbrainsExposedFractionDao): FractionDao
 
-    @Provides
+    @Binds
     @Singleton
-    fun getArenaPlayersDao(
-        d: CoroutineDispatchers,
-        l: PluginLogger
-    ): ArenaPlayersDao = JetbrainsExposedArenaPlayersDao(d, l)
+    abstract fun getArenaPlayersDao(impl: JetbrainsExposedArenaPlayersDao): ArenaPlayersDao
 
-    @Provides
+    @Binds
     @Singleton
-    fun getWaitingRoomCoordinatesDao(
-        d: CoroutineDispatchers
-    ): WaitingRoomCoordinatesDao = JEWaitingRoomCoordinatesDao(d)
+    abstract fun getWaitingRoomCoordinatesDao(impl: JEWaitingRoomCoordinatesDao): WaitingRoomCoordinatesDao
 
-    @Provides
+    @Binds
     @Singleton
-    fun getArenaRespawnCoordinatesDao(
-        d: CoroutineDispatchers
-    ): ArenaRespawnCoordinatesDao = JEArenaRespawnCoordinatesDao(d)
+    abstract fun getArenaRespawnCoordinatesDao(impl: JEArenaRespawnCoordinatesDao): ArenaRespawnCoordinatesDao
 
-    @Provides
+    @Binds
     @Singleton
-    fun getRewardDao(
-        d: CoroutineDispatchers
-    ): RewardDao = JERewardDao(d)
+    abstract fun getRewardDao(impl: JERewardDao): RewardDao
 
-    @Provides
+    @Binds
     @Singleton
-    fun getArenaCoordinatesDao(
-        d: CoroutineDispatchers
-    ): ArenaCoordinatesDao = JEArenaCoordinatesDao(d)
+    abstract fun getArenaCoordinatesDao(impl: JEArenaCoordinatesDao): ArenaCoordinatesDao
 
-    @Provides
-    fun getMatchResultsDao(
-        d: CoroutineDispatchers
-    ): MatchResultsDao = JEMatchResultsDao(d)
-
-    @Provides
+    @Binds
     @Singleton
-    fun getDatabase(
-        fd: FractionDao,
-        apd: ArenaPlayersDao,
-        wrcd: WaitingRoomCoordinatesDao,
-        arcd: ArenaRespawnCoordinatesDao,
-        rewardDao: RewardDao,
-        acd: ArenaCoordinatesDao,
-        mrd: MatchResultsDao,
-        dbCfgRep: DbConfigFileRepository,
-        logger: PluginLogger
-    ): PluginDatabase =
-        JetbrainsExposedDatabase(
-            fractionDao = fd,
-            playersDao = apd,
-            waitingRoomCoordinatesDao = wrcd,
-            arenaRespawnCoordinatesDao = arcd,
-            rewardDao = rewardDao,
-            dbConfigRepository = dbCfgRep,
-            logger = logger,
-            arenaCoordsDao = acd,
-            matchResDao = mrd
-        )
+    abstract fun getOutpostsDao(impl: JetbrainsExposedOutpostsDao): OutpostsDao
+
+    @Binds
+    abstract fun getMatchResultsDao(impl: JEMatchResultsDao): MatchResultsDao
+
+    @Binds
+    @Singleton
+    abstract fun getDatabase(db: JetbrainsExposedDatabase): PluginDatabase
 
 }

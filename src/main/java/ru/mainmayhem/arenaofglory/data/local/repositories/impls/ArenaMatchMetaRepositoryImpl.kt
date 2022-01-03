@@ -12,8 +12,9 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import java.util.*
+import javax.inject.Inject
 
-class ArenaMatchMetaRepositoryImpl(
+class ArenaMatchMetaRepositoryImpl @Inject constructor(
     private val logger: PluginLogger,
     private val fractionsRepository: FractionsRepository,
     private val javaPlugin: JavaPlugin,

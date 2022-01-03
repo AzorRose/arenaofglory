@@ -4,36 +4,36 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import ru.mainmayhem.arenaofglory.data.entities.Outpost
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
-import ru.mainmayhem.arenaofglory.data.local.repositories.WaitingRoomCoordinatesRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.OutpostsRepository
 import ru.mainmayhem.arenaofglory.domain.CalculatedLocation
 import ru.mainmayhem.arenaofglory.domain.CoordinatesCalculator
 import javax.inject.Inject
 
-class WRCoordinatesRepositoryImpl @Inject constructor(
+class OutpostsRepositoryImpl @Inject constructor(
     private val calculator: CoordinatesCalculator,
     database: PluginDatabase,
     coroutineScope: CoroutineScope
-): WaitingRoomCoordinatesRepository {
+): OutpostsRepository {
 
-    private val dao = database.getWaitingRoomCoordinatesDao()
-
-    private var calculatedLocation: CalculatedLocation? = null
+    private var cache = emptyList<Pair<Outpost, CalculatedLocation>>()
 
     init {
         coroutineScope.launch {
-            dao.locationFlow()
-                .map {
-                    it?.let {
-                        calculator.calculate(it)
+            database.getOutpostsDao()
+                .coordinatesFlow()
+                .map { outposts ->
+                    outposts.map {
+                        Pair(it, calculator.calculate(it.coordinates))
                     }
                 }
                 .collectLatest {
-                    calculatedLocation = it
+                    cache = it
                 }
         }
     }
 
-    override fun getCachedCoordinates(): CalculatedLocation? = calculatedLocation
+    override fun getCachedOutposts(): List<Pair<Outpost, CalculatedLocation>> = cache
 
 }

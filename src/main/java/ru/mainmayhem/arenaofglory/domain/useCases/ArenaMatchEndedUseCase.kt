@@ -36,7 +36,7 @@ class ArenaMatchEndedUseCase @Inject constructor(
      */
     suspend fun handle(autoWin: Boolean){
         logger.info("Матч закончен")
-        withContext(dispatchers.io){
+        withContext(dispatchers.default){
             printResults(autoWin)
             updatePlayersKills()
             kickPlayersInArena()
@@ -210,7 +210,7 @@ class ArenaMatchEndedUseCase @Inject constructor(
             try {
                 db.getArenaPlayersDao().increaseKills(
                     playerId = it.player.id,
-                    kills = it.kills
+                    playerKills = it.kills
                 )
             } catch (t: Throwable){
                 logger.error(

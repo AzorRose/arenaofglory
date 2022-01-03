@@ -8,8 +8,9 @@ import ru.mainmayhem.arenaofglory.data.entities.ArenaReward
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.RewardRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import javax.inject.Inject
 
-class RewardRepositoryImpl(
+class RewardRepositoryImpl @Inject constructor(
     coroutineScope: CoroutineScope,
     private val logger: PluginLogger,
     private val database: PluginDatabase,

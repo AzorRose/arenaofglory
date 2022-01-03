@@ -17,6 +17,7 @@ import javax.inject.Singleton
 @Singleton
 class MatchScheduleJob @Inject constructor(
     private val coroutineScope: CoroutineScope,
+    private val dispatchers: CoroutineDispatchers,
     private val logger: PluginLogger,
     private val settingsRepository: PluginSettingsRepository,
     private val startArenaMatchUseCase: StartArenaMatchUseCase,
@@ -34,7 +35,7 @@ class MatchScheduleJob @Inject constructor(
     fun start(){
         if (job?.isActive == true)
             return
-        job = coroutineScope.launch {
+        job = coroutineScope.launch(dispatchers.default) {
             try {
                 while (isActive){
                     val date = Date()

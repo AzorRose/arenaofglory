@@ -10,8 +10,9 @@ import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-class SettingsRepositoryImpl(
+class SettingsRepositoryImpl @Inject constructor(
     moshi: Moshi,
     private val logger: PluginLogger
 ): PluginSettingsRepository {
@@ -42,7 +43,8 @@ class SettingsRepositoryImpl(
             startArenaMatch = getDefaultArenaMatchTimes(),
             minKillsForReward = 5,
             matchDuration = 15,
-            fractionBoostDefeats = 2
+            fractionBoostDefeats = 2,
+            outpostConqueringDuration = 30
         )
         writeBytes(settingsAdapter.toJson(default).toByteArray())
         return default.toModel()
@@ -65,7 +67,8 @@ class SettingsRepositoryImpl(
             startArenaMatch = startArenaMatch.map(sdf::parse),
             minKillsForReward = minKillsForReward,
             matchDuration = matchDuration,
-            fractionBoostDefeats = fractionBoostDefeats
+            fractionBoostDefeats = fractionBoostDefeats,
+            outpostConqueringDuration = outpostConqueringDuration
         )
     }
 
@@ -98,7 +101,9 @@ class SettingsRepositoryImpl(
         @Json(name = "match_duration")
         val matchDuration: Int,
         @Json(name = "fraction_boost_defeats")
-        val fractionBoostDefeats: Int
+        val fractionBoostDefeats: Int,
+        @Json(name = "outpost_conquering_duration")
+        val outpostConqueringDuration: Int
     )
 
 }

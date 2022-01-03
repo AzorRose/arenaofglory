@@ -18,6 +18,8 @@ interface PluginDatabase {
 
     fun getMatchResultsDao(): MatchResultsDao
 
+    fun getOutpostsDao(): OutpostsDao
+
     fun close()
 
 }

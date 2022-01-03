@@ -9,9 +9,10 @@ import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.*
 import ru.mainmayhem.arenaofglory.data.local.repositories.DbConfigFileRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import java.sql.Connection
+import javax.inject.Inject
 
 
-class JetbrainsExposedDatabase(
+class JetbrainsExposedDatabase @Inject constructor(
     private val fractionDao: FractionDao,
     private val playersDao: ArenaPlayersDao,
     private val waitingRoomCoordinatesDao: WaitingRoomCoordinatesDao,
@@ -20,6 +21,7 @@ class JetbrainsExposedDatabase(
     private val arenaCoordsDao: ArenaCoordinatesDao,
     private val matchResDao: MatchResultsDao,
     private val dbConfigRepository: DbConfigFileRepository,
+    private val dbOutpostsDao: OutpostsDao,
     private val logger: PluginLogger
 ): PluginDatabase {
 
@@ -42,6 +44,8 @@ class JetbrainsExposedDatabase(
 
     override fun getMatchResultsDao(): MatchResultsDao = matchResDao
 
+    override fun getOutpostsDao(): OutpostsDao = dbOutpostsDao
+
     override fun close() {}
 
     private fun createTables(){
@@ -52,10 +56,11 @@ class JetbrainsExposedDatabase(
                 WaitingRoomCoordinates,
                 ArenaRespawnCoordinates,
                 Reward,
-                ArenaCoordinates
+                ArenaCoordinates,
+                Outposts
             )
             SchemaUtils.createMissingTablesAndColumns(
-                ArenaPlayers
+                ArenaPlayers, Outposts
             )
         }
     }

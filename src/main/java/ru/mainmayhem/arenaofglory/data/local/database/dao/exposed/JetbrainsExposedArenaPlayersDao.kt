@@ -9,12 +9,11 @@ import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaPlayersDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaPlayers
-import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.data.updateFirst
+import javax.inject.Inject
 
-class JetbrainsExposedArenaPlayersDao(
-    private val dispatchers: CoroutineDispatchers,
-    private val pluginLogger: PluginLogger
+class JetbrainsExposedArenaPlayersDao @Inject constructor(
+    private val dispatchers: CoroutineDispatchers
 ): ArenaPlayersDao {
 
     private var stateFlow: MutableStateFlow<List<ArenaPlayer>>? = null

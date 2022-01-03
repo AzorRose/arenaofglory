@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
+import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.ArenaMatchEndedUseCase
@@ -20,6 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class EmptyTeamJob @Inject constructor(
     private val coroutineScope: CoroutineScope,
+    private val dispatchers: CoroutineDispatchers,
     private val matchJob: MatchJob,
     private val logger: PluginLogger,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
@@ -53,7 +55,7 @@ class EmptyTeamJob @Inject constructor(
     fun start(){
         if (job?.isActive == true)
             return
-        job = coroutineScope.launch {
+        job = coroutineScope.launch(dispatchers.default) {
             try {
                 timer.collect()
             }catch (t: Throwable){

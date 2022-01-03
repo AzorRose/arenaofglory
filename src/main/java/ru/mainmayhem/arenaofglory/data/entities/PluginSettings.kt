@@ -9,5 +9,6 @@ data class PluginSettings(
     val minKillsForReward: Int,
     //в минутах
     val matchDuration: Int,
-    val fractionBoostDefeats: Int
+    val fractionBoostDefeats: Int,
+    val outpostConqueringDuration: Int
 )

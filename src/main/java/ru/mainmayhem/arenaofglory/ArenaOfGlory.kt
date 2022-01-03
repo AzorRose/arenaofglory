@@ -14,7 +14,9 @@ import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.InitDataUseCase
 import ru.mainmayhem.arenaofglory.domain.useCases.KickAllArenaPLayersUseCase
 import ru.mainmayhem.arenaofglory.jobs.MatchScheduleJob
+import ru.mainmayhem.arenaofglory.jobs.OutpostsJob
 import ru.mainmayhem.arenaofglory.placeholders.FractionPlaceholders
+import ru.mainmayhem.arenaofglory.placeholders.OutpostPlaceholders
 import ru.mainmayhem.arenaofglory.placeholders.PlayersPlaceholders
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,26 +25,28 @@ import javax.inject.Inject
 class ArenaOfGlory: JavaPlugin() {
 
     //commands
-    @Inject internal lateinit var chooseFractionCommandExecutor: ChooseFractionCommandExecutor
-    @Inject internal lateinit var changeFractionCommandExecutor: ChangeFractionCommandExecutor
-    @Inject internal lateinit var enterWaitingRoomCommandExecutor: EnterWaitingRoomCommandExecutor
-    @Inject internal lateinit var quitWaitingRoomCommandExecutor: QuitWaitingRoomCommandExecutor
-    @Inject internal lateinit var reloadPluginCommandExecutor: ReloadPluginCommandExecutor
+    @Inject lateinit var chooseFractionCommandExecutor: ChooseFractionCommandExecutor
+    @Inject lateinit var changeFractionCommandExecutor: ChangeFractionCommandExecutor
+    @Inject lateinit var enterWaitingRoomCommandExecutor: EnterWaitingRoomCommandExecutor
+    @Inject lateinit var quitWaitingRoomCommandExecutor: QuitWaitingRoomCommandExecutor
+    @Inject lateinit var reloadPluginCommandExecutor: ReloadPluginCommandExecutor
 
-    @Inject internal lateinit var initDataUseCase: InitDataUseCase
-    @Inject internal lateinit var kickAllArenaPLayersUseCase: KickAllArenaPLayersUseCase
+    @Inject lateinit var initDataUseCase: InitDataUseCase
+    @Inject lateinit var kickAllArenaPLayersUseCase: KickAllArenaPLayersUseCase
 
-    @Inject internal lateinit var coroutineScope: CoroutineScope
+    @Inject lateinit var coroutineScope: CoroutineScope
 
-    @Inject internal lateinit var logger: PluginLogger
+    @Inject lateinit var logger: PluginLogger
 
-    @Inject internal lateinit var eventsListener: EventsListener
+    @Inject lateinit var eventsListener: EventsListener
 
-    @Inject internal lateinit var matchScheduleJob: MatchScheduleJob
+    @Inject lateinit var matchScheduleJob: MatchScheduleJob
+    @Inject lateinit var outpostsJob: OutpostsJob
 
     //placeholders
-    @Inject internal lateinit var fractionPlaceholders: FractionPlaceholders
-    @Inject internal lateinit var playersPlaceholders: PlayersPlaceholders
+    @Inject lateinit var fractionPlaceholders: FractionPlaceholders
+    @Inject lateinit var playersPlaceholders: PlayersPlaceholders
+    @Inject lateinit var outpostPlaceholders: OutpostPlaceholders
 
     override fun onEnable() {
         initDI()
@@ -52,11 +56,13 @@ class ArenaOfGlory: JavaPlugin() {
         server.pluginManager.registerEvents(eventsListener, this)
         initCommands()
         matchScheduleJob.start()
+        outpostsJob.start()
     }
 
     override fun onDisable() {
         kickAllArenaPLayersUseCase.doKickPlayers()
         matchScheduleJob.stop()
+        outpostsJob.stop()
         coroutineScope.cancel(CancellationException())
         DIHolder.clear()
     }
@@ -105,7 +111,8 @@ class ArenaOfGlory: JavaPlugin() {
     private fun initPlaceholders(){
         val placeHolders: List<PlaceholderExpansion> = listOf(
             fractionPlaceholders,
-            playersPlaceholders
+            playersPlaceholders,
+            outpostPlaceholders
         )
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             placeHolders.forEach {

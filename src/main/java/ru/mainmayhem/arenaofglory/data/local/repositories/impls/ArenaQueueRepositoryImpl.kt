@@ -4,8 +4,9 @@ import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import java.util.*
+import javax.inject.Inject
 
-class ArenaQueueRepositoryImpl(
+class ArenaQueueRepositoryImpl @Inject constructor(
     private val arenaPlayersRepository: ArenaPlayersRepository
 ): ArenaQueueRepository {
 
