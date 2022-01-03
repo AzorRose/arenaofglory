@@ -49,9 +49,9 @@ class OutpostPlaceholders @Inject constructor(
             logger.warning("Аванпост с id = $id не найден")
             return ""
         }
-        val underAttack = "UnderAttack"
-        val readyForFight = "ReadyForFight"
-        val underCover = "UnderCover"
+        val underAttack = "Сражение"
+        val readyForFight = "Готов к бою"
+        val underCover = "Под защитой"
         return when{
             //Идет захват (когда кто-то из вражеской фракции находится на территории аванпоста и пытается его захватить)
             outpost.getStatus() !is ConquerablePlaceStatus.None -> underAttack
