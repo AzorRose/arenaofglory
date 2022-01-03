@@ -52,11 +52,8 @@ abstract class RepositoryModule {
     @Singleton
     abstract fun getOutpostsRepository(impl: OutpostsRepositoryImpl): OutpostsRepository
 
-    @Provides
+    @Binds
     @Singleton
-    fun getMatchResultsRepository(
-        coroutineScope: CoroutineScope,
-        database: PluginDatabase
-    ): MatchResultsRepository = MatchResultRepositoryImpl(coroutineScope, database)
+    abstract fun getMatchResultsRepository(impl: MatchResultRepositoryImpl): MatchResultsRepository
 
 }

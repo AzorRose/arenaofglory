@@ -9,8 +9,9 @@ import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.MatchResult
 import ru.mainmayhem.arenaofglory.data.local.database.dao.MatchResultsDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.MatchResults
+import javax.inject.Inject
 
-class JEMatchResultsDao(
+class JEMatchResultsDao @Inject constructor(
     private val dispatchers: CoroutineDispatchers
 ): MatchResultsDao {
 

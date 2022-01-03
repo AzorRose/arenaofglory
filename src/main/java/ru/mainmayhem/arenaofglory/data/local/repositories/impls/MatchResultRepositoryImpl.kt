@@ -5,8 +5,9 @@ import kotlinx.coroutines.launch
 import ru.mainmayhem.arenaofglory.data.entities.MatchResult
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.MatchResultsRepository
+import javax.inject.Inject
 
-class MatchResultRepositoryImpl(
+class MatchResultRepositoryImpl @Inject constructor(
     coroutineScope: CoroutineScope,
     database: PluginDatabase
 ): MatchResultsRepository {
