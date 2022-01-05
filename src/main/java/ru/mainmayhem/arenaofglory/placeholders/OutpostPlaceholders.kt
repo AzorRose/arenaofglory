@@ -74,7 +74,7 @@ class OutpostPlaceholders @Inject constructor(
             logger.warning("Аванпост с id = $id не найден")
             return ""
         }
-        return outpost.getState().toString()
+        return outpost.getFormattedState()
     }
 
     private fun getOwnerByParams(params: String): String{
