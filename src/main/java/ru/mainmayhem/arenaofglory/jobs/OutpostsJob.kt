@@ -12,6 +12,8 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.OutpostsRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.SendOutpostRewardUseCase
+import ru.mainmayhem.arenaofglory.places.ConquerablePlaceMeta.Companion.MAX_PLACE_STATE
+import ru.mainmayhem.arenaofglory.places.ConquerablePlaceMeta.Companion.MIN_PLACE_STATE
 import ru.mainmayhem.arenaofglory.places.ConquerablePlaceStatus
 import ru.mainmayhem.arenaofglory.places.outposts.OutpostChatMessagesHelper
 import ru.mainmayhem.arenaofglory.places.outposts.OutpostMeta
@@ -68,11 +70,16 @@ class OutpostsJob @Inject constructor(
                                     return@let
                                 }
 
+                                val oldState = meta.getState()
+
                                 //высчитываем новый процент захвата
                                 val updated = getUpdatedState(
-                                    oldState = meta.getState(),
+                                    oldState = oldState,
                                     status = meta.getStatus()
                                 )
+
+                                meta.updateState(updated)
+
                                 val status = meta.getStatus()
 
                                 //уведомляем фракцию о захвате ее аванпоста (если не делали это ранее)
@@ -86,12 +93,12 @@ class OutpostsJob @Inject constructor(
                                     meta.wasNotified = true
                                 }
 
-                                if (updated == 0 || updated == 100){
+                                if (updated == MIN_PLACE_STATE || updated == MAX_PLACE_STATE){
                                     meta.wasNotified = false
                                 }
 
                                 when{
-                                    status is ConquerablePlaceStatus.UnderAttack && updated == 100 -> {
+                                    status is ConquerablePlaceStatus.UnderAttack && updated == MAX_PLACE_STATE -> {
                                         val outpostName = GOLD.toString()
                                         val attackersName = RED.toString()
                                         val default = WHITE.toString()
@@ -100,20 +107,18 @@ class OutpostsJob @Inject constructor(
                                                     "фракции $attackersName${getFractionName(status.attackingFractionId)}"
                                         )
                                         meta.lastCaptureTime = Date().time
-                                        meta.updateState(0)
+                                        meta.updateState(MIN_PLACE_STATE)
                                         launch { changeFraction(meta.getPlaceId(), status.attackingFractionId) }
                                         return@let
                                     }
-                                    status !is ConquerablePlaceStatus.None && updated != meta.getState() -> {
+                                    status !is ConquerablePlaceStatus.None && updated != oldState -> {
                                         val default = GOLD.toString()
                                         val percent = RED.toString()
-                                        outpostChatMessagesHelper.sendMessageToAttackers(meta, "$default Захват аванпоста: $percent$updated%")
-                                        outpostChatMessagesHelper.sendMessageToDefenders(meta, "$default Потеря аванпоста: $percent$updated%")
+                                        val formattedState = meta.getFormattedState()
+                                        outpostChatMessagesHelper.sendMessageToAttackers(meta, "$default Захват аванпоста: $percent$formattedState%")
+                                        outpostChatMessagesHelper.sendMessageToDefenders(meta, "$default Потеря аванпоста: $percent$formattedState%")
                                     }
                                 }
-
-                                meta.updateState(updated)
-
                             }
                         }
                 }
@@ -167,28 +172,28 @@ class OutpostsJob @Inject constructor(
         }
     }
 
-    private fun getUpdatedState(oldState: Int, status: ConquerablePlaceStatus): Int{
+    private fun getUpdatedState(oldState: Double, status: ConquerablePlaceStatus): Double {
 
-        fun getDiff(playersDelta: Int): Int{
-            return 100 / outpostConqueringDuration * playersDelta
+        fun getDiff(playersDelta: Int): Double {
+            return MAX_PLACE_STATE / outpostConqueringDuration * playersDelta
         }
 
-        return when(status){
+        return when(status) {
             is ConquerablePlaceStatus.UnderAttack -> {
                 val diff = getDiff(status.attackingPlayersDelta)
                 val state = oldState + diff
-                if (state > 100) return 100 else state
+                if (state > MAX_PLACE_STATE) return MAX_PLACE_STATE else state
             }
             is ConquerablePlaceStatus.Stalemate -> oldState
             is ConquerablePlaceStatus.Defending -> {
                 val diff = getDiff(status.defendingPlayersDelta)
                 val state = oldState - diff
-                if (state < 0) 0 else state
+                if (state < MIN_PLACE_STATE) MIN_PLACE_STATE else state
             }
             is ConquerablePlaceStatus.None -> {
                 val diff = getDiff(1)
                 val state = oldState - diff
-                if (state < 0) 0 else state
+                if (state < MIN_PLACE_STATE) MIN_PLACE_STATE else state
             }
         }
     }

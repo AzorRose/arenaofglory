@@ -2,17 +2,23 @@ package ru.mainmayhem.arenaofglory.places
 
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
+import java.text.DecimalFormat
 
 abstract class ConquerablePlaceMeta {
+
+    companion object {
+        const val MIN_PLACE_STATE = 0.0
+        const val MAX_PLACE_STATE = 100.0
+        private const val FORMATTED_STATE_PATTERN ="0.##"
+    }
 
     //Игроки, находящиеся на территории этой местности
     private val players = mutableMapOf<Long, Set<ArenaPlayer>>()
     //Состояние точки от 0 до 100
-    private var state: Int = 0
+    @Volatile
+    private var state: Double = MIN_PLACE_STATE
     //была ли фракция уведомлена о захвате
     var wasNotified = false
-        @Synchronized
-        set
 
     private var status: ConquerablePlaceStatus = ConquerablePlaceStatus.None
 
@@ -34,11 +40,16 @@ abstract class ConquerablePlaceMeta {
 
     fun getPlayers() = players
 
-    fun updateState(newState: Int){
+    fun updateState(newState: Double) {
         state = newState
     }
 
     fun getState() = state
+
+    fun getFormattedState(): String {
+        val formatter = DecimalFormat(FORMATTED_STATE_PATTERN)
+        return formatter.format(state)
+    }
 
     fun getStatus() = status
 
