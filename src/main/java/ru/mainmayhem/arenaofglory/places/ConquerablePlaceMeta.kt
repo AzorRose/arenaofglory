@@ -5,10 +5,15 @@ import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 
 abstract class ConquerablePlaceMeta {
 
+    companion object {
+        const val MIN_PLACE_STATE = 0
+        const val MAX_PLACE_STATE = 100
+    }
+
     //Игроки, находящиеся на территории этой местности
     private val players = mutableMapOf<Long, Set<ArenaPlayer>>()
     //Состояние точки от 0 до 100
-    private var state: Int = 0
+    private var state: Int = MIN_PLACE_STATE
     //была ли фракция уведомлена о захвате
     var wasNotified = false
         @Synchronized

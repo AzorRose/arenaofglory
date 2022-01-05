@@ -42,14 +42,14 @@ class OutpostMeta(
 
     fun canBeCaptured(): Boolean{
         val lastCapture = lastCaptureTime
-        return lastCapture == null || (Date().time - lastCapture) >= Constants.OUTPOST_CAPTURE_DELAY * 60_000
+        return lastCapture == null || (Date().time - lastCapture) >= Constants.OUTPOST_CAPTURE_DELAY * Constants.MILLIS_IN_MINUTE
     }
 
     //в минутах
     fun getProtectedModeDuration(): Int{
         val lastCapture = lastCaptureTime ?: return 0
-        val nextTimeCapture = lastCapture + Constants.OUTPOST_CAPTURE_DELAY * 60_000
-        return ((nextTimeCapture - Date().time) / 60_000).toInt().inc()
+        val nextTimeCapture = lastCapture + Constants.OUTPOST_CAPTURE_DELAY * Constants.MILLIS_IN_MINUTE
+        return ((nextTimeCapture - Date().time) / Constants.MILLIS_IN_MINUTE).toInt().inc()
     }
 
 }
