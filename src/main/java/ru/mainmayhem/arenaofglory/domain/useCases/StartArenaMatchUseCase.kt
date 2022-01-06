@@ -1,9 +1,13 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
+import java.util.UUID
+import javax.inject.Inject
+import kotlin.random.Random
 import kotlinx.coroutines.withContext
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.StartMatchDelayJobInstance
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.getShortInfo
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
@@ -12,10 +16,7 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinate
 import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.providers.StartMatchEffectProvider
-import ru.mainmayhem.arenaofglory.jobs.StartMatchDelayJob
-import java.util.*
-import javax.inject.Inject
-import kotlin.random.Random
+import ru.mainmayhem.arenaofglory.jobs.PluginFiniteJob
 
 /**
  * Логика начала матча, когда закончилось ожидание в 5 минут
@@ -26,7 +27,8 @@ class StartArenaMatchUseCase @Inject constructor(
     private val javaPlugin: JavaPlugin,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
-    private val startMatchDelayJob: StartMatchDelayJob,
+    @StartMatchDelayJobInstance
+    private val startMatchDelayJob: PluginFiniteJob,
     private val dispatchers: CoroutineDispatchers,
     private val startMatchEffectProvider: StartMatchEffectProvider,
     private val settingsRepository: PluginSettingsRepository

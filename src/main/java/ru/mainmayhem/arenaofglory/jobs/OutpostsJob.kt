@@ -27,7 +27,7 @@ import ru.mainmayhem.arenaofglory.places.outposts.OutpostMeta
 import ru.mainmayhem.arenaofglory.places.outposts.OutpostsHolder
 
 private const val REWARD_TIME_PERIOD_MILLIS = 10 * 60 * 1000
-private const val JOB_DELAY_MINUTES = 1L
+private const val JOB_DELAY_SECONDS = 1L
 
 class OutpostsJob @Inject constructor(
     private val coroutineScope: CoroutineScope,
@@ -46,8 +46,8 @@ class OutpostsJob @Inject constructor(
     coroutineScope = coroutineScope,
     dispatchers = dispatchers,
     logger = logger,
-    delayTimeUnit = TimeUnit.MINUTES,
-    delay = JOB_DELAY_MINUTES
+    delayTimeUnit = TimeUnit.SECONDS,
+    delay = JOB_DELAY_SECONDS
 ) {
 
     private val outpostConqueringDuration = settingsRepository.getSettings().outpostConqueringDuration

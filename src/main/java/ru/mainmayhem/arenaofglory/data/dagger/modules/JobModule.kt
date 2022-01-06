@@ -7,12 +7,14 @@ import ru.mainmayhem.arenaofglory.data.dagger.annotations.EmptyTeamJobInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.MatchJobInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.MatchScheduleJobInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.OutpostsJobInstance
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.StartMatchDelayJobInstance
 import ru.mainmayhem.arenaofglory.jobs.EmptyTeamJob
 import ru.mainmayhem.arenaofglory.jobs.MatchJob
 import ru.mainmayhem.arenaofglory.jobs.MatchScheduleJob
 import ru.mainmayhem.arenaofglory.jobs.OutpostsJob
 import ru.mainmayhem.arenaofglory.jobs.PluginFiniteJob
 import ru.mainmayhem.arenaofglory.jobs.PluginJob
+import ru.mainmayhem.arenaofglory.jobs.StartMatchDelayJob
 
 @Module
 abstract class JobModule {
@@ -36,5 +38,10 @@ abstract class JobModule {
     @Binds
     @OutpostsJobInstance
     abstract fun getOutpostsJob(impl: OutpostsJob): PluginJob
+
+    @Singleton
+    @Binds
+    @StartMatchDelayJobInstance
+    abstract fun getStartMatchDelayJob(impl: StartMatchDelayJob): PluginFiniteJob
 
 }

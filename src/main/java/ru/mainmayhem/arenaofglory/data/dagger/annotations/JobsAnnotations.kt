@@ -17,3 +17,7 @@ annotation class MatchJobInstance
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class OutpostsJobInstance
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class StartMatchDelayJobInstance

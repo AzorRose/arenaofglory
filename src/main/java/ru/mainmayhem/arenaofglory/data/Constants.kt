@@ -6,7 +6,7 @@ object Constants {
     const val PLUGIN_META_FOLDER_NAME = "ArenaOfGlory"
 
     //время ожидания на арене перед началом матча в секундах
-    const val ARENA_START_MATCH_DELAY_IN_SECONDS = 10
+    const val ARENA_START_MATCH_DELAY_IN_SECONDS = 10L
 
     //Продолжительность задержки до автовина, если команда полностью вышла с арены
     const val EMPTY_TEAM_DELAY_IN_SECONDS = 60L
