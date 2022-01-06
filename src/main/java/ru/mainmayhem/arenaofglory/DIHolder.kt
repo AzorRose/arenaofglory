@@ -6,13 +6,13 @@ object DIHolder {
 
     private var component: AppComponent? = null
 
-    internal fun setComponent(component: AppComponent){
+    fun setComponent(component: AppComponent) {
         this.component = component
     }
 
     fun getComponent(): AppComponent = component!!
 
-    fun clear(){
+    fun clear() {
         component = null
     }
 

@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.placeholders
 
+import javax.inject.Inject
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
@@ -7,7 +8,15 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import javax.inject.Inject
+
+private const val EMPTY_QUEUE_SIZE = 0
+private const val EMPTY_RESULT = ""
+private const val PLACEHOLDER_FRACTION_NAME = "name"
+private const val PLACEHOLDER_FRACTION_QUEUE_AMOUNT = "queueamount"
+private const val PLACEHOLDER_FRACTION_MEMBERS_AMOUNT = "membersamount"
+private const val PLACEHOLDER_IDENTIFIER = "fractions"
+private const val PLACEHOLDER_AUTHOR = "vkomarov"
+private const val PLACEHOLDER_VERSION = "1.0"
 
 class FractionPlaceholders @Inject constructor(
     private val arenaPlayersRepository: ArenaPlayersRepository,
@@ -16,26 +25,22 @@ class FractionPlaceholders @Inject constructor(
     private val queueRepository: ArenaQueueRepository
 ): PlaceholderExpansion() {
 
-    private val fractionNamePlaceholder = "name"
-    private val fractionQueueAmountPlaceholder = "queueamount"
-    private val fractionMembersAmount = "membersamount"
+    override fun getIdentifier(): String = PLACEHOLDER_IDENTIFIER
 
-    override fun getIdentifier(): String = "fractions"
+    override fun getAuthor(): String = PLACEHOLDER_AUTHOR
 
-    override fun getAuthor(): String = "vkomarov"
-
-    override fun getVersion(): String = "1.0.2"
+    override fun getVersion(): String = PLACEHOLDER_VERSION
 
     override fun canRegister(): Boolean {
         return true
     }
 
     override fun onRequest(player: OfflinePlayer?, params: String): String {
-        return when{
-            params == fractionNamePlaceholder -> player?.getFractionName().orEmpty()
-            params.startsWith(fractionQueueAmountPlaceholder) -> getQueueAmount(params)
-            params.startsWith(fractionMembersAmount) -> getMembersAmount(params)
-            else -> ""
+        return when {
+            params == PLACEHOLDER_FRACTION_NAME -> player?.getFractionName().orEmpty()
+            params.startsWith(PLACEHOLDER_FRACTION_QUEUE_AMOUNT) -> getQueueAmount(params)
+            params.startsWith(PLACEHOLDER_FRACTION_MEMBERS_AMOUNT) -> getMembersAmount(params)
+            else -> EMPTY_RESULT
         }
     }
 
@@ -43,29 +48,29 @@ class FractionPlaceholders @Inject constructor(
         return onRequest(player, params)
     }
 
-    private fun getQueueAmount(rawParams: String): String{
-        val fractionId = rawParams.replace(fractionQueueAmountPlaceholder, "").toLongOrNull()
-        if (fractionId == null){
+    private fun getQueueAmount(rawParams: String): String {
+        val fractionId = rawParams.replace(PLACEHOLDER_FRACTION_QUEUE_AMOUNT, "").toLongOrNull()
+        if (fractionId == null) {
             logger.warning("Некорректный id фракции для плейсхолдера $fractionId")
-            return ""
+            return EMPTY_RESULT
         }
         val queue = queueRepository.get()[fractionId]
-        return (queue?.size ?: 0).toString()
+        return (queue?.size ?: EMPTY_QUEUE_SIZE).toString()
     }
 
-    private fun getMembersAmount(rawParams: String): String{
-        val fractionId = rawParams.replace(fractionMembersAmount, "").toLongOrNull()
-        if (fractionId == null){
+    private fun getMembersAmount(rawParams: String): String {
+        val fractionId = rawParams.replace(PLACEHOLDER_FRACTION_MEMBERS_AMOUNT, "").toLongOrNull()
+        if (fractionId == null) {
             logger.warning("Некорректный id фракции для плейсхолдера $fractionId")
-            return ""
+            return EMPTY_RESULT
         }
         val players = arenaPlayersRepository.getCachedPlayers()
         return players.filter { it.fractionId == fractionId }.size.toString()
     }
 
-    private fun OfflinePlayer.getFractionName(): String{
+    private fun OfflinePlayer.getFractionName(): String {
         val id = uniqueId.toString()
-        val arenaPlayer = arenaPlayersRepository.getCachedPlayerById(id) ?: return ""
+        val arenaPlayer = arenaPlayersRepository.getCachedPlayerById(id) ?: return EMPTY_RESULT
         return fractionsRepository.getCachedFractions()
             .find { it.id == arenaPlayer.fractionId }?.name
             .orEmpty()

@@ -1,5 +1,9 @@
 package ru.mainmayhem.arenaofglory
 
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
@@ -9,7 +13,12 @@ import org.bukkit.Bukkit
 import org.bukkit.event.HandlerList
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.commands.Commands
-import ru.mainmayhem.arenaofglory.commands.executors.*
+import ru.mainmayhem.arenaofglory.commands.executors.ChangeFractionCommandExecutor
+import ru.mainmayhem.arenaofglory.commands.executors.ChooseFractionCommandExecutor
+import ru.mainmayhem.arenaofglory.commands.executors.EnterWaitingRoomCommandExecutor
+import ru.mainmayhem.arenaofglory.commands.executors.HelpCommandExecutor
+import ru.mainmayhem.arenaofglory.commands.executors.QuitWaitingRoomCommandExecutor
+import ru.mainmayhem.arenaofglory.commands.executors.ReloadPluginCommandExecutor
 import ru.mainmayhem.arenaofglory.data.dagger.components.DaggerAppComponent
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.InitDataUseCase
@@ -19,35 +28,50 @@ import ru.mainmayhem.arenaofglory.jobs.OutpostsJob
 import ru.mainmayhem.arenaofglory.placeholders.FractionPlaceholders
 import ru.mainmayhem.arenaofglory.placeholders.OutpostPlaceholders
 import ru.mainmayhem.arenaofglory.placeholders.PlayersPlaceholders
-import java.text.SimpleDateFormat
-import java.util.*
-import javax.inject.Inject
+
+private const val PLACEHOLDER_API_NAME = "PlaceholderAPI"
+private const val CURRENT_SERVER_TIME_PATTERN = "dd.MM.yyyy HH:mm:ss"
 
 class ArenaOfGlory: JavaPlugin() {
 
     //commands
-    @Inject lateinit var chooseFractionCommandExecutor: ChooseFractionCommandExecutor
-    @Inject lateinit var changeFractionCommandExecutor: ChangeFractionCommandExecutor
-    @Inject lateinit var enterWaitingRoomCommandExecutor: EnterWaitingRoomCommandExecutor
-    @Inject lateinit var quitWaitingRoomCommandExecutor: QuitWaitingRoomCommandExecutor
-    @Inject lateinit var reloadPluginCommandExecutor: ReloadPluginCommandExecutor
+    @Inject
+    lateinit var chooseFractionCommandExecutor: ChooseFractionCommandExecutor
+    @Inject
+    lateinit var changeFractionCommandExecutor: ChangeFractionCommandExecutor
+    @Inject
+    lateinit var enterWaitingRoomCommandExecutor: EnterWaitingRoomCommandExecutor
+    @Inject
+    lateinit var quitWaitingRoomCommandExecutor: QuitWaitingRoomCommandExecutor
+    @Inject
+    lateinit var reloadPluginCommandExecutor: ReloadPluginCommandExecutor
 
-    @Inject lateinit var initDataUseCase: InitDataUseCase
-    @Inject lateinit var kickAllArenaPLayersUseCase: KickAllArenaPLayersUseCase
+    @Inject
+    lateinit var initDataUseCase: InitDataUseCase
+    @Inject
+    lateinit var kickAllArenaPLayersUseCase: KickAllArenaPLayersUseCase
 
-    @Inject lateinit var coroutineScope: CoroutineScope
+    @Inject
+    lateinit var coroutineScope: CoroutineScope
 
-    @Inject lateinit var logger: PluginLogger
+    @Inject
+    lateinit var logger: PluginLogger
 
-    @Inject lateinit var eventsListener: EventsListener
+    @Inject
+    lateinit var eventsListener: EventsListener
 
-    @Inject lateinit var matchScheduleJob: MatchScheduleJob
-    @Inject lateinit var outpostsJob: OutpostsJob
+    @Inject
+    lateinit var matchScheduleJob: MatchScheduleJob
+    @Inject
+    lateinit var outpostsJob: OutpostsJob
 
     //placeholders
-    @Inject lateinit var fractionPlaceholders: FractionPlaceholders
-    @Inject lateinit var playersPlaceholders: PlayersPlaceholders
-    @Inject lateinit var outpostPlaceholders: OutpostPlaceholders
+    @Inject
+    lateinit var fractionPlaceholders: FractionPlaceholders
+    @Inject
+    lateinit var playersPlaceholders: PlayersPlaceholders
+    @Inject
+    lateinit var outpostPlaceholders: OutpostPlaceholders
 
     override fun onEnable() {
         initDI()
@@ -70,31 +94,31 @@ class ArenaOfGlory: JavaPlugin() {
         DIHolder.clear()
     }
 
-    private fun initData(){
+    private fun initData() {
         coroutineScope.launch {
             kotlin.runCatching {
                 initDataUseCase.init()
-            }.exceptionOrNull()?.let {
+            }.exceptionOrNull()?.let { error ->
                 logger.error(
                     methodName = "initData",
                     className = "ArenaOfGlory",
-                    throwable = it
+                    throwable = error
                 )
             }
         }
     }
 
-    private fun initDI(){
+    private fun initDI() {
         DIHolder.setComponent(
             DaggerAppComponent.factory().create(this)
         )
         DIHolder.getComponent().injectArenaOfGloryClass(this)
     }
 
-    private fun initCommands(){
-        Commands.values().forEach {
-            getCommand(it.cmdName)!!.setExecutor(
-                when(it){
+    private fun initCommands() {
+        Commands.values().forEach { command ->
+            getCommand(command.cmdName)!!.setExecutor(
+                when (command) {
                     Commands.HELP -> HelpCommandExecutor()
                     Commands.RELOAD_PLUGIN -> reloadPluginCommandExecutor
                     Commands.CHOOSE_FRACTION -> chooseFractionCommandExecutor
@@ -112,21 +136,21 @@ class ArenaOfGlory: JavaPlugin() {
         }
     }
 
-    private fun printCurrentServerDate(){
-        val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
+    private fun printCurrentServerDate() {
+        val sdf = SimpleDateFormat(CURRENT_SERVER_TIME_PATTERN, Locale.getDefault())
         logger.info("Серверное время: ${sdf.format(Date())}")
     }
 
-    private fun initPlaceholders(){
+    private fun initPlaceholders() {
         val placeHolders: List<PlaceholderExpansion> = listOf(
             fractionPlaceholders,
             playersPlaceholders,
             outpostPlaceholders
         )
-        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            placeHolders.forEach {
-                if (!it.register()){
-                    logger.warning("Не удалось зарегистрировать placeholder с id = ${it.identifier}")
+        if (Bukkit.getPluginManager().getPlugin(PLACEHOLDER_API_NAME) != null) {
+            placeHolders.forEach { expansion ->
+                if (!expansion.register()) {
+                    logger.warning("Не удалось зарегистрировать placeholder с id = ${expansion.identifier}")
                 }
             }
         } else {
