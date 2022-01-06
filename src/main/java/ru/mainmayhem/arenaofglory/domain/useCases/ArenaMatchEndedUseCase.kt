@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
+import javax.inject.Inject
 import kotlinx.coroutines.withContext
 import org.bukkit.ChatColor
 import org.bukkit.plugin.java.JavaPlugin
@@ -8,11 +9,14 @@ import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.ArenaMatchMember
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
-import ru.mainmayhem.arenaofglory.data.local.repositories.*
+import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.MatchResultsRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.RewardRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.inventory.items.token.TokenFactory
-import java.util.*
-import javax.inject.Inject
 
 /**
  * Логика после окончания матча
@@ -35,9 +39,9 @@ class ArenaMatchEndedUseCase @Inject constructor(
      * @param autoWin - команда полностью вышла и время ожидания истекло
      * Считаем, что команда, которая осталась на арене, победила
      */
-    suspend fun handle(autoWin: Boolean){
+    suspend fun handle(autoWin: Boolean) {
         logger.info("Матч закончен")
-        withContext(dispatchers.default){
+        withContext(dispatchers.default) {
             saveMatchResults()
             printResults(autoWin)
             updatePlayersKills()
@@ -49,25 +53,25 @@ class ArenaMatchEndedUseCase @Inject constructor(
         }
     }
 
-    private suspend fun kickPlayersInArena(){
-        arenaMatchMetaRepository.getPlayers().forEach {
-            it.player.teleportToServerSpawn()
+    private suspend fun kickPlayersInArena() {
+        arenaMatchMetaRepository.getPlayers().forEach { matchMember ->
+            matchMember.player.teleportToServerSpawn()
         }
     }
 
-    private suspend fun kickPlayersInQueue(){
-        arenaQueueRepository.getAll().forEach {
-            it.teleportToServerSpawn()
+    private suspend fun kickPlayersInQueue() {
+        arenaQueueRepository.getAll().forEach { arenaPlayer ->
+            arenaPlayer.teleportToServerSpawn()
         }
     }
 
-    private fun giveRewardToPlayers(autoWin: Boolean){
+    private fun giveRewardToPlayers(autoWin: Boolean) {
         val reward = rewardRepository.get()
-        if (reward == null){
+        if (reward == null) {
             logger.warning("Невозможно выдать награду игрокам. Данные в БД отсутствуют, либо некорректны")
             return
         }
-        when{
+        when {
             autoWin -> {
                 arenaMatchMetaRepository.getPlayers().giveReward(reward.victory, autoWin)
             }
@@ -76,20 +80,20 @@ class ArenaMatchEndedUseCase @Inject constructor(
             }
             else -> {
                 val descFractionPoints = arenaMatchMetaRepository.getFractionsPoints()
-                    .map { Pair(it.key, it.value) }
-                    .sortedByDescending { it.second }
+                    .map { (fractionId, points) -> Pair(fractionId, points) }
+                    .sortedByDescending { (_, points) -> points }
                 val maxPoints = descFractionPoints.first().second
                 //делаю на случай, если в будущем будет больше 2 фракций
                 val winningFractions = descFractionPoints
-                    .filter { it.second == maxPoints }
-                    .map { it.first }
+                    .filter { (_, points) -> points == maxPoints }
+                    .map { (fractionId, _) -> fractionId }
                 val winners = mutableListOf<ArenaMatchMember>()
                 val losers = mutableListOf<ArenaMatchMember>()
-                arenaMatchMetaRepository.getPlayers().forEach {
-                    if (winningFractions.contains(it.player.fractionId)){
-                        winners.add(it)
+                arenaMatchMetaRepository.getPlayers().forEach { matchMember ->
+                    if (winningFractions.contains(matchMember.player.fractionId)) {
+                        winners.add(matchMember)
                     } else {
-                        losers.add(it)
+                        losers.add(matchMember)
                     }
                 }
                 winners.giveReward(reward.victory, autoWin)
@@ -98,97 +102,97 @@ class ArenaMatchEndedUseCase @Inject constructor(
         }
     }
 
-    private fun List<ArenaMatchMember>.giveReward(amount: Int, autoWin: Boolean){
+    private fun List<ArenaMatchMember>.giveReward(amount: Int, autoWin: Boolean) {
         val minKills = settingsRepository.getSettings().minKillsForReward
-        forEach {
-            if (it.kills >= minKills || autoWin){
-                it.player.giveReward(amount)
+        forEach { matchMember ->
+            if (matchMember.kills >= minKills || autoWin) {
+                matchMember.player.giveReward(amount)
             } else {
                 printNotEnoughKillsMessage(
-                    playerName = it.player.name,
+                    playerName = matchMember.player.name,
                     neededKills = minKills,
-                    playerKills = it.kills
+                    playerKills = matchMember.kills
                 )
             }
         }
     }
 
-    private fun ArenaPlayer.giveReward(amount: Int){
-        val player = javaPlugin.server.getPlayer(
-            UUID.fromString(id)
-        )
-        if (player == null){
+    private fun ArenaPlayer.giveReward(amount: Int) {
+        val player = javaPlugin.server.getPlayer(name)
+        if (player == null) {
             logger.warning("Невозможно выдать награду игроку $player, игрок не найден")
             return
         }
         player.inventory.addItem(tokenFactory.getTokens(amount))
     }
 
-    private suspend fun ArenaPlayer.teleportToServerSpawn(){
-        withContext(dispatchers.main){
+    private suspend fun ArenaPlayer.teleportToServerSpawn() {
+        withContext(dispatchers.main) {
             javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let {
-                javaPlugin.server.getPlayer(UUID.fromString(id))?.teleport(it.spawnLocation)
+                javaPlugin.server.getPlayer(name)?.teleport(it.spawnLocation)
             }
         }
     }
 
-    private fun isDraw(): Boolean{
+    private fun isDraw(): Boolean {
         return arenaMatchMetaRepository.getFractionsPoints()
-            .map { it.value }
+            .map { (_, points) -> points }
             .toSet().size == 1
     }
 
-    private fun getWinningFractionName(): String?{
+    private fun getWinningFractionName(): String? {
         val id = getWinningFractionId() ?: return null
-        return fractionsRepository.getCachedFractions().find { it.id == id }?.name
+        return fractionsRepository.getCachedFractions().find { fraction -> fraction.id == id }?.name
     }
 
     private fun getWinningFractionId(): Long? {
         return arenaMatchMetaRepository.getFractionsPoints()
-            .maxByOrNull { it.value }?.key
+            .maxByOrNull { (_, points) -> points }?.key
     }
 
     private fun getLooserFractionId(): Long? {
         return arenaMatchMetaRepository.getFractionsPoints()
-            .minByOrNull { it.value }?.key
+            .minByOrNull { (_, points) -> points }?.key
     }
 
-    private fun getAutoWonFractionName(): String?{
+    private fun getAutoWonFractionName(): String? {
         //так как у нас 2 команды, то при автопобеде на арене будет одна фракция
-        val fractionId = arenaMatchMetaRepository.getPlayers().firstOrNull()?.player?.fractionId
-        return fractionId?.let {fraction ->
-            fractionsRepository.getCachedFractions().find { it.id == fraction }?.name
+        return arenaMatchMetaRepository.getPlayers().firstOrNull()?.player?.fractionId?.let { fractionId ->
+            fractionsRepository.getCachedFractions().find { fraction -> fraction.id == fractionId }?.name
         }
     }
 
-    private fun printResults(autoWin: Boolean){
+    private fun printResults(autoWin: Boolean) {
         val title = "${ChatColor.GOLD}Битва за честь и славу была закончена."
         val subtitleFontSettings = ChatColor.YELLOW.toString()
         val fractionFontSettings = ChatColor.DARK_RED.toString()
-        when{
+        when {
             autoWin -> {
                 sendMessageToAllPlayers(
                     title,
                     "${subtitleFontSettings}Победителем в ней стала нация - " +
-                            "${fractionFontSettings + getAutoWonFractionName()} ${subtitleFontSettings}!!!"
+                        "${fractionFontSettings + getAutoWonFractionName()} ${subtitleFontSettings}!!!"
                 )
             }
             isDraw() -> {
-                sendMessageToAllPlayers(title, "${subtitleFontSettings}В этой кровавой схватке победить не был определён!!")
+                sendMessageToAllPlayers(
+                    title,
+                    "${subtitleFontSettings}В этой кровавой схватке победить не был определён!!"
+                )
             }
             else -> {
                 sendMessageToAllPlayers(
                     title,
                     "${subtitleFontSettings}Победителем в ней стала нация - " +
-                            "${fractionFontSettings + getWinningFractionName()} ${subtitleFontSettings}!!!"
+                        "${fractionFontSettings + getWinningFractionName()} ${subtitleFontSettings}!!!"
                 )
             }
         }
     }
 
-    private fun sendMessageToAllPlayers(title: String, subtitle: String){
-        javaPlugin.server.onlinePlayers.forEach {
-            it.sendTitle(
+    private fun sendMessageToAllPlayers(title: String, subtitle: String) {
+        javaPlugin.server.onlinePlayers.forEach { player ->
+            player.sendTitle(
                 title,
                 subtitle,
                 10,
@@ -202,29 +206,29 @@ class ArenaMatchEndedUseCase @Inject constructor(
         playerName: String,
         playerKills: Int,
         neededKills: Int
-    ){
+    ) {
         val commonFontSettings = ChatColor.AQUA.toString()
         val paramsFontSettings = ChatColor.GOLD.toString()
         javaPlugin.server.getPlayer(playerName)?.sendMessage(
             "${commonFontSettings}Вы бились как чемпион, но в этот раз этого было недостаточно. " +
-                    "Вами повержено ${paramsFontSettings+playerKills} ${commonFontSettings}противников, для получения " +
-                    "награды требуется - ${"$paramsFontSettings$neededKills $commonFontSettings !"}"
+                "Вами повержено ${paramsFontSettings + playerKills} ${commonFontSettings}противников, для получения " +
+                "награды требуется - ${"$paramsFontSettings$neededKills $commonFontSettings !"}"
         )
     }
 
-    private suspend fun updatePlayersKills(){
+    private suspend fun updatePlayersKills() {
         logger.info("Обновляем общее кол-во убийств у игроков")
-        arenaMatchMetaRepository.getPlayers().forEach {
+        arenaMatchMetaRepository.getPlayers().forEach { matchMember ->
             try {
                 db.getArenaPlayersDao().increaseKills(
-                    playerId = it.player.id,
-                    playerKills = it.kills
+                    playerId = matchMember.player.id,
+                    playerKills = matchMember.kills
                 )
-            } catch (t: Throwable){
+            } catch (t: Throwable) {
                 logger.error(
                     className = "ArenaMatchEndedUseCase",
                     methodName = "updatePlayersKills",
-                    message = "Не удалось обновить кол-во убийств для игрока ${it.player}",
+                    message = "Не удалось обновить кол-во убийств для игрока ${matchMember.player}",
                     throwable = t
                 )
             }

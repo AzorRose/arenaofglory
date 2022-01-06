@@ -17,7 +17,7 @@ class WaitingRoomScheduleHelper @Inject constructor(
     /**
      * Открыта ли в данный момент комната ожидания
      */
-    fun isWaitingRoomOpened(): Boolean{
+    fun isWaitingRoomOpened(): Boolean {
         return matchJob.isActive() || preparingForMatch()
     }
 
@@ -26,7 +26,8 @@ class WaitingRoomScheduleHelper @Inject constructor(
      */
     fun preparingForMatch(): Boolean {
         if (matchJob.isActive()) return false
-        val openWaitingRoomBeforeMatchMillis = settingsRepository.getSettings().openWaitingRoomMins * Constants.MILLIS_IN_MINUTE
+        val openWaitingRoomBeforeMatchMillis =
+            settingsRepository.getSettings().openWaitingRoomMins * Constants.MILLIS_IN_MINUTE
         val currDateMillis = System.currentTimeMillis()
         settingsRepository.getSettings().startArenaMatch.forEach { startArenaDate ->
             val startDateMillis = startArenaDate.asCalendar().setCurrentDate().timeInMillis

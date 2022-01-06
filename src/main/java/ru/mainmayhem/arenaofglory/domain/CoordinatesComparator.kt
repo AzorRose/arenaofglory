@@ -1,9 +1,9 @@
 package ru.mainmayhem.arenaofglory.domain
 
-import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import javax.inject.Inject
+import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 
-class CoordinatesComparator @Inject constructor(){
+class CoordinatesComparator @Inject constructor() {
 
     /**
      * Метод, который проверяет, попадает ли переданная точка в некую область на карте
@@ -12,7 +12,7 @@ class CoordinatesComparator @Inject constructor(){
      * @param location - локация на карте
      * @return true - точка находится внутри этой локации
      */
-    fun compare(coordinates: Coordinates, location: CalculatedLocation): Boolean{
+    fun compare(coordinates: Coordinates, location: CalculatedLocation): Boolean {
         val x = coordinates.x
         val z = coordinates.z
         val minX = location.minX
@@ -21,7 +21,6 @@ class CoordinatesComparator @Inject constructor(){
         val maxZ = location.maxZ
 
         return x in minX..maxX && z in minZ..maxZ
-
     }
 
 }

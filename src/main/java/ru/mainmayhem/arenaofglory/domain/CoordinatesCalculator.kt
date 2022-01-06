@@ -1,10 +1,10 @@
 package ru.mainmayhem.arenaofglory.domain
 
+import javax.inject.Inject
 import kotlinx.coroutines.withContext
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.entities.LocationCoordinates
-import javax.inject.Inject
 
 class CoordinatesCalculator @Inject constructor(
     private val dispatchers: CoroutineDispatchers
@@ -15,13 +15,13 @@ class CoordinatesCalculator @Inject constructor(
      * Точки округляются до целых числ
      * Отдает только X, Z. Y ВСЕГДА равен значению верхнего левого угла
      */
-    suspend fun calculate(locationCoordinates: LocationCoordinates): CalculatedLocation{
-        return withContext(dispatchers.io){
+    suspend fun calculate(locationCoordinates: LocationCoordinates): CalculatedLocation {
+        return withContext(dispatchers.io) {
             doCalculation(locationCoordinates)
         }
     }
 
-    private fun doCalculation(locationCoordinates: LocationCoordinates): CalculatedLocation{
+    private fun doCalculation(locationCoordinates: LocationCoordinates): CalculatedLocation {
         val topLeft = locationCoordinates.leftTop
         val bottomRight = locationCoordinates.rightBottom
         val coordinates = mutableListOf<Coordinates>()
@@ -37,7 +37,7 @@ class CoordinatesCalculator @Inject constructor(
         return CalculatedLocation(minX, maxX, minZ, maxZ, coordinates)
     }
 
-    private fun getProgression(first: Int, second: Int): IntProgression{
+    private fun getProgression(first: Int, second: Int): IntProgression {
         val doDownLoop = first > second
         return if (doDownLoop) first downTo second else first..second
     }
