@@ -9,6 +9,7 @@ import ru.mainmayhem.arenaofglory.data.getShortInfo
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinatesRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.providers.StartMatchEffectProvider
 import ru.mainmayhem.arenaofglory.jobs.StartMatchDelayJob
@@ -27,7 +28,8 @@ class StartArenaMatchUseCase @Inject constructor(
     private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
     private val startMatchDelayJob: StartMatchDelayJob,
     private val dispatchers: CoroutineDispatchers,
-    private val startMatchEffectProvider: StartMatchEffectProvider
+    private val startMatchEffectProvider: StartMatchEffectProvider,
+    private val settingsRepository: PluginSettingsRepository
 ) {
 
     suspend fun handle(){
@@ -150,8 +152,12 @@ class StartArenaMatchUseCase @Inject constructor(
     }
 
     private fun updatePlayersEffects(players: Map<Long, Set<ArenaPlayer>>) {
+        val matchDuration = settingsRepository.getSettings().matchDuration
         players.forEach { (fractionId, players) ->
-            val effect = startMatchEffectProvider.provideEffect(fractionId)
+            val effect = startMatchEffectProvider.provideEffect(
+                fractionId = fractionId,
+                durationInMinutes = matchDuration
+            )
             if (effect != null) {
                 players.forEach { arenaPlayer ->
                     javaPlugin.server.getPlayer(arenaPlayer.name)?.addPotionEffect(effect)

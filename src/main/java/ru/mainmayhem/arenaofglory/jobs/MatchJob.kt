@@ -66,6 +66,7 @@ class MatchJob @Inject constructor(
         if (job?.isActive == true)
             return
         logger.info("Начало матча в $matchDuration мин")
+        leftTime = matchDuration
         job = coroutineScope.launch(dispatchers.default) {
             try {
                 timer.collect()

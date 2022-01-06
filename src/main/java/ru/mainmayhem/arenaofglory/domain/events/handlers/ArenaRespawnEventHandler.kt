@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.domain.events.handlers
 
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.plugin.java.JavaPlugin
@@ -10,7 +11,10 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaReposito
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinatesRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.events.BaseEventHandler
+import ru.mainmayhem.arenaofglory.domain.providers.StartMatchEffectProvider
 import javax.inject.Inject
+
+private const val POTION_EFFECT_TICKS_DELAY = 1L
 
 /**
  * Если игрок участник арены, респавним его на территории его фракции
@@ -19,7 +23,8 @@ class ArenaRespawnEventHandler @Inject constructor(
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
     private val logger: PluginLogger,
-    private val javaPlugin: JavaPlugin
+    private val javaPlugin: JavaPlugin,
+    private val startMatchEffectProvider: StartMatchEffectProvider
 ): BaseEventHandler<PlayerRespawnEvent>() {
 
     override fun handle(event: PlayerRespawnEvent) {
@@ -40,6 +45,14 @@ class ArenaRespawnEventHandler @Inject constructor(
                     coordinate.y.toDouble(),
                     coordinate.z.toDouble()
                 )
+                val fractionId = player.player.fractionId
+                startMatchEffectProvider.provideEffect(fractionId, false)?.let { effect ->
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(
+                        javaPlugin,
+                        { event.player.addPotionEffect(effect) },
+                        POTION_EFFECT_TICKS_DELAY
+                    )
+                }
             }
         }
         super.handle(event)
