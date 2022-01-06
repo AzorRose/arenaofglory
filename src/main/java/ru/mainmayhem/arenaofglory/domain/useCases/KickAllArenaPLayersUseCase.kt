@@ -1,6 +1,5 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
-import java.util.UUID
 import javax.inject.Inject
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
@@ -26,12 +25,12 @@ class KickAllArenaPLayersUseCase @Inject constructor(
 ) {
 
     fun doKickPlayers(){
-        arenaQueueRepository.getAll().forEach {
-            it.kick()
+        arenaQueueRepository.getAll().forEach { arenaPlayer ->
+            arenaPlayer.kick()
         }
         arenaQueueRepository.clear()
-        arenaMatchMetaRepository.getPlayers().forEach {
-            it.player.kick()
+        arenaMatchMetaRepository.getPlayers().forEach { matchMember ->
+            matchMember.player.kick()
         }
         arenaMatchMetaRepository.clear()
         matchJob.stop()
@@ -39,10 +38,8 @@ class KickAllArenaPLayersUseCase @Inject constructor(
     }
 
     private fun ArenaPlayer.kick(){
-        javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let {
-            javaPlugin.server.getPlayer(
-                UUID.fromString(id)
-            )?.teleport(it.spawnLocation)
+        javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let { world ->
+            javaPlugin.server.getPlayer(name)?.teleport(world.spawnLocation)
         }
     }
 

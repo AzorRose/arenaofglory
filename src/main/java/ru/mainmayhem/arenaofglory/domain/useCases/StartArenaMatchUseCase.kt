@@ -18,6 +18,10 @@ import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.providers.StartMatchEffectProvider
 import ru.mainmayhem.arenaofglory.jobs.PluginFiniteJob
 
+private const val NO_PLAYERS_AMOUNT = 0
+private const val NOT_ENOUGH_PLAYERS_AMOUNT = 1
+private const val FIRST_LIST_INDEX = 0
+
 /**
  * Логика начала матча, когда закончилось ожидание в 5 минут
  */
@@ -38,22 +42,20 @@ class StartArenaMatchUseCase @Inject constructor(
         val size = queueSize()
         logger.info("Игроков в очереди: $size")
         when(size){
-            0 -> return
-            1 -> kickPlayer()
+            NO_PLAYERS_AMOUNT -> return
+            NOT_ENOUGH_PLAYERS_AMOUNT -> kickPlayer()
             else -> startMatch()
         }
     }
 
     private suspend fun kickPlayer(){
-        val playerId = arenaQueueRepository.getAll().first().id
-        arenaQueueRepository.remove(playerId)
-        val player = javaPlugin.server.getPlayer(
-            UUID.fromString(playerId)
-        ) ?: return
+        val arenaPlayer = arenaQueueRepository.getAll().first()
+        arenaQueueRepository.remove(arenaPlayer.id)
+        val player = javaPlugin.server.getPlayer(arenaPlayer.name) ?: return
         logger.info("Кикаем игрока ${player.getShortInfo()} из комнаты ожидания")
         withContext(dispatchers.main){
-            javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let {
-                player.teleport(it.spawnLocation)
+            javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let { world ->
+                player.teleport(world.spawnLocation)
             }
             player.sendMessage("Недостаточно игроков")
         }
@@ -81,13 +83,13 @@ class StartArenaMatchUseCase @Inject constructor(
         val min = getMinPlayersInFraction(players)
         logger.info("Меньшая из фракций состоит из $min игроков")
         val newPlayers = mutableMapOf<Long, Set<ArenaPlayer>>()
-        players.forEach { (key, value) ->
+        players.forEach { (fractionId, players) ->
             //берем первых кто зашел, удаляем их из очереди, кидаем на арену
-            val firstMinCountPlayers = value.toList().subList(0, min)
-            firstMinCountPlayers.forEach {
-                arenaQueueRepository.remove(it.id)
+            val firstMinCountPlayers = players.toList().subList(FIRST_LIST_INDEX, min)
+            firstMinCountPlayers.forEach { player ->
+                arenaQueueRepository.remove(player.id)
             }
-            newPlayers[key] = firstMinCountPlayers.toSet()
+            newPlayers[fractionId] = firstMinCountPlayers.toSet()
         }
         //todo возможно, стоит что-то написать тем игрокам, которые не попали на арену
         logger.info("Уравновесили команды, переносим на арену")
@@ -101,7 +103,7 @@ class StartArenaMatchUseCase @Inject constructor(
         players.entries.forEachIndexed { index, entry ->
             val size = entry.value.size
             when{
-                index == 0 -> res = entry.value.size
+                index == FIRST_LIST_INDEX -> res = entry.value.size
                 res > size -> res = size
             }
         }
@@ -110,8 +112,8 @@ class StartArenaMatchUseCase @Inject constructor(
 
     private suspend fun savePlayersInArenaMeta(players: Map<Long, Set<ArenaPlayer>>){
         val res = mutableListOf<ArenaPlayer>()
-        players.values.forEach {
-            res.addAll(it)
+        players.values.forEach { playersSet ->
+            res.addAll(playersSet)
         }
         arenaMatchMetaRepository.setPlayers(res)
     }
@@ -137,7 +139,7 @@ class StartArenaMatchUseCase @Inject constructor(
         var firstFractionSize = 0
         queue.entries.forEachIndexed { index, entry ->
             when{
-                index == 0 -> firstFractionSize = entry.value.size
+                index == FIRST_LIST_INDEX -> firstFractionSize = entry.value.size
                 firstFractionSize != entry.value.size -> return false
             }
         }

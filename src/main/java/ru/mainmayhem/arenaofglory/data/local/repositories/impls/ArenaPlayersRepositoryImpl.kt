@@ -1,13 +1,13 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
+import java.util.Collections
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
-import java.util.*
-import javax.inject.Inject
 
 class ArenaPlayersRepositoryImpl @Inject constructor(
     pluginDatabase: PluginDatabase,
@@ -27,14 +27,14 @@ class ArenaPlayersRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getCachedPlayers(): List<ArenaPlayer> = players
+    override fun getCachedPlayers(): List<ArenaPlayer> = players.toList()
 
     override fun getCachedPlayerById(playerId: String): ArenaPlayer? {
-        return players.find { it.id == playerId }
+        return players.find { player -> player.id == playerId }
     }
 
     override fun getCachedPlayerByName(playerName: String): ArenaPlayer? {
-        return players.find { it.name == playerName }
+        return players.find { player -> player.name == playerName }
     }
 
 }

@@ -1,16 +1,19 @@
 package ru.mainmayhem.arenaofglory.domain.events.interactors
 
-import org.bukkit.event.entity.PlayerDeathEvent
-import ru.mainmayhem.arenaofglory.domain.events.handlers.ArenaKillingEventHandler
-import ru.mainmayhem.arenaofglory.domain.events.handlers.ArenaSuicideEventHandler
 import javax.inject.Inject
+import org.bukkit.event.entity.PlayerDeathEvent
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.ArenaKillingEventHandlerInstance
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.ArenaSuicideEventHandlerInstance
+import ru.mainmayhem.arenaofglory.domain.events.EventHandler
 
 class PlayerDeathEventInteractor @Inject constructor(
-    private val arenaKillingEventHandler: ArenaKillingEventHandler,
-    private val arenaSuicideEventHandler: ArenaSuicideEventHandler
+    @ArenaKillingEventHandlerInstance
+    private val arenaKillingEventHandler: EventHandler<PlayerDeathEvent>,
+    @ArenaSuicideEventHandlerInstance
+    private val arenaSuicideEventHandler: EventHandler<PlayerDeathEvent>
 ) {
 
-    fun handle(event: PlayerDeathEvent){
+    fun handle(event: PlayerDeathEvent) {
         arenaSuicideEventHandler.setNext(arenaKillingEventHandler)
         arenaSuicideEventHandler.handle(event)
     }
