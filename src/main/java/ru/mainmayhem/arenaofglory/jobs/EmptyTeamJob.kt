@@ -1,92 +1,55 @@
 package ru.mainmayhem.arenaofglory.jobs
 
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.ArenaMatchEndedUseCase
-import java.util.*
-import java.util.concurrent.CancellationException
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
+private const val TIMER_STEP_SECONDS = 10L
+
 class EmptyTeamJob @Inject constructor(
-    private val coroutineScope: CoroutineScope,
-    private val dispatchers: CoroutineDispatchers,
+    coroutineScope: CoroutineScope,
+    dispatchers: CoroutineDispatchers,
     private val matchJob: MatchJob,
-    private val logger: PluginLogger,
+    logger: PluginLogger,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val javaPlugin: JavaPlugin,
     private val arenaMatchEndedUseCase: ArenaMatchEndedUseCase
+): PluginCoroutineFiniteJob(
+    coroutineScope = coroutineScope,
+    dispatchers = dispatchers,
+    logger = logger,
+    timerStepTimeUnit = TimeUnit.SECONDS,
+    timerStep = TIMER_STEP_SECONDS,
+    duration = Constants.EMPTY_TEAM_DELAY_IN_SECONDS,
+    durationTimeUnit = TimeUnit.SECONDS
 ) {
 
-    //сколько времени осталось в секундах до истечения таймера
-    var leftTime = 0
-        private set
-
-    private val timer = flow<Int> {
-        val deltaInSeconds = 10
-        repeat(Constants.EMPTY_TEAM_DELAY_IN_SECONDS / deltaInSeconds){
-            leftTime = Constants.EMPTY_TEAM_DELAY_IN_SECONDS - it * deltaInSeconds
-            sendMessageToAllPlayersInMatch(
-                "До автоматической победы: $leftTime сек"
-            )
-            delay(deltaInSeconds * 1000L)
-        }
-        matchJob.stop()
-        arenaMatchEndedUseCase.handle(true)
-    }.onStart {
+    override suspend fun onStart() {
         sendMessageToAllPlayersInMatch(
             "${org.bukkit.ChatColor.AQUA}Команда противника покинула битву"
         )
     }
 
-    private var job: Job? = null
-
-    fun start(){
-        if (job?.isActive == true)
-            return
-        job = coroutineScope.launch(dispatchers.default) {
-            try {
-                timer.collect()
-            }catch (t: Throwable){
-                if (t !is CancellationException){
-                    logger.error(
-                        className = "StartMatchDelayJob",
-                        methodName = "timer flow",
-                        throwable = t
-                    )
-                }
-            }
-        }
+    override suspend fun onCompletion() {
+        matchJob.stop()
+        arenaMatchEndedUseCase.handle(true)
     }
 
-    fun stop(){
-        logger.info("Останавливаем счетчик автопобеды")
-        val wasActive = job?.isActive == true
-        job?.cancel(CancellationException())
-        job = null
-        if (wasActive){
-            sendMessageToAllPlayersInMatch(
-                "Матч продолжается"
-            )
-        }
+    override suspend fun onEach(leftTime: Long, timeUnit: TimeUnit) {
+        sendMessageToAllPlayersInMatch(
+            "До автоматической победы: $leftTime сек"
+        )
     }
 
     private fun sendMessageToAllPlayersInMatch(message: String){
-        arenaMatchMetaRepository.getPlayers().forEach {
-            javaPlugin.server.getPlayer(
-                UUID.fromString(it.player.id)
-            )?.sendMessage(message)
+        arenaMatchMetaRepository.getPlayers().forEach { matchMember ->
+            javaPlugin.server.getPlayer(matchMember.player.name)?.sendMessage(message)
         }
     }
 

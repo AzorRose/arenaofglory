@@ -19,12 +19,13 @@ import ru.mainmayhem.arenaofglory.commands.executors.EnterWaitingRoomCommandExec
 import ru.mainmayhem.arenaofglory.commands.executors.HelpCommandExecutor
 import ru.mainmayhem.arenaofglory.commands.executors.QuitWaitingRoomCommandExecutor
 import ru.mainmayhem.arenaofglory.commands.executors.ReloadPluginCommandExecutor
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.MatchScheduleJobInstance
 import ru.mainmayhem.arenaofglory.data.dagger.components.DaggerAppComponent
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.InitDataUseCase
 import ru.mainmayhem.arenaofglory.domain.useCases.KickAllArenaPLayersUseCase
-import ru.mainmayhem.arenaofglory.jobs.MatchScheduleJob
 import ru.mainmayhem.arenaofglory.jobs.OutpostsJob
+import ru.mainmayhem.arenaofglory.jobs.PluginJob
 import ru.mainmayhem.arenaofglory.placeholders.FractionPlaceholders
 import ru.mainmayhem.arenaofglory.placeholders.OutpostPlaceholders
 import ru.mainmayhem.arenaofglory.placeholders.PlayersPlaceholders
@@ -61,7 +62,9 @@ class ArenaOfGlory: JavaPlugin() {
     lateinit var eventsListener: EventsListener
 
     @Inject
-    lateinit var matchScheduleJob: MatchScheduleJob
+    @MatchScheduleJobInstance
+    lateinit var matchScheduleJob: PluginJob
+
     @Inject
     lateinit var outpostsJob: OutpostsJob
 

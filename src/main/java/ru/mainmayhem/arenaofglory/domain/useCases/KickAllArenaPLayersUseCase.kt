@@ -1,14 +1,15 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
+import java.util.UUID
+import javax.inject.Inject
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.EmptyTeamJobInstance
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
-import ru.mainmayhem.arenaofglory.jobs.EmptyTeamJob
 import ru.mainmayhem.arenaofglory.jobs.MatchJob
-import java.util.*
-import javax.inject.Inject
+import ru.mainmayhem.arenaofglory.jobs.PluginFiniteJob
 
 /**
  * Телепортирует всех игроков из очереди и арены на спавн
@@ -17,7 +18,8 @@ import javax.inject.Inject
 class KickAllArenaPLayersUseCase @Inject constructor(
     private val arenaQueueRepository: ArenaQueueRepository,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
-    private val emptyTeamJob: EmptyTeamJob,
+    @EmptyTeamJobInstance
+    private val emptyTeamJob: PluginFiniteJob,
     private val matchJob: MatchJob,
     private val javaPlugin: JavaPlugin
 ) {

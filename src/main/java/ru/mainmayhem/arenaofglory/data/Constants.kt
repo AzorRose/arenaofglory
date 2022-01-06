@@ -9,7 +9,7 @@ object Constants {
     const val ARENA_START_MATCH_DELAY_IN_SECONDS = 10
 
     //Продолжительность задержки до автовина, если команда полностью вышла с арены
-    const val EMPTY_TEAM_DELAY_IN_SECONDS = 60
+    const val EMPTY_TEAM_DELAY_IN_SECONDS = 60L
 
     //fixme название мира лучше все же вынести в БД
     const val WORLD_NAME = "world"

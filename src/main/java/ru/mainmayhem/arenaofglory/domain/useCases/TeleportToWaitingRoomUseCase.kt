@@ -1,20 +1,33 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
+import java.util.Date
+import java.util.UUID
+import javax.inject.Inject
+import kotlin.random.Random
 import kotlinx.coroutines.withContext
 import org.bukkit.Location
 import org.bukkit.plugin.java.JavaPlugin
-import ru.mainmayhem.arenaofglory.data.*
+import ru.mainmayhem.arenaofglory.data.Constants
+import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
+import ru.mainmayhem.arenaofglory.data.asCalendar
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.EmptyTeamJobInstance
+import ru.mainmayhem.arenaofglory.data.diffInMinutes
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
-import ru.mainmayhem.arenaofglory.data.local.repositories.*
+import ru.mainmayhem.arenaofglory.data.getShortInfo
+import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinatesRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
+import ru.mainmayhem.arenaofglory.data.local.repositories.WaitingRoomCoordinatesRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import ru.mainmayhem.arenaofglory.data.setCurrentDate
+import ru.mainmayhem.arenaofglory.data.startMatchTimeMessage
 import ru.mainmayhem.arenaofglory.domain.DisbalanceFinder
 import ru.mainmayhem.arenaofglory.domain.providers.ClosestMatchDateProvider
-import ru.mainmayhem.arenaofglory.jobs.EmptyTeamJob
 import ru.mainmayhem.arenaofglory.jobs.MatchJob
-import java.util.*
-import javax.inject.Inject
-import kotlin.random.Random
+import ru.mainmayhem.arenaofglory.jobs.PluginFiniteJob
 
 /**
  * Логика телепортации игрока в комнату ожидания и добавления его в очередь
@@ -31,7 +44,8 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
     private val disbalanceFinder: DisbalanceFinder,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
-    private val emptyTeamJob: EmptyTeamJob,
+    @EmptyTeamJobInstance
+    private val emptyTeamJob: PluginFiniteJob,
     private val dispatchers: CoroutineDispatchers,
     private val fractionsRepository: FractionsRepository,
     private val closestMatchDateProvider: ClosestMatchDateProvider
