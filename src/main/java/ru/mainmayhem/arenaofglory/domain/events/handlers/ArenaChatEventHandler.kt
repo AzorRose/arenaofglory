@@ -1,14 +1,15 @@
 package ru.mainmayhem.arenaofglory.domain.events.handlers
 
+import java.util.UUID
+import javax.inject.Inject
 import org.bukkit.entity.Player
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.plugin.java.JavaPlugin
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.MatchJobInstance
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.domain.events.BaseEventHandler
-import ru.mainmayhem.arenaofglory.jobs.MatchJob
-import java.util.*
-import javax.inject.Inject
+import ru.mainmayhem.arenaofglory.jobs.PluginFiniteJob
 
 /**
  * Класс-обработчик для реализации командного чата внутри арены
@@ -17,12 +18,13 @@ class ArenaChatEventHandler @Inject constructor(
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val arenaPlayersRepository: ArenaPlayersRepository,
     private val javaPlugin: JavaPlugin,
-    private val matchJob: MatchJob
+    @MatchJobInstance
+    private val matchJob: PluginFiniteJob
 ): BaseEventHandler<AsyncPlayerChatEvent>() {
 
     override fun handle(event: AsyncPlayerChatEvent) {
 
-        if (!matchJob.isActive){
+        if (!matchJob.isActive()){
             super.handle(event)
             return
         }

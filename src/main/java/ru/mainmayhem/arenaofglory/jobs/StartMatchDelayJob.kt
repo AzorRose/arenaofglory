@@ -1,5 +1,9 @@
 package ru.mainmayhem.arenaofglory.jobs
 
+import java.util.UUID
+import java.util.concurrent.CancellationException
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -11,12 +15,9 @@ import kotlinx.coroutines.launch
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.MatchJobInstance
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import java.util.*
-import java.util.concurrent.CancellationException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * 10-ти секундная задержка на начало матча
@@ -28,7 +29,8 @@ class StartMatchDelayJob @Inject constructor(
     private val logger: PluginLogger,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val javaPlugin: JavaPlugin,
-    private val matchJob: MatchJob
+    @MatchJobInstance
+    private val matchJob: PluginFiniteJob
 ) {
 
     //сколько времени осталось в секундах до истечения таймера

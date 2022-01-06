@@ -1,27 +1,29 @@
 package ru.mainmayhem.arenaofglory.domain.events.handlers
 
+import javax.inject.Inject
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerMoveEvent
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.MatchJobInstance
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinatesRepository
 import ru.mainmayhem.arenaofglory.domain.CoordinatesComparator
 import ru.mainmayhem.arenaofglory.domain.events.BaseEventHandler
-import ru.mainmayhem.arenaofglory.jobs.MatchJob
-import javax.inject.Inject
+import ru.mainmayhem.arenaofglory.jobs.PluginFiniteJob
 
 class MoveToEnemyRespawnEventHandler @Inject constructor(
     private val arenaPlayersRepository: ArenaPlayersRepository,
     private val respawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
     private val coordinatesComparator: CoordinatesComparator,
-    private val matchJob: MatchJob,
+    @MatchJobInstance
+    private val matchJob: PluginFiniteJob,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository
 ): BaseEventHandler<PlayerMoveEvent>() {
 
     override fun handle(event: PlayerMoveEvent) {
 
-        if (!matchJob.isActive || event.player.isNotInArena()){
+        if (!matchJob.isActive() || event.player.isNotInArena()){
             super.handle(event)
             return
         }

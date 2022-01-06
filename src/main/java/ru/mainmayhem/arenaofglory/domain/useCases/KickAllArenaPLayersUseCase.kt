@@ -5,10 +5,10 @@ import javax.inject.Inject
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.EmptyTeamJobInstance
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.MatchJobInstance
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
-import ru.mainmayhem.arenaofglory.jobs.MatchJob
 import ru.mainmayhem.arenaofglory.jobs.PluginFiniteJob
 
 /**
@@ -20,7 +20,8 @@ class KickAllArenaPLayersUseCase @Inject constructor(
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     @EmptyTeamJobInstance
     private val emptyTeamJob: PluginFiniteJob,
-    private val matchJob: MatchJob,
+    @MatchJobInstance
+    private val matchJob: PluginFiniteJob,
     private val javaPlugin: JavaPlugin
 ) {
 

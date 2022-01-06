@@ -9,3 +9,7 @@ annotation class EmptyTeamJobInstance
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class MatchScheduleJobInstance
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class MatchJobInstance

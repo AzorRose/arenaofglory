@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.MatchJobInstance
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.ArenaMatchEndedUseCase
@@ -15,7 +16,8 @@ private const val TIMER_STEP_SECONDS = 10L
 class EmptyTeamJob @Inject constructor(
     coroutineScope: CoroutineScope,
     dispatchers: CoroutineDispatchers,
-    private val matchJob: MatchJob,
+    @MatchJobInstance
+    private val matchJob: PluginFiniteJob,
     logger: PluginLogger,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val javaPlugin: JavaPlugin,

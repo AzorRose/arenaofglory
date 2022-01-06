@@ -1,21 +1,23 @@
 package ru.mainmayhem.arenaofglory.domain.providers
 
+import javax.inject.Inject
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import ru.mainmayhem.arenaofglory.data.Constants.SECONDS_IN_MINUTE
 import ru.mainmayhem.arenaofglory.data.Constants.TICKS_IN_SECOND
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.MatchJobInstance
 import ru.mainmayhem.arenaofglory.data.local.repositories.MatchResultsRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import ru.mainmayhem.arenaofglory.jobs.MatchJob
-import javax.inject.Inject
+import ru.mainmayhem.arenaofglory.jobs.PluginFiniteJob
 
 private const val EFFECT_LEVEL_DELTA = 10
 private const val START_EFFECT_LEVEL = 5
 
 class StartMatchEffectProvider @Inject constructor(
     private val matchResultsRepository: MatchResultsRepository,
-    private val matchJob: MatchJob,
+    @MatchJobInstance
+    private val matchJob: PluginFiniteJob,
     private val logger: PluginLogger,
     settingsRepository: PluginSettingsRepository
 ) {
@@ -30,7 +32,7 @@ class StartMatchEffectProvider @Inject constructor(
             logger.info("Фракция с id = $fractionId имеет $losesInRow проигрышей подряд")
         }
         if (losesInRow < fractionBoostDefeats) return null
-        val durationInTicks = (durationInMinutes ?: matchJob.leftTime) * SECONDS_IN_MINUTE * TICKS_IN_SECOND
+        val durationInTicks = (durationInMinutes ?: matchJob.getLeftTime().toInt()) * SECONDS_IN_MINUTE * TICKS_IN_SECOND
         val level = START_EFFECT_LEVEL + ((losesInRow - fractionBoostDefeats) * EFFECT_LEVEL_DELTA)
         if (enableLog) {
             logger.info("Уровень эффекта для фракции - $level")

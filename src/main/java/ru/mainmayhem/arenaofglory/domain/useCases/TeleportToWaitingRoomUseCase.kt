@@ -11,6 +11,7 @@ import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.asCalendar
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.EmptyTeamJobInstance
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.MatchJobInstance
 import ru.mainmayhem.arenaofglory.data.diffInMinutes
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
@@ -26,7 +27,6 @@ import ru.mainmayhem.arenaofglory.data.setCurrentDate
 import ru.mainmayhem.arenaofglory.data.startMatchTimeMessage
 import ru.mainmayhem.arenaofglory.domain.DisbalanceFinder
 import ru.mainmayhem.arenaofglory.domain.providers.ClosestMatchDateProvider
-import ru.mainmayhem.arenaofglory.jobs.MatchJob
 import ru.mainmayhem.arenaofglory.jobs.PluginFiniteJob
 
 /**
@@ -40,7 +40,8 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
     private val logger: PluginLogger,
     private val arenaQueueRepository: ArenaQueueRepository,
     private val arenaPlayersRepository: ArenaPlayersRepository,
-    private val matchJob: MatchJob,
+    @MatchJobInstance
+    private val matchJob: PluginFiniteJob,
     private val disbalanceFinder: DisbalanceFinder,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val arenaRespawnCoordinatesRepository: ArenaRespawnCoordinatesRepository,
@@ -60,7 +61,7 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
         val world = javaPlugin.server.getWorld(Constants.WORLD_NAME)
         val randomCoordinates = getRandomWRCoordinate()
 
-        val isMatchActive = matchJob.isActive
+        val isMatchActive = matchJob.isActive()
         //неравное кол-во игроков на арене
         val isFractionDisbalanced = disbalanceFinder.isFractionDisbalanced(arenaPlayer.fractionId)
 
@@ -76,7 +77,7 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
 
         when{
             isMatchActive && !isFractionDisbalanced && !enemyFractionsInQueue -> {
-                player.sendMessage("До конца матча: ${matchJob.leftTime} мин")
+                player.sendMessage("До конца матча: ${matchJob.getLeftTime()} мин")
             }
             isMatchActive && !isFractionDisbalanced && enemyFractionsInQueue -> {
                 logger.info("В очереди обнаружены игроки из другой фракции, перемещаем их вместе с игроком")

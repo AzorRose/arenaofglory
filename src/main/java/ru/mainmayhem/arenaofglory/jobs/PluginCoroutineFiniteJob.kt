@@ -84,6 +84,6 @@ abstract class PluginCoroutineFiniteJob(
 
     abstract suspend fun onCompletion()
 
-    abstract suspend fun onStart()
+    open suspend fun onStart() { /*empty*/ }
 
 }
