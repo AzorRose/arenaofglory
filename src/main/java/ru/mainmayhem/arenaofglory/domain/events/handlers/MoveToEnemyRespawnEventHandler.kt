@@ -23,14 +23,14 @@ class MoveToEnemyRespawnEventHandler @Inject constructor(
 
     override fun handle(event: PlayerMoveEvent) {
 
-        if (!matchJob.isActive() || event.player.isNotInArena()){
+        if (!matchJob.isActive() || event.player.isNotInArena()) {
             super.handle(event)
             return
         }
 
         val coordinates = respawnCoordinatesRepository.getCachedCoordinates()
         val to = event.to
-        if (to == null){
+        if (to == null) {
             super.handle(event)
             return
         }
@@ -39,16 +39,16 @@ class MoveToEnemyRespawnEventHandler @Inject constructor(
         val playerFractionId = arenaPlayersRepository.getCachedPlayerById(playerId)?.fractionId
         coordinates.forEach { (fractionId, respCoords) ->
             val coordinatesMatch = coordinatesComparator.compare(playerTargetCoordinates, respCoords)
-            if (coordinatesMatch && playerFractionId != fractionId){
+            if (coordinatesMatch && playerFractionId != fractionId) {
                 event.isCancelled = true
             }
         }
         super.handle(event)
     }
 
-    private fun Player.isNotInArena(): Boolean{
-        return arenaMatchMetaRepository.getPlayers().find {
-            it.player.id == uniqueId.toString()
+    private fun Player.isNotInArena(): Boolean {
+        return arenaMatchMetaRepository.getPlayers().find { arenaMember ->
+            arenaMember.player.id == uniqueId.toString()
         } == null
     }
 

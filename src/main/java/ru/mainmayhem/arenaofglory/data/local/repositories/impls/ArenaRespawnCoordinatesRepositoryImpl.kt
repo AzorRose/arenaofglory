@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
@@ -8,7 +9,6 @@ import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinatesRepository
 import ru.mainmayhem.arenaofglory.domain.CalculatedLocation
 import ru.mainmayhem.arenaofglory.domain.CoordinatesCalculator
-import javax.inject.Inject
 
 class ArenaRespawnCoordinatesRepositoryImpl @Inject constructor(
     private val calculator: CoordinatesCalculator,
@@ -23,15 +23,15 @@ class ArenaRespawnCoordinatesRepositoryImpl @Inject constructor(
     init {
         coroutineScope.launch {
             dao.coordinatesFlow()
-                .map {
+                .map { respawns ->
                     val res = mutableMapOf<Long, CalculatedLocation>()
-                    it.forEach { respawn ->
+                    respawns.forEach { respawn ->
                         res[respawn.fractionId] = calculator.calculate(respawn.coordinates)
                     }
                     res
                 }
-                .collectLatest {
-                    calculatedLocations = it
+                .collectLatest { mapLocations ->
+                    calculatedLocations = mapLocations
                 }
         }
     }

@@ -24,7 +24,7 @@ class KickAllArenaPLayersUseCase @Inject constructor(
     private val javaPlugin: JavaPlugin
 ) {
 
-    fun doKickPlayers(){
+    fun doKickPlayers() {
         arenaQueueRepository.getAll().forEach { arenaPlayer ->
             arenaPlayer.kick()
         }
@@ -37,7 +37,7 @@ class KickAllArenaPLayersUseCase @Inject constructor(
         emptyTeamJob.stop()
     }
 
-    private fun ArenaPlayer.kick(){
+    private fun ArenaPlayer.kick() {
         javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let { world ->
             javaPlugin.server.getPlayer(name)?.teleport(world.spawnLocation)
         }

@@ -1,11 +1,11 @@
 package ru.mainmayhem.arenaofglory.domain.events.handlers
 
+import javax.inject.Inject
 import org.bukkit.event.player.PlayerTeleportEvent
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaCoordinatesRepository
 import ru.mainmayhem.arenaofglory.domain.CoordinatesComparator
 import ru.mainmayhem.arenaofglory.domain.events.BaseEventHandler
-import javax.inject.Inject
 
 /**
  * Класс, который проверяет телепортируется ли игрок на арену с помощью команд
@@ -19,13 +19,14 @@ class TpToArenaEventHandler @Inject constructor(
     override fun handle(event: PlayerTeleportEvent) {
         val to = event.to
         val arenaLocation = arenaCoordinatesRepository.getCachedCoordinates()
-        if (to == null || arenaLocation == null){
+        if (to == null || arenaLocation == null) {
             super.handle(event)
             return
         }
         val coordinates = Coordinates(to.x.toInt(), to.y.toInt(), to.z.toInt())
         if (event.cause == PlayerTeleportEvent.TeleportCause.COMMAND
-            && coordinatesComparator.compare(coordinates, arenaLocation)){
+            && coordinatesComparator.compare(coordinates, arenaLocation)
+        ) {
             event.isCancelled = true
             event.player.sendMessage("Вы не можете перемещаться на арену с помощью консольных команд")
             return

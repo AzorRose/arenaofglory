@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.domain.events.handlers
 
+import javax.inject.Inject
 import org.bukkit.event.player.PlayerMoveEvent
 import ru.mainmayhem.arenaofglory.data.asCoordinates
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
@@ -8,7 +9,6 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.OutpostsRepository
 import ru.mainmayhem.arenaofglory.domain.CoordinatesComparator
 import ru.mainmayhem.arenaofglory.domain.events.BaseEventHandler
 import ru.mainmayhem.arenaofglory.places.outposts.OutpostsHolder
-import javax.inject.Inject
 
 class PlayerEnteredOutpostEventHandler @Inject constructor(
     private val outpostsRepository: OutpostsRepository,
@@ -23,14 +23,15 @@ class PlayerEnteredOutpostEventHandler @Inject constructor(
         val to = event.to?.asCoordinates()
         val playerId = event.player.uniqueId.toString()
         val player = arenaPlayersRepository.getCachedPlayerById(playerId)
-        val inArena = arenaMatchMetaRepository.getPlayers().find { it.player.id == playerId } != null
-        if (to == null || player == null || inArena){
+        val inArena =
+            arenaMatchMetaRepository.getPlayers().find { playerItem -> playerItem.player.id == playerId } != null
+        if (to == null || player == null || inArena) {
             super.handle(event)
             return
         }
-        outpostsRepository.getCachedOutposts().forEach {
-            if (!comparator.compare(from, it.second) && comparator.compare(to, it.second)){
-                outpostsHolder.addPlayer(player, it.first.id)
+        outpostsRepository.getCachedOutposts().forEach { (outpost, location) ->
+            if (!comparator.compare(from, location) && comparator.compare(to, location)) {
+                outpostsHolder.addPlayer(player, outpost.id)
             }
         }
         super.handle(event)

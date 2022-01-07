@@ -1,7 +1,6 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
 import java.util.Date
-import java.util.UUID
 import javax.inject.Inject
 import kotlin.random.Random
 import kotlinx.coroutines.withContext
@@ -53,10 +52,10 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
 ) {
 
     @Throws(NullPointerException::class)
-    suspend fun teleport(playerId: String){
+    suspend fun teleport(playerId: String) {
         val arenaPlayer = arenaPlayersRepository.getCachedPlayerById(playerId)
             ?: throw NullPointerException("Игрок не принадлежит к фракции")
-        val player = javaPlugin.server.getPlayer(UUID.fromString(playerId))
+        val player = javaPlugin.server.getPlayer(arenaPlayer.name)
             ?: throw NullPointerException("Игрок не найден")
         val world = javaPlugin.server.getWorld(Constants.WORLD_NAME)
         val randomCoordinates = getRandomWRCoordinate()
@@ -69,13 +68,13 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
 
         var location: Location? = randomCoordinates.getLocation(world)
 
-        if (!isFractionDisbalanced){
+        if (!isFractionDisbalanced) {
             arenaQueueRepository.put(arenaPlayer)
         }
 
         logger.info("Перемещаем игрока ${player.getShortInfo()} в комнату ожидания")
 
-        when{
+        when {
             isMatchActive && !isFractionDisbalanced && !enemyFractionsInQueue -> {
                 player.sendMessage("До конца матча: ${matchJob.getLeftTime()} мин")
             }
@@ -91,11 +90,11 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
             !isMatchActive -> player.sendMessage(startMatchTimeMessage(getTimeToStartMatch()))
         }
 
-        if (!disbalanceFinder.hasEmptyFractions()){
+        if (!disbalanceFinder.hasEmptyFractions()) {
             emptyTeamJob.stop()
         }
 
-        withContext(dispatchers.main){
+        withContext(dispatchers.main) {
             location?.let {
                 player.teleport(it)
             }
@@ -104,18 +103,18 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
     }
 
     //телепортирует на арену одного игрока из каждой команды
-    private suspend fun teleportOneFromEachFraction(){
+    private suspend fun teleportOneFromEachFraction() {
         arenaQueueRepository.get().forEach { (fractionId, players) ->
             val player = players.firstOrNull()
-            if (player == null){
+            if (player == null) {
                 logger.warning("Игроки с фракцией id = $fractionId не найдены в очереди")
             } else {
                 val serverPlayer = javaPlugin.server.getPlayer(player.name)
-                if (serverPlayer == null){
+                if (serverPlayer == null) {
                     logger.warning("Игрок ${player.name} не найден на сервере")
                 }
                 prepareForArena(player)?.let { location ->
-                    withContext(dispatchers.main){
+                    withContext(dispatchers.main) {
                         serverPlayer?.teleport(location)
                     }
                 }
@@ -124,11 +123,11 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
         }
     }
 
-    private fun prepareForArena(arenaPlayer: ArenaPlayer): Location?{
+    private fun prepareForArena(arenaPlayer: ArenaPlayer): Location? {
         val world = javaPlugin.server.getWorld(Constants.WORLD_NAME)
         val coordinates = arenaRespawnCoordinatesRepository
             .getCachedCoordinates()[arenaPlayer.fractionId]?.coordinates?.randomOrNull()
-        if (coordinates == null){
+        if (coordinates == null) {
             logger.warning("Не найдены точки респавна для игрока $arenaPlayer")
             return null
         }
@@ -140,7 +139,7 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
      * Функция, проверяющая наличие в очереди хотя бы одного игрока из других фракций
      * @return true - если есть хотя бы один игрок из всех других фракций, отличной от fractionId
      */
-    private fun enemyFractionsInQueue(fractionId: Long): Boolean{
+    private fun enemyFractionsInQueue(fractionId: Long): Boolean {
         val queue = arenaQueueRepository.get()
         fractionsRepository.getCachedFractions()
             .map { it.id }
@@ -152,14 +151,14 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
         return true
     }
 
-    private fun getRandomWRCoordinate(): Coordinates{
+    private fun getRandomWRCoordinate(): Coordinates {
         val coordinates = waitingRoomCoordsRepository.getCachedCoordinates()?.coordinates
             ?: throw NullPointerException("Не найдены координаты комнаты ожидания")
         val randomInt = Random.nextInt(coordinates.size)
         return coordinates[randomInt]
     }
 
-    private fun getTimeToStartMatch(): Long{
+    private fun getTimeToStartMatch(): Long {
         val startArenaMatch = closestMatchDateProvider.provide()
         val start = startArenaMatch.asCalendar().setCurrentDate().time
         return start diffInMinutes Date()

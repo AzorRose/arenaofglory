@@ -1,36 +1,37 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
 import com.squareup.moshi.Moshi
+import java.io.File
+import javax.inject.Inject
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.jarFilePath
 import ru.mainmayhem.arenaofglory.data.local.DbConfig
 import ru.mainmayhem.arenaofglory.data.local.repositories.DbConfigFileRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import java.io.File
-import javax.inject.Inject
+
+private const val EMPTY_FIELD = ""
+private const val FILE_NAME = "db_config.txt"
 
 class DbConfigFileRepoImpl @Inject constructor(
     private val logger: PluginLogger,
     moshi: Moshi
-): DbConfigFileRepository {
+) : DbConfigFileRepository {
 
     private val defaultConfig = DbConfig(
-        url = "",
-        driver = "",
-        user = "",
-        password = ""
+        url = EMPTY_FIELD,
+        driver = EMPTY_FIELD,
+        user = EMPTY_FIELD,
+        password = EMPTY_FIELD
     )
 
     private val dbConfigAdapter = moshi.adapter(DbConfig::class.java).indent("  ")
 
     private val filePath = jarFilePath + Constants.PLUGIN_META_FOLDER_NAME + "/"
 
-    private val fileName = "db_config.txt"
-
     override fun getConfigFromFile(): DbConfig {
         makeDirIfNotExist()
-        val config = File(filePath + fileName)
-        return if (config.exists()){
+        val config = File(filePath + FILE_NAME)
+        return if (config.exists()) {
             config.getConfig()
         } else {
             logger.info("Создание конфиг-файла БД в $filePath")
@@ -40,30 +41,30 @@ class DbConfigFileRepoImpl @Inject constructor(
         }
     }
 
-    private infix fun DbConfig.into(file: File){
+    private infix fun DbConfig.into(file: File) {
         file.writeBytes(dbConfigAdapter.toJson(this).toByteArray())
     }
 
-    private fun File.getConfig(): DbConfig{
+    private fun File.getConfig(): DbConfig {
         val json = readText()
         val dbConfig = kotlin.runCatching { dbConfigAdapter.fromJson(json) }.getOrNull()
-            ?: throw NullPointerException("Неверная структура файла $fileName")
+            ?: throw NullPointerException("Неверная структура файла $FILE_NAME")
 
         if (dbConfig.url.isBlank())
-            throw NullPointerException("Не найден URL в файле $fileName")
+            throw NullPointerException("Не найден URL в файле $FILE_NAME")
         if (dbConfig.driver.isBlank())
-            throw NullPointerException("Не найден driver в файле $fileName")
+            throw NullPointerException("Не найден driver в файле $FILE_NAME")
         if (dbConfig.user.isBlank())
-            logger.info("Не найден пользователь в файле $fileName")
+            logger.info("Не найден пользователь в файле $FILE_NAME")
         if (dbConfig.password.isBlank())
-            logger.info("Не найден пароль в файле $fileName")
+            logger.info("Не найден пароль в файле $FILE_NAME")
 
         return dbConfig
     }
 
-    private fun makeDirIfNotExist(){
+    private fun makeDirIfNotExist() {
         val directory = File(filePath)
-        if (!directory.exists()){
+        if (!directory.exists()) {
             logger.info("Создание директории $filePath")
             directory.mkdir()
         }

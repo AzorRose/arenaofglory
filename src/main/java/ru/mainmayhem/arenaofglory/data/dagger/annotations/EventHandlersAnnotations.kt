@@ -29,3 +29,15 @@ annotation class PlayerEnteredOutpostEventHandlerInstance
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class PlayerLeftOutpostEventHandlerInstance
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class TpToArenaEventHandlerInstance
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class TpToWaitingRoomEventHandlerInstance
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class TpToOutpostsEventHandlerInstance

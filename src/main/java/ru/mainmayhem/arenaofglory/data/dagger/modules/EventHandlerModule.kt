@@ -7,6 +7,8 @@ import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerMoveEvent
+import org.bukkit.event.player.PlayerRespawnEvent
+import org.bukkit.event.player.PlayerTeleportEvent
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.ArenaKillingEventHandlerInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.ArenaSuicideEventHandlerInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.MoveToEnemyRespawnEventHandlerInstance
@@ -14,9 +16,13 @@ import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerEnteredOutpostEv
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerLeftOutpostEventHandlerInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerQuitArenaHandlerInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerQuitWRQueueHandlerInstance
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.TpToArenaEventHandlerInstance
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.TpToOutpostsEventHandlerInstance
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.TpToWaitingRoomEventHandlerInstance
 import ru.mainmayhem.arenaofglory.domain.events.EventHandler
 import ru.mainmayhem.arenaofglory.domain.events.handlers.ArenaChatEventHandler
 import ru.mainmayhem.arenaofglory.domain.events.handlers.ArenaKillingEventHandler
+import ru.mainmayhem.arenaofglory.domain.events.handlers.ArenaRespawnEventHandler
 import ru.mainmayhem.arenaofglory.domain.events.handlers.ArenaSuicideEventHandler
 import ru.mainmayhem.arenaofglory.domain.events.handlers.FriendlyFireHandler
 import ru.mainmayhem.arenaofglory.domain.events.handlers.MoveToEnemyRespawnEventHandler
@@ -24,6 +30,9 @@ import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerEnteredOutpostEve
 import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerLeftOutpostEventHandler
 import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerQuitArenaHandler
 import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerQuitWRQueueHandler
+import ru.mainmayhem.arenaofglory.domain.events.handlers.TpToArenaEventHandler
+import ru.mainmayhem.arenaofglory.domain.events.handlers.TpToOutpostsEventHandler
+import ru.mainmayhem.arenaofglory.domain.events.handlers.TpToWaitingRoomEventHandler
 
 @Module
 abstract class EventHandlerModule {
@@ -61,5 +70,20 @@ abstract class EventHandlerModule {
     @Binds
     @PlayerLeftOutpostEventHandlerInstance
     abstract fun getPlayerLeftOutpostEventHandler(impl: PlayerLeftOutpostEventHandler): EventHandler<PlayerMoveEvent>
+
+    @Binds
+    abstract fun getArenaRespawnEventHandler(impl: ArenaRespawnEventHandler): EventHandler<PlayerRespawnEvent>
+
+    @Binds
+    @TpToArenaEventHandlerInstance
+    abstract fun getTpToArenaEventHandler(impl: TpToArenaEventHandler): EventHandler<PlayerTeleportEvent>
+
+    @Binds
+    @TpToWaitingRoomEventHandlerInstance
+    abstract fun getTpToWaitingRoomEventHandler(impl: TpToWaitingRoomEventHandler): EventHandler<PlayerTeleportEvent>
+
+    @Binds
+    @TpToOutpostsEventHandlerInstance
+    abstract fun getTpToOutpostsEventHandler(impl: TpToOutpostsEventHandler): EventHandler<PlayerTeleportEvent>
 
 }

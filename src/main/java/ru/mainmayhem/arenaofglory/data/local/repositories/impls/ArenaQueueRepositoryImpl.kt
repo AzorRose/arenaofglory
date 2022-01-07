@@ -1,10 +1,10 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
+import java.util.Collections
+import javax.inject.Inject
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
-import java.util.*
-import javax.inject.Inject
 
 class ArenaQueueRepositoryImpl @Inject constructor(
     private val arenaPlayersRepository: ArenaPlayersRepository
@@ -16,7 +16,7 @@ class ArenaQueueRepositoryImpl @Inject constructor(
 
     override fun put(player: ArenaPlayer) {
         val containsFraction = queueMap.containsKey(player.fractionId)
-        if (containsFraction){
+        if (containsFraction) {
             val players = queueMap[player.fractionId]!!
             players.add(player)
             queueMap[player.fractionId] = players
@@ -34,16 +34,16 @@ class ArenaQueueRepositoryImpl @Inject constructor(
         return result
     }
 
-    override fun isEmpty(): Boolean{
+    override fun isEmpty(): Boolean {
         queueMap.forEach { (_, value) ->
-            if (value.isNotEmpty()){
+            if (value.isNotEmpty()) {
                 return false
             }
         }
         return true
     }
 
-    override fun isEmpty(fractionId: Long): Boolean{
+    override fun isEmpty(fractionId: Long): Boolean {
         return queueMap[fractionId]?.isEmpty() != false
     }
 

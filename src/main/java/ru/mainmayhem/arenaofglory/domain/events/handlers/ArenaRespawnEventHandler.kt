@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.domain.events.handlers
 
+import javax.inject.Inject
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.event.player.PlayerRespawnEvent
@@ -12,7 +13,6 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinate
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.events.BaseEventHandler
 import ru.mainmayhem.arenaofglory.domain.providers.StartMatchEffectProvider
-import javax.inject.Inject
 
 private const val POTION_EFFECT_TICKS_DELAY = 1L
 
@@ -30,9 +30,9 @@ class ArenaRespawnEventHandler @Inject constructor(
     override fun handle(event: PlayerRespawnEvent) {
         val playerId = event.player.uniqueId.toString()
         val player = arenaMatchMetaRepository.getPlayers().find { it.player.id == playerId }
-        if (player != null){
+        if (player != null) {
             val coordinate = getRandomCoordinate(player.player.fractionId)
-            if (coordinate == null){
+            if (coordinate == null) {
                 logger.error(
                     className = "ArenaRespawnEventHandler",
                     methodName = "handle",
@@ -58,7 +58,7 @@ class ArenaRespawnEventHandler @Inject constructor(
         super.handle(event)
     }
 
-    private fun getRandomCoordinate(fractionId: Long): Coordinates?{
+    private fun getRandomCoordinate(fractionId: Long): Coordinates? {
         val respawn = arenaRespawnCoordinatesRepository.getCachedCoordinates()[fractionId] ?: return null
         return respawn.coordinates.random()
     }

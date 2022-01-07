@@ -1,6 +1,5 @@
 package ru.mainmayhem.arenaofglory.domain.events.handlers
 
-import java.util.UUID
 import javax.inject.Inject
 import org.bukkit.entity.Player
 import org.bukkit.event.player.AsyncPlayerChatEvent
@@ -24,13 +23,13 @@ class ArenaChatEventHandler @Inject constructor(
 
     override fun handle(event: AsyncPlayerChatEvent) {
 
-        if (!matchJob.isActive()){
+        if (!matchJob.isActive()) {
             super.handle(event)
             return
         }
 
         val player = event.player
-        if (player.isNotInArena()){
+        if (player.isNotInArena()) {
             super.handle(event)
             return
         }
@@ -41,22 +40,20 @@ class ArenaChatEventHandler @Inject constructor(
 
     }
 
-    private fun Player.isNotInArena(): Boolean{
-        return arenaMatchMetaRepository.getPlayers().find {
-            it.player.id == uniqueId.toString()
+    private fun Player.isNotInArena(): Boolean {
+        return arenaMatchMetaRepository.getPlayers().find { matchMember ->
+            matchMember.player.id == uniqueId.toString()
         } == null
     }
 
-    private fun Player.sendMessageToTeammates(message: String){
+    private fun Player.sendMessageToTeammates(message: String) {
         val players = arenaMatchMetaRepository.getPlayers()
         val playerId = uniqueId.toString()
         val playerFractionId = arenaPlayersRepository.getCachedPlayerById(playerId)?.fractionId ?: return
         players
             .filter { it.player.fractionId == playerFractionId }
-            .forEach {
-                javaPlugin.server.getPlayer(
-                    UUID.fromString(it.player.id)
-                )?.sendMessage("$playerListName: $message")
+            .forEach { matchMember ->
+                javaPlugin.server.getPlayer(matchMember.player.name)?.sendMessage("$playerListName: $message")
             }
     }
 

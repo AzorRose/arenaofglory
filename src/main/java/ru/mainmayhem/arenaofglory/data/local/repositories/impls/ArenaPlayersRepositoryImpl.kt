@@ -20,9 +20,9 @@ class ArenaPlayersRepositoryImpl @Inject constructor(
         coroutineScope.launch {
             pluginDatabase.getArenaPlayersDao()
                 .getPlayersFlow()
-                .collectLatest {
+                .collectLatest { playersFromDb ->
                     players.clear()
-                    players.addAll(it)
+                    players.addAll(playersFromDb)
                 }
         }
     }

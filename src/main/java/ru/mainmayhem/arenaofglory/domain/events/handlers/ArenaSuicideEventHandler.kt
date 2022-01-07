@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.domain.events.handlers
 
+import javax.inject.Inject
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.PlayerDeathEvent
 import ru.mainmayhem.arenaofglory.data.Constants
@@ -8,7 +9,8 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.events.BaseEventHandler
-import javax.inject.Inject
+
+private const val INVALID_ID = -1L
 
 class ArenaSuicideEventHandler @Inject constructor(
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
@@ -20,16 +22,16 @@ class ArenaSuicideEventHandler @Inject constructor(
     override fun handle(event: PlayerDeathEvent) {
         val killed = event.entity
         val killer = event.entity.killer
-        if (killer != null && killer.uniqueId != killed.uniqueId){
+        if (killer != null && killer.uniqueId != killed.uniqueId) {
             super.handle(event)
             return
         }
-        if (killed.isInArena()){
+        if (killed.isInArena()) {
             val playerFractionId = getFractionId(killed.uniqueId.toString())
-            fractionsRepository.getCachedFractions().forEach {
-                if (it.id != playerFractionId){
+            fractionsRepository.getCachedFractions().forEach { fraction ->
+                if (fraction.id != playerFractionId) {
                     arenaMatchMetaRepository.increaseFractionPoints(
-                        fractionId = it.id,
+                        fractionId = fraction.id,
                         points = Constants.FRACTION_KILL_PONTS
                     )
                 }
@@ -38,9 +40,9 @@ class ArenaSuicideEventHandler @Inject constructor(
         super.handle(event)
     }
 
-    private fun getFractionId(playerId: String): Long{
+    private fun getFractionId(playerId: String): Long {
         val id = arenaPlayersRepository.getCachedPlayerById(playerId)?.fractionId
-        if (id == null){
+        if (id == null) {
             logger.error(
                 className = "ArenaSuicideEventHandler",
                 methodName = "handle",
@@ -49,10 +51,10 @@ class ArenaSuicideEventHandler @Inject constructor(
                 )
             )
         }
-        return id ?: -1
+        return id ?: INVALID_ID
     }
 
-    private fun Player.isInArena(): Boolean{
+    private fun Player.isInArena(): Boolean {
         val players = arenaMatchMetaRepository.getPlayers()
         return players.find { it.player.id == uniqueId.toString() } != null
     }

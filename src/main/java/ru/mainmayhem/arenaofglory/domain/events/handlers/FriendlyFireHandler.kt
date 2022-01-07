@@ -23,34 +23,34 @@ class FriendlyFireHandler @Inject constructor(
     override fun handle(event: EntityDamageByEntityEvent) {
         val damager = event.damager
         val victim = event.entity
-        if (damager !is Player || victim !is Player){
+        if (damager !is Player || victim !is Player) {
             super.handle(event)
             return
         }
-        if (damager inOneFractionWith victim && matchJob.isActive() && checkPlayersInArena(damager, victim)){
+        if (damager inOneFractionWith victim && matchJob.isActive() && checkPlayersInArena(damager, victim)) {
             event.isCancelled = true
         } else {
             super.handle(event)
         }
     }
 
-    private infix fun Player.inOneFractionWith(player: Player): Boolean{
+    private infix fun Player.inOneFractionWith(player: Player): Boolean {
         return arenaPlayersRepository.getCachedPlayerById(uniqueId.toString())?.fractionId ==
-                arenaPlayersRepository.getCachedPlayerById(player.uniqueId.toString())?.fractionId
+            arenaPlayersRepository.getCachedPlayerById(player.uniqueId.toString())?.fractionId
     }
 
     private fun checkPlayersInArena(vararg players: Player): Boolean {
         players.forEach { player ->
-            if (!player.isInArena()){
+            if (!player.isInArena()) {
                 return false
             }
         }
         return true
     }
 
-    private fun Player.isInArena(): Boolean{
+    private fun Player.isInArena(): Boolean {
         val players = arenaMatchMetaRepository.getPlayers()
-        return players.find { it.player.id == uniqueId.toString() } != null
+        return players.find { player -> player.player.id == uniqueId.toString() } != null
     }
 
 }
