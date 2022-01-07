@@ -3,19 +3,15 @@ package ru.mainmayhem.arenaofglory.domain.events.handlers
 import javax.inject.Inject
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
-import ru.mainmayhem.arenaofglory.data.dagger.annotations.MatchJobInstance
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.domain.events.BaseEventHandler
-import ru.mainmayhem.arenaofglory.jobs.PluginFiniteJob
 
 /**
  * Проверка на "френдли файр"
  * Если игроки в одной фракции, матч идет и они в нем участвуют, то отменяем дамаг
  */
 class FriendlyFireHandler @Inject constructor(
-    @MatchJobInstance
-    private val matchJob: PluginFiniteJob,
     private val arenaMatchMetaRepository: ArenaMatchMetaRepository,
     private val arenaPlayersRepository: ArenaPlayersRepository
 ): BaseEventHandler<EntityDamageByEntityEvent>() {
@@ -27,7 +23,7 @@ class FriendlyFireHandler @Inject constructor(
             super.handle(event)
             return
         }
-        if (damager inOneFractionWith victim && matchJob.isActive() && checkPlayersInArena(damager, victim)) {
+        if (damager inOneFractionWith victim && checkPlayersInArena(damager, victim)) {
             event.isCancelled = true
         } else {
             super.handle(event)

@@ -4,6 +4,7 @@ import javax.inject.Inject
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerKickEvent
@@ -12,6 +13,7 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerTeleportEvent
 import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerChatEventInteractor
+import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerDamageEventInteractor
 import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerDeathEventInteractor
 import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerKickedEventInteractor
 import ru.mainmayhem.arenaofglory.domain.events.interactors.PlayerMoveEventInteractor
@@ -30,7 +32,8 @@ class EventsListener @Inject constructor(
     private val playerDeathEventInteractor: PlayerDeathEventInteractor,
     private val playerChatEventInteractor: PlayerChatEventInteractor,
     private val playerMoveEventInteractor: PlayerMoveEventInteractor,
-    private val playerTeleportEventInteractor: PlayerTeleportEventInteractor
+    private val playerTeleportEventInteractor: PlayerTeleportEventInteractor,
+    private val playerDamageEventInteractor: PlayerDamageEventInteractor
 ): Listener {
 
     @EventHandler
@@ -66,6 +69,11 @@ class EventsListener @Inject constructor(
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onPlayerTeleported(event: PlayerTeleportEvent) {
         playerTeleportEventInteractor.handle(event)
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    fun onEntityDamagedByEntity(event: EntityDamageByEntityEvent) {
+        playerDamageEventInteractor.handle(event)
     }
 
 }

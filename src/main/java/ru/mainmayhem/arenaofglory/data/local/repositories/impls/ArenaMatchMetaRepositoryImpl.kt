@@ -3,14 +3,10 @@ package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 import java.util.Collections
 import javax.inject.Inject
 import kotlinx.coroutines.withContext
-import org.bukkit.Bukkit
-import org.bukkit.entity.Player
-import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.ArenaMatchMember
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
-import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 
@@ -20,17 +16,11 @@ private const val ZERO_FRACTION_POINTS = 0
 class ArenaMatchMetaRepositoryImpl @Inject constructor(
     private val logger: PluginLogger,
     private val fractionsRepository: FractionsRepository,
-    private val javaPlugin: JavaPlugin,
-    private val arenaPlayersRepository: ArenaPlayersRepository,
     private val dispatchers: CoroutineDispatchers
 ): ArenaMatchMetaRepository {
 
     private val players = Collections.synchronizedList(mutableListOf<ArenaMatchMember>())
-
     private val fractions = Collections.synchronizedMap(mutableMapOf<Long, Int>())
-
-    private var arenaScoreBoard: ArenaScoreBoard? = null
-
 
     override suspend fun setPlayers(players: List<ArenaPlayer>) {
         withContext(dispatchers.main) {
@@ -42,12 +32,8 @@ class ArenaMatchMetaRepositoryImpl @Inject constructor(
                     ArenaMatchMember(player, ZERO_KILLS)
                 }
             )
-            arenaScoreBoard = ArenaScoreBoard()
             fractionsRepository.getCachedFractions().forEach { fraction ->
                 fractions[fraction.id] = ZERO_FRACTION_POINTS
-            }
-            players.forEach { arenaPlayer ->
-                arenaScoreBoard?.addToTeam(arenaPlayer)
             }
         }
     }
@@ -55,13 +41,11 @@ class ArenaMatchMetaRepositoryImpl @Inject constructor(
     override fun remove(playerId: String) {
         logger.info("Удаляем из матча игрока с id = $playerId")
         players.removeIf { it.player.id == playerId }
-        arenaScoreBoard?.removeFromTeam(playerId)
     }
 
     override fun insert(player: ArenaPlayer) {
         logger.info("Добавляем нового участника: $player")
         players.add(ArenaMatchMember(player, ZERO_KILLS))
-        arenaScoreBoard?.addToTeam(player)
     }
 
     override fun incrementPlayerKills(playerId: String) {
@@ -93,53 +77,8 @@ class ArenaMatchMetaRepositoryImpl @Inject constructor(
     override fun getPlayers(): List<ArenaMatchMember> = players.toList()
 
     override fun clear() {
-        players.forEach { matchMember ->
-            arenaScoreBoard?.removeFromTeam(matchMember.player.id)
-        }
-        arenaScoreBoard = null
         players.clear()
         fractions.clear()
-    }
-
-    private fun getPlayer(playerName: String): Player? {
-        return javaPlugin.server.getPlayer(playerName)
-    }
-
-    @Deprecated("Try use FriendlyFireHandler")
-    private inner class ArenaScoreBoard {
-
-        private val scoreBoard = Bukkit.getScoreboardManager()!!.newScoreboard
-
-        init {
-            fractionsRepository.getCachedFractions().forEach { fraction ->
-                scoreBoard.registerNewTeam(fraction.name).also {
-                    it.setAllowFriendlyFire(false)
-                }
-            }
-        }
-
-        fun addToTeam(arenaPlayer: ArenaPlayer) {
-            val fractionName = fractionsRepository.getCachedFractions()
-                .find { it.id == arenaPlayer.fractionId }?.name
-                .orEmpty()
-            getPlayer(arenaPlayer.name)?.let {
-                scoreBoard.getTeam(fractionName)?.addEntry(it.name)
-                it.scoreboard = scoreBoard
-            }
-        }
-
-        fun removeFromTeam(playerId: String) {
-            val fractionId = arenaPlayersRepository.getCachedPlayerById(playerId)?.fractionId
-            val fractionName = fractionsRepository.getCachedFractions()
-                .find { it.id == fractionId }?.name
-                .orEmpty()
-            val playerName = arenaPlayersRepository.getCachedPlayerById(playerId)?.name ?: return
-            getPlayer(playerName)?.let {
-                scoreBoard.getTeam(fractionName)?.removeEntry(it.name)
-                it.scoreboard = Bukkit.getScoreboardManager()!!.mainScoreboard
-            }
-        }
-
     }
 
 }
