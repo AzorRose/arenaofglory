@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.data.local.database.dao.exposed
 
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
@@ -14,7 +15,8 @@ import ru.mainmayhem.arenaofglory.data.entities.LocationCoordinates
 import ru.mainmayhem.arenaofglory.data.entities.Outpost
 import ru.mainmayhem.arenaofglory.data.local.database.dao.OutpostsDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.Outposts
-import javax.inject.Inject
+
+private const val REWARD_COMMANDS_SEPARATOR = ";"
 
 class JetbrainsExposedOutpostsDao @Inject constructor(
     private val dispatchers: CoroutineDispatchers
@@ -23,7 +25,7 @@ class JetbrainsExposedOutpostsDao @Inject constructor(
     private var stateFlow: MutableStateFlow<List<Outpost>>? = null
 
     override suspend fun insert(outposts: List<Outpost>) {
-        withContext(dispatchers.io){
+        withContext(dispatchers.io) {
             transaction {
                 outposts.forEach { outpost ->
                     Outposts.insert {
@@ -37,7 +39,8 @@ class JetbrainsExposedOutpostsDao @Inject constructor(
                         it[bottomRightCornerX] = outpost.coordinates.rightBottom.x
                         it[bottomRightCornerY] = outpost.coordinates.rightBottom.y
                         it[bottomRightCornerZ] = outpost.coordinates.rightBottom.z
-                        it[rewardCommands] = outpost.rewardCommands.joinToString(";") { it.cmd }
+                        it[rewardCommands] =
+                            outpost.rewardCommands.joinToString(REWARD_COMMANDS_SEPARATOR) { command -> command.cmd }
                     }
                 }
             }
@@ -46,7 +49,7 @@ class JetbrainsExposedOutpostsDao @Inject constructor(
     }
 
     override suspend fun get(): List<Outpost> {
-        return withContext(dispatchers.io){
+        return withContext(dispatchers.io) {
             transaction {
                 Outposts.selectAll().map {
                     Outpost(
@@ -67,8 +70,8 @@ class JetbrainsExposedOutpostsDao @Inject constructor(
                         ),
                         rewardCommands = it[Outposts.rewardCommands]
                             .orEmpty()
-                            .split(";")
-                            .filter { it.isNotBlank() }
+                            .split(REWARD_COMMANDS_SEPARATOR)
+                            .filter { str -> str.isNotBlank() }
                             .map { cmd -> Command(cmd) }
                     )
                 }
@@ -77,13 +80,13 @@ class JetbrainsExposedOutpostsDao @Inject constructor(
     }
 
     override suspend fun coordinatesFlow(): Flow<List<Outpost>> {
-        return stateFlow ?: MutableStateFlow(get()).also {
-            stateFlow = it
+        return stateFlow ?: MutableStateFlow(get()).also { flow ->
+            stateFlow = flow
         }
     }
 
     override suspend fun isEmpty(): Boolean {
-        return withContext(dispatchers.io){
+        return withContext(dispatchers.io) {
             transaction {
                 Outposts.selectAll().empty()
             }
@@ -91,9 +94,9 @@ class JetbrainsExposedOutpostsDao @Inject constructor(
     }
 
     override suspend fun changeOwner(outpostId: Long, ownerFractionId: Long) {
-        withContext(dispatchers.io){
+        withContext(dispatchers.io) {
             transaction {
-                Outposts.update({Outposts.id eq outpostId}){
+                Outposts.update({ Outposts.id eq outpostId }) {
                     it[fractionId] = ownerFractionId
                 }
             }

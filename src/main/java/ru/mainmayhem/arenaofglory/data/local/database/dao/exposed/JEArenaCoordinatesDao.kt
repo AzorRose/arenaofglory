@@ -1,16 +1,20 @@
 package ru.mainmayhem.arenaofglory.data.local.database.dao.exposed
 
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.entities.LocationCoordinates
 import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaCoordinatesDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaCoordinates
-import javax.inject.Inject
 
 class JEArenaCoordinatesDao @Inject constructor(
     private val dispatchers: CoroutineDispatchers
@@ -22,7 +26,7 @@ class JEArenaCoordinatesDao @Inject constructor(
     private var stateFlow: MutableStateFlow<LocationCoordinates?>? = null
 
     override suspend fun insert(coordinates: LocationCoordinates) {
-        withContext(dispatchers.io){
+        withContext(dispatchers.io) {
             transaction {
                 ArenaCoordinates.insert {
                     it[type] = topLeftCorner
@@ -41,7 +45,7 @@ class JEArenaCoordinatesDao @Inject constructor(
     }
 
     override suspend fun get(): LocationCoordinates? {
-        return withContext(dispatchers.io){
+        return withContext(dispatchers.io) {
             transaction {
                 val topLeft = ArenaCoordinates.select(
                     Op.build {
@@ -68,14 +72,14 @@ class JEArenaCoordinatesDao @Inject constructor(
     }
 
     override suspend fun isEmpty(): Boolean {
-        return withContext(dispatchers.io){
+        return withContext(dispatchers.io) {
             transaction {
                 ArenaCoordinates.selectAll().empty()
             }
         }
     }
 
-    private fun ResultRow.toModel(): Coordinates{
+    private fun ResultRow.toModel(): Coordinates {
         return Coordinates(
             x = get(ArenaCoordinates.x),
             y = get(ArenaCoordinates.y),

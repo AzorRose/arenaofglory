@@ -2,30 +2,31 @@ package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Locale
+import javax.inject.Inject
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.entities.PluginSettings
 import ru.mainmayhem.arenaofglory.data.jarFilePath
 import ru.mainmayhem.arenaofglory.data.local.repositories.PluginSettingsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
-import javax.inject.Inject
+
+private const val FILE_NAME = "settings.txt"
+private const val SETTINGS_INDENT = "  "
 
 class SettingsRepositoryImpl @Inject constructor(
     moshi: Moshi,
     private val logger: PluginLogger
 ): PluginSettingsRepository {
 
-    private val fileName = "settings.txt"
-
-    private val settingsAdapter = moshi.adapter(Settings::class.java).indent("  ")
+    private val settingsAdapter = moshi.adapter(Settings::class.java).indent(SETTINGS_INDENT)
 
     private val filePath = jarFilePath + Constants.PLUGIN_META_FOLDER_NAME + "/"
 
     private val pluginSettings: PluginSettings by lazy {
         makeDirIfNotExist()
-        val settings = File(filePath + fileName)
+        val settings = File(filePath + FILE_NAME)
         if (settings.exists()){
             settings.getSettings()
         } else {
@@ -53,9 +54,9 @@ class SettingsRepositoryImpl @Inject constructor(
     private fun File.getSettings(): PluginSettings{
         val content = readText()
         if (content.isBlank())
-            throw RuntimeException("Файл $fileName пуст")
+            throw RuntimeException("Файл $FILE_NAME пуст")
         val settings = kotlin.runCatching { settingsAdapter.fromJson(content) }.getOrNull()
-            ?: throw RuntimeException("Некорректный формат записи в файле $fileName")
+            ?: throw RuntimeException("Некорректный формат записи в файле $FILE_NAME")
         return settings.toModel()
     }
 

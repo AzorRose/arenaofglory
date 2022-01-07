@@ -1,13 +1,13 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
+import java.util.Collections
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.mainmayhem.arenaofglory.data.entities.Fraction
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
-import java.util.*
-import javax.inject.Inject
 
 class FractionsRepositoryImpl @Inject constructor(
     pluginDatabase: PluginDatabase,
@@ -28,5 +28,5 @@ class FractionsRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getCachedFractions(): List<Fraction> = cache
+    override fun getCachedFractions(): List<Fraction> = cache.toList()
 }

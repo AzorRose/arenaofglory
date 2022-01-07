@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.commands.executors
 
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.bukkit.command.Command
@@ -11,14 +12,14 @@ import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import javax.inject.Inject
+
+private const val COMMAND_ARGS_AMOUNT = 2
 
 /**
  * Команда для выбора фракции
  * Выполняется только если игрок не принадлежит ни к одной фракции
  * usage:<название команды> <название фракции на английском из табл fractions> <id игрока>
  */
-
 class ChooseFractionCommandExecutor @Inject constructor(
     private val database: PluginDatabase,
     private val arenaPlayersRepository: ArenaPlayersRepository,
@@ -28,9 +29,14 @@ class ChooseFractionCommandExecutor @Inject constructor(
     private val logger: PluginLogger
 ): BaseOpCommandExecutor() {
 
-    override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+    override fun executeCommand(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        args: Array<out String>
+    ): Boolean {
 
-        if (args.argumentsNotCorrect()){
+        if (args.argumentsNotCorrect()) {
             sender.sendMessage("Некорректные аргументы")
             logger.info("${sender.name} выполнил команду ${Commands.CHOOSE_FRACTION} с некорректными аргументами")
             return false
@@ -39,13 +45,13 @@ class ChooseFractionCommandExecutor @Inject constructor(
         val fractionName = args.first()
         val playerName = args[1]
 
-        if (!isFractionNameValid(fractionName)){
+        if (!isFractionNameValid(fractionName)) {
             sender.sendMessage("Некорректное название фракции")
             logger.info("${sender.name} выполнил команду ${Commands.CHOOSE_FRACTION} с некорректной фракцией")
             return false
         }
 
-        if (hasPlayerInFraction(playerName)){
+        if (hasPlayerInFraction(playerName)) {
             sender.sendMessage("Игрок принадлежит к фракции")
             logger.info("${sender.name} выполнил команду ${Commands.CHOOSE_FRACTION} с игроком $playerName, который принадлежит к фракции")
             return false
@@ -54,13 +60,13 @@ class ChooseFractionCommandExecutor @Inject constructor(
         return insertNewPlayer(playerName, fractionName)
     }
 
-    private fun Array<out String>.argumentsNotCorrect(): Boolean{
-        return size != 2
+    private fun Array<out String>.argumentsNotCorrect(): Boolean {
+        return size != COMMAND_ARGS_AMOUNT
     }
 
-    private fun insertNewPlayer(playerName: String, fractionName: String): Boolean{
+    private fun insertNewPlayer(playerName: String, fractionName: String): Boolean {
         val playerId = plugin.server.getPlayer(playerName)?.uniqueId?.toString()
-        if (playerId == null){
+        if (playerId == null) {
             logger.error(
                 message = "Игрок с id = $playerId не найден",
                 className = "ChooseFractionCommandExecutor",
@@ -70,7 +76,7 @@ class ChooseFractionCommandExecutor @Inject constructor(
             return false
         }
         val fractionId = fractionsRepository.getCachedFractions().find { it.nameInEnglish == fractionName }?.id
-        if (fractionId == null){
+        if (fractionId == null) {
             logger.error(
                 message = "Фракция с названием = $fractionName не найдена",
                 className = "ChooseFractionCommandExecutor",
@@ -91,7 +97,7 @@ class ChooseFractionCommandExecutor @Inject constructor(
                         kills = 0
                     )
                 )
-            } catch (t: Throwable){
+            } catch (t: Throwable) {
                 logger.error(
                     className = "ChooseFractionCommandExecutor",
                     methodName = "insertNewPlayer",
@@ -102,7 +108,7 @@ class ChooseFractionCommandExecutor @Inject constructor(
         return true
     }
 
-    private fun isFractionNameValid(fractionName: String): Boolean{
+    private fun isFractionNameValid(fractionName: String): Boolean {
         val fractions = fractionsRepository.getCachedFractions()
         fractions.forEach {
             if (it.nameInEnglish == fractionName)
@@ -111,7 +117,7 @@ class ChooseFractionCommandExecutor @Inject constructor(
         return false
     }
 
-    private fun hasPlayerInFraction(playerName: String): Boolean{
+    private fun hasPlayerInFraction(playerName: String): Boolean {
         val players = arenaPlayersRepository.getCachedPlayers()
         return players.find { it.name == playerName } != null
     }

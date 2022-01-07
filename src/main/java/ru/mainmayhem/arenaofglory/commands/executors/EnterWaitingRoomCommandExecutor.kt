@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.commands.executors
 
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.bukkit.command.Command
@@ -9,14 +10,12 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.WaitingRoomScheduleHelper
 import ru.mainmayhem.arenaofglory.domain.useCases.TeleportToWaitingRoomUseCase
-import javax.inject.Inject
 
 /**
  * Команда для входа в комнату ожидания
  * Выполняется только если игрок принадлежит к одной из фракции
  * usage:<название команды> <имя игрока>
  */
-
 class EnterWaitingRoomCommandExecutor @Inject constructor(
     private val arenaPlayersRepository: ArenaPlayersRepository,
     private val pluginLogger: PluginLogger,
@@ -26,28 +25,33 @@ class EnterWaitingRoomCommandExecutor @Inject constructor(
     private val waitingRoomScheduleHelper: WaitingRoomScheduleHelper
 ): BaseOpCommandExecutor() {
 
-    override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+    override fun executeCommand(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        args: Array<out String>
+    ): Boolean {
 
-        if (args.isEmpty()){
+        if (args.isEmpty()) {
             sender.sendMessage("Укажите в аргументах имя игрока")
             return false
         }
 
         val playerName = args.first()
 
-        if (arenaPlayersRepository.getCachedPlayerByName(playerName) == null){
+        if (arenaPlayersRepository.getCachedPlayerByName(playerName) == null) {
             sendMessageToPlayer(playerName, "Вы не принадлежите к фракции")
             return false
         }
 
-        if (!waitingRoomScheduleHelper.isWaitingRoomOpened()){
-            sendMessageToPlayer(playerName,"Комната ожидания закрыта")
+        if (!waitingRoomScheduleHelper.isWaitingRoomOpened()) {
+            sendMessageToPlayer(playerName, "Комната ожидания закрыта")
             return false
         }
 
         val playerId = javaPlugin.server.getPlayer(playerName)?.uniqueId?.toString()
 
-        if (playerId == null){
+        if (playerId == null) {
             sendMessageToPlayer(playerName, "Ошибка при выполнении команды")
             pluginLogger.error(
                 className = "EnterWaitingRoomCommandExecutor",
@@ -62,7 +66,7 @@ class EnterWaitingRoomCommandExecutor @Inject constructor(
         coroutineScope.launch {
             try {
                 teleportToWaitingRoomUseCase.teleport(playerId)
-            } catch (e: Throwable){
+            } catch (e: Throwable) {
                 pluginLogger.error("EnterWaitingRoomCommandExecutor", "onCommand", e)
             }
         }
@@ -70,7 +74,7 @@ class EnterWaitingRoomCommandExecutor @Inject constructor(
         return true
     }
 
-    private fun sendMessageToPlayer(playerName: String, message: String){
+    private fun sendMessageToPlayer(playerName: String, message: String) {
         javaPlugin.server.getPlayer(playerName)?.sendMessage(message)
     }
 

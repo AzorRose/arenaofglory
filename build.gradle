@@ -35,7 +35,7 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10'
 
     //coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2-native-mt'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-native-mt'
 
     //dagger
     implementation 'com.google.dagger:dagger:2.40.5'

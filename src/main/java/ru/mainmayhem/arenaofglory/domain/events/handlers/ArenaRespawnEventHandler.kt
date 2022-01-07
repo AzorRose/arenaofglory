@@ -2,7 +2,6 @@ package ru.mainmayhem.arenaofglory.domain.events.handlers
 
 import javax.inject.Inject
 import org.bukkit.Bukkit
-import org.bukkit.Location
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
@@ -39,12 +38,7 @@ class ArenaRespawnEventHandler @Inject constructor(
                     throwable = NullPointerException("Не найден респавн для игрока ${event.player.getShortInfo()}")
                 )
             } else {
-                event.respawnLocation = Location(
-                    javaPlugin.server.getWorld(Constants.WORLD_NAME),
-                    coordinate.x.toDouble(),
-                    coordinate.y.toDouble(),
-                    coordinate.z.toDouble()
-                )
+                event.respawnLocation = coordinate.getLocation(javaPlugin.server.getWorld(Constants.WORLD_NAME))
                 val fractionId = player.player.fractionId
                 startMatchEffectProvider.provideEffect(fractionId, false)?.let { effect ->
                     Bukkit.getScheduler().scheduleSyncDelayedTask(

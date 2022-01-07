@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.data.local.database.dao.exposed
 
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
@@ -12,7 +13,6 @@ import ru.mainmayhem.arenaofglory.data.entities.LocationCoordinates
 import ru.mainmayhem.arenaofglory.data.entities.RespawnCoordinates
 import ru.mainmayhem.arenaofglory.data.local.database.dao.ArenaRespawnCoordinatesDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.ArenaRespawnCoordinates
-import javax.inject.Inject
 
 class JEArenaRespawnCoordinatesDao @Inject constructor(
     private val dispatchers: CoroutineDispatchers
@@ -21,7 +21,7 @@ class JEArenaRespawnCoordinatesDao @Inject constructor(
     private var stateFlow: MutableStateFlow<List<RespawnCoordinates>>? = null
 
     override suspend fun insert(respawnCoordinates: List<RespawnCoordinates>) {
-        withContext(dispatchers.io){
+        withContext(dispatchers.io) {
             transaction {
                 respawnCoordinates.forEach { resp ->
                     ArenaRespawnCoordinates.insert {
@@ -40,7 +40,7 @@ class JEArenaRespawnCoordinatesDao @Inject constructor(
     }
 
     override suspend fun get(): List<RespawnCoordinates> {
-        return withContext(dispatchers.io){
+        return withContext(dispatchers.io) {
             transaction {
                 ArenaRespawnCoordinates.selectAll().map {
                     RespawnCoordinates(
@@ -70,7 +70,7 @@ class JEArenaRespawnCoordinatesDao @Inject constructor(
     }
 
     override suspend fun isEmpty(): Boolean {
-        return withContext(dispatchers.io){
+        return withContext(dispatchers.io) {
             transaction {
                 ArenaRespawnCoordinates.selectAll().empty()
             }

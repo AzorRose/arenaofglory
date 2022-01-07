@@ -1,11 +1,12 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
+import java.util.Collections
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.mainmayhem.arenaofglory.data.entities.MatchResult
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.MatchResultsRepository
-import javax.inject.Inject
 
 class MatchResultRepositoryImpl @Inject constructor(
     coroutineScope: CoroutineScope,
@@ -13,7 +14,7 @@ class MatchResultRepositoryImpl @Inject constructor(
 ): MatchResultsRepository {
 
     private val matchResultsDao = database.getMatchResultsDao()
-    private val cache = mutableListOf<MatchResult>()
+    private val cache = Collections.synchronizedList(mutableListOf<MatchResult>())
 
     init {
         coroutineScope.launch { cache.addAll(matchResultsDao.getAll()) }

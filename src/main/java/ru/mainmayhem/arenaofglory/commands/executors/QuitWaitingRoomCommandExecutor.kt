@@ -1,12 +1,12 @@
 package ru.mainmayhem.arenaofglory.commands.executors
 
+import javax.inject.Inject
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaQueueRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import javax.inject.Inject
 
 /**
  * Команда для выхода из комнаты ожидания
@@ -19,9 +19,14 @@ class QuitWaitingRoomCommandExecutor @Inject constructor(
     private val logger: PluginLogger
 ): BaseOpCommandExecutor() {
 
-    override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+    override fun executeCommand(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        args: Array<out String>
+    ): Boolean {
 
-        if (args.isEmpty()){
+        if (args.isEmpty()) {
             sender.sendMessage("Укажите в аргументах имя игрока")
             return false
         }
@@ -30,7 +35,7 @@ class QuitWaitingRoomCommandExecutor @Inject constructor(
 
         val player = javaPlugin.server.getPlayer(playerName)
 
-        if (player == null){
+        if (player == null) {
             sender.sendMessage("Игрок с именем $playerName не найден")
             return false
         }

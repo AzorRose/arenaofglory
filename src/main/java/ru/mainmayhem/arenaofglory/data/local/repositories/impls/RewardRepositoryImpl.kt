@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -8,7 +9,6 @@ import ru.mainmayhem.arenaofglory.data.entities.ArenaReward
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.RewardRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import javax.inject.Inject
 
 class RewardRepositoryImpl @Inject constructor(
     coroutineScope: CoroutineScope,
@@ -18,24 +18,28 @@ class RewardRepositoryImpl @Inject constructor(
 ): RewardRepository {
 
     private var reward: ArenaReward? = null
+        @Synchronized
+        set
+        @Synchronized
+        get
 
     init {
         coroutineScope.launch(dispatchers.main) {
             database.getRewardDao()
                 .getRewardFlow()
-                .collectLatest {
-                    printLog(it)
-                    reward = it
+                .collectLatest { arenaReward ->
+                    printLog(arenaReward)
+                    reward = arenaReward
                 }
         }
     }
 
     override fun get(): ArenaReward? = reward
 
-    private fun printLog(arenaReward: ArenaReward?){
-        if (arenaReward == null){
+    private fun printLog(arenaReward: ArenaReward?) {
+        if (arenaReward == null) {
             logger.warning("Таблица с наградами не заполнена или заполнена некорректно")
-        } else{
+        } else {
             logger.info("Получена награда из БД: $arenaReward")
         }
     }

@@ -11,6 +11,7 @@ import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 
 private const val EMPTY_FIELD = ""
 private const val FILE_NAME = "db_config.txt"
+private const val DB_CONFIG_INDENT = "  "
 
 class DbConfigFileRepoImpl @Inject constructor(
     private val logger: PluginLogger,
@@ -24,7 +25,7 @@ class DbConfigFileRepoImpl @Inject constructor(
         password = EMPTY_FIELD
     )
 
-    private val dbConfigAdapter = moshi.adapter(DbConfig::class.java).indent("  ")
+    private val dbConfigAdapter = moshi.adapter(DbConfig::class.java).indent(DB_CONFIG_INDENT)
 
     private val filePath = jarFilePath + Constants.PLUGIN_META_FOLDER_NAME + "/"
 

@@ -22,6 +22,7 @@ import ru.mainmayhem.arenaofglory.commands.executors.ReloadPluginCommandExecutor
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.MatchScheduleJobInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.OutpostsJobInstance
 import ru.mainmayhem.arenaofglory.data.dagger.components.DaggerAppComponent
+import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.useCases.InitDataUseCase
 import ru.mainmayhem.arenaofglory.domain.useCases.KickAllArenaPLayersUseCase
@@ -69,6 +70,9 @@ class ArenaOfGlory: JavaPlugin() {
     @OutpostsJobInstance
     lateinit var outpostsJob: PluginJob
 
+    @Inject
+    lateinit var pluginDatabase: PluginDatabase
+
     //placeholders
     @Inject
     lateinit var fractionPlaceholders: FractionPlaceholders
@@ -95,6 +99,7 @@ class ArenaOfGlory: JavaPlugin() {
         coroutineScope.cancel(CancellationException())
         clearExecutorCommands()
         HandlerList.unregisterAll(eventsListener)
+        pluginDatabase.close()
         DIHolder.clear()
     }
 

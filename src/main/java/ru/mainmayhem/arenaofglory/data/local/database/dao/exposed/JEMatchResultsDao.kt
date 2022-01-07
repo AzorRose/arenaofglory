@@ -1,5 +1,6 @@
 package ru.mainmayhem.arenaofglory.data.local.database.dao.exposed
 
+import javax.inject.Inject
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
@@ -9,7 +10,6 @@ import ru.mainmayhem.arenaofglory.data.CoroutineDispatchers
 import ru.mainmayhem.arenaofglory.data.entities.MatchResult
 import ru.mainmayhem.arenaofglory.data.local.database.dao.MatchResultsDao
 import ru.mainmayhem.arenaofglory.data.local.database.tables.exposed.MatchResults
-import javax.inject.Inject
 
 class JEMatchResultsDao @Inject constructor(
     private val dispatchers: CoroutineDispatchers
@@ -18,7 +18,7 @@ class JEMatchResultsDao @Inject constructor(
     override suspend fun getAll(): List<MatchResult> {
         return withContext(dispatchers.io) {
             transaction {
-                MatchResults.selectAll().toList().map { it.toModel() }
+                MatchResults.selectAll().toList().map { row -> row.toModel() }
             }
         }
     }
