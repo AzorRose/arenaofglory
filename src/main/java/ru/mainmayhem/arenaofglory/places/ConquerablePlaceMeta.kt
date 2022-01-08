@@ -1,22 +1,25 @@
 package ru.mainmayhem.arenaofglory.places
 
+import java.text.DecimalFormat
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
-import java.text.DecimalFormat
+import ru.mainmayhem.arenaofglory.data.second
 
 abstract class ConquerablePlaceMeta {
 
     companion object {
         const val MIN_PLACE_STATE = 0.0
         const val MAX_PLACE_STATE = 100.0
-        private const val FORMATTED_STATE_PATTERN ="0.##"
+        private const val FORMATTED_STATE_PATTERN = "0.##"
     }
 
     //Игроки, находящиеся на территории этой местности
     private val players = mutableMapOf<Long, Set<ArenaPlayer>>()
+
     //Состояние точки от 0 до 100
     @Volatile
     private var state: Double = MIN_PLACE_STATE
+
     //была ли фракция уведомлена о захвате
     var wasNotified = false
 
@@ -26,19 +29,21 @@ abstract class ConquerablePlaceMeta {
     abstract fun getPlaceId(): Long
     abstract fun getPlaceName(): String
 
-    open fun addPlayer(player: ArenaPlayer){
+    @Synchronized
+    open fun addPlayer(player: ArenaPlayer) {
         val players = players[player.fractionId].orEmpty()
         this.players[player.fractionId] = players.plus(player)
         calculateStatus()
     }
 
-    fun removePlayer(playerId: String, fractionId: Long){
+    @Synchronized
+    fun removePlayer(playerId: String, fractionId: Long) {
         val players = players[fractionId].orEmpty()
         this.players[fractionId] = players.filter { it.id != playerId }.toSet()
         calculateStatus()
     }
 
-    fun getPlayers() = players
+    fun getPlayers() = players.toMap()
 
     fun updateState(newState: Double) {
         state = newState
@@ -53,14 +58,14 @@ abstract class ConquerablePlaceMeta {
 
     fun getStatus() = status
 
-    fun sendMessageToDefenders(message: String, javaPlugin: JavaPlugin){
+    fun sendMessageToDefenders(message: String, javaPlugin: JavaPlugin) {
         val fractionId = defendingFractionId() ?: return
         getPlayers()[fractionId]?.forEach {
             javaPlugin.server.getPlayer(it.name)?.sendMessage(message)
         }
     }
 
-    fun sendMessageToAttackers(message: String, javaPlugin: JavaPlugin){
+    fun sendMessageToAttackers(message: String, javaPlugin: JavaPlugin) {
         getPlayers().filter {
             it.key != defendingFractionId()
         }.values.forEach {
@@ -70,11 +75,11 @@ abstract class ConquerablePlaceMeta {
         }
     }
 
-    private fun calculateStatus(){
+    private fun calculateStatus() {
         val res: ConquerablePlaceStatus
         val allPlayers = getAllPlayers()
 
-        when{
+        when {
             allPlayers.isEmpty() || onlyDefenders(allPlayers) -> {
                 res = ConquerablePlaceStatus.None
             }
@@ -105,14 +110,14 @@ abstract class ConquerablePlaceMeta {
     }
 
     //патовая ситуация
-    private fun isStalemate(): Boolean{
+    private fun isStalemate(): Boolean {
         val fractionMembersAmount = players.values
             .map { it.size }
             .sortedDescending()
-        return fractionMembersAmount.size >= 2 && fractionMembersAmount.first() == fractionMembersAmount[1]
+        return fractionMembersAmount.size >= 2 && fractionMembersAmount.first() == fractionMembersAmount.second()
     }
 
-    private fun getAttackingFractionMeta(): Pair<Long, Int>{
+    private fun getAttackingFractionMeta(): Pair<Long, Int> {
         val sorted = players
             .map { Pair(it.key, it.value) }
             .sortedByDescending { it.second.size }
@@ -121,30 +126,24 @@ abstract class ConquerablePlaceMeta {
         return Pair(attacker.first, attacker.second.size - nextTeamSize)
     }
 
-    private fun isUnderAttack(): Boolean{
+    private fun isUnderAttack(): Boolean {
         val attacker = players
-            .map { Pair(it.key, it.value) }
-            .maxByOrNull { it.second.size }!!
-        return attacker.first != defendingFractionId()
+            .maxByOrNull { (_, players) -> players.size }!!
+        return attacker.key != defendingFractionId()
     }
 
-    private fun getAllPlayers(): List<ArenaPlayer>{
-        val res = mutableListOf<ArenaPlayer>()
-        players.values.forEach {
-            res.addAll(it)
-        }
-        return res
+    private fun getAllPlayers(): List<ArenaPlayer> {
+        return players.values.flatten()
     }
 
-    private fun oneFraction(players: List<ArenaPlayer>): Boolean{
-        val ids = players.map { it.fractionId }.toSet()
-        return ids.size == 1
+    private fun oneFraction(players: List<ArenaPlayer>): Boolean {
+        return players.distinctBy { player -> player.fractionId }.size == 1
     }
 
-    private fun onlyDefenders(players: List<ArenaPlayer>): Boolean{
+    private fun onlyDefenders(players: List<ArenaPlayer>): Boolean {
         val defendingFractionId = defendingFractionId()
-        players.forEach {
-            if (it.fractionId != defendingFractionId){
+        players.forEach { arenaPlayer ->
+            if (arenaPlayer.fractionId != defendingFractionId) {
                 return false
             }
         }

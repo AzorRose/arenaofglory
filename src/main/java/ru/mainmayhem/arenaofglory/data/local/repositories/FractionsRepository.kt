@@ -9,4 +9,8 @@ interface FractionsRepository {
 
     fun getCachedFractions(): List<Fraction>
 
+    fun getFractionById(id: Long): Fraction?
+
+    fun getFractionByNameInEnglish(fractionName: String): Fraction?
+
 }

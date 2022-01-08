@@ -1,6 +1,5 @@
 package ru.mainmayhem.arenaofglory.jobs
 
-import java.util.Date
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -63,8 +62,8 @@ class OutpostsJob @Inject constructor(
         }
 
         outpostsRepository.getCachedOutposts()
-            .forEach { outpost ->
-                outpostsHolder.getOutpostMeta(outpost.first.id)?.let { meta ->
+            .forEach { (outpost, _) ->
+                outpostsHolder.getOutpostMeta(outpost.id)?.let { meta ->
 
                     if (meta.getStatus() !is ConquerablePlaceStatus.None && !meta.canBeCaptured()) {
                         return@let
@@ -106,7 +105,7 @@ class OutpostsJob @Inject constructor(
                                 "Аванпост $outpostName${meta.getPlaceName()}$default теперь принадлежит " +
                                     "фракции $attackersName${getFractionName(status.attackingFractionId)}"
                             )
-                            meta.lastCaptureTime = Date().time
+                            meta.lastCaptureTime = System.currentTimeMillis()
                             meta.updateState(MIN_PLACE_STATE)
                             coroutineScope.launch { changeFraction(meta.getPlaceId(), status.attackingFractionId) }
                             return@let
@@ -190,7 +189,7 @@ class OutpostsJob @Inject constructor(
     }
 
     private fun getFractionName(fractionId: Long): String? {
-        return fractionsRepository.getCachedFractions().find { it.id == fractionId }?.name
+        return fractionsRepository.getFractionById(fractionId)?.name
     }
 
     private fun sendMessageToFraction(message: String, fractionId: Long) {

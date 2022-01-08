@@ -93,7 +93,7 @@ class OutpostPlaceholders @Inject constructor(
             return EMPTY_RESULT
         }
         val fractionId = outpost.defendingFractionId() ?: return EMPTY_RESULT
-        val fraction = fractionsRepository.getCachedFractions().find { it.id == fractionId }
+        val fraction = fractionsRepository.getFractionById(fractionId)
         if (fraction == null) {
             logger.warning("Не удалось найти фракцию с id = $fractionId")
             return EMPTY_RESULT

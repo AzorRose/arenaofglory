@@ -14,27 +14,30 @@ class ArenaPlayersRepositoryImpl @Inject constructor(
     coroutineScope: CoroutineScope
 ): ArenaPlayersRepository {
 
-    private val players = Collections.synchronizedList(mutableListOf<ArenaPlayer>())
+    private val playersByName = Collections.synchronizedMap(mutableMapOf<String, ArenaPlayer>())
+    private val playersById = Collections.synchronizedMap(mutableMapOf<String, ArenaPlayer>())
 
     init {
         coroutineScope.launch {
             pluginDatabase.getArenaPlayersDao()
                 .getPlayersFlow()
                 .collectLatest { playersFromDb ->
-                    players.clear()
-                    players.addAll(playersFromDb)
+                    playersFromDb.forEach { player ->
+                        playersByName[player.name] = player
+                        playersById[player.id] = player
+                    }
                 }
         }
     }
 
-    override fun getCachedPlayers(): List<ArenaPlayer> = players.toList()
+    override fun getCachedPlayers(): List<ArenaPlayer> = playersByName.values.toList()
 
     override fun getCachedPlayerById(playerId: String): ArenaPlayer? {
-        return players.find { player -> player.id == playerId }
+        return playersById[playerId]
     }
 
     override fun getCachedPlayerByName(playerName: String): ArenaPlayer? {
-        return players.find { player -> player.name == playerName }
+        return playersByName[playerName]
     }
 
 }

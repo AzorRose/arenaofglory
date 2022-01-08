@@ -5,6 +5,6 @@ import ru.mainmayhem.arenaofglory.domain.CalculatedLocation
 
 interface OutpostsRepository {
 
-    fun getCachedOutposts(): List<Pair<Outpost, CalculatedLocation>>
+    fun getCachedOutposts(): Map<Outpost, CalculatedLocation>
 
 }

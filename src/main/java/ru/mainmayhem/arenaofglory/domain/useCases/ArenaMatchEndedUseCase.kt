@@ -142,7 +142,7 @@ class ArenaMatchEndedUseCase @Inject constructor(
 
     private fun getWinningFractionName(): String? {
         val id = getWinningFractionId() ?: return null
-        return fractionsRepository.getCachedFractions().find { fraction -> fraction.id == id }?.name
+        return fractionsRepository.getFractionById(id)?.name
     }
 
     private fun getWinningFractionId(): Long? {
@@ -158,7 +158,7 @@ class ArenaMatchEndedUseCase @Inject constructor(
     private fun getAutoWonFractionName(): String? {
         //так как у нас 2 команды, то при автопобеде на арене будет одна фракция
         return arenaMatchMetaRepository.getPlayers().firstOrNull()?.player?.fractionId?.let { fractionId ->
-            fractionsRepository.getCachedFractions().find { fraction -> fraction.id == fractionId }?.name
+            fractionsRepository.getFractionById(fractionId)?.name
         }
     }
 

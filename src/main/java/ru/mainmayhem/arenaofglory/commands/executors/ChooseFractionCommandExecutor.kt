@@ -75,7 +75,7 @@ class ChooseFractionCommandExecutor @Inject constructor(
             )
             return false
         }
-        val fractionId = fractionsRepository.getCachedFractions().find { it.nameInEnglish == fractionName }?.id
+        val fractionId = fractionsRepository.getFractionByNameInEnglish(fractionName)?.id
         if (fractionId == null) {
             logger.error(
                 message = "Фракция с названием = $fractionName не найдена",

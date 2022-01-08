@@ -14,19 +14,27 @@ class FractionsRepositoryImpl @Inject constructor(
     coroutineScope: CoroutineScope
 ): FractionsRepository {
 
-    private val cache = Collections.synchronizedList(mutableListOf<Fraction>())
+    private val fractionsById = Collections.synchronizedMap(mutableMapOf<Long, Fraction>())
+    private val fractionsByNameInEnglish = Collections.synchronizedMap(mutableMapOf<String, Fraction>())
 
     init {
         coroutineScope.launch {
             pluginDatabase
                 .getFractionDao()
                 .getFractionsFlow()
-                .collectLatest {
-                    cache.clear()
-                    cache.addAll(it)
+                .collectLatest { fractions ->
+                    fractions.forEach { fraction ->
+                        fractionsById[fraction.id] = fraction
+                        fractionsByNameInEnglish[fraction.nameInEnglish] = fraction
+                    }
                 }
         }
     }
 
-    override fun getCachedFractions(): List<Fraction> = cache.toList()
+    override fun getCachedFractions(): List<Fraction> = fractionsById.values.toList()
+
+    override fun getFractionById(id: Long): Fraction? = fractionsById[id]
+
+    override fun getFractionByNameInEnglish(fractionName: String): Fraction? = fractionsByNameInEnglish[fractionName]
+
 }

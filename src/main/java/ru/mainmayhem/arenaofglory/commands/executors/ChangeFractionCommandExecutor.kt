@@ -59,7 +59,7 @@ class ChangeFractionCommandExecutor @Inject constructor(
         fractionName: String,
         sender: CommandSender
     ): Boolean {
-        val fractionId = fractionsRepository.getCachedFractions().find { it.nameInEnglish == fractionName }?.id
+        val fractionId = fractionsRepository.getFractionByNameInEnglish(fractionName)?.id
         //асинхронно обновляем игрока в таблице
         //99,99% это будет успешно, поэтому считаем, что команда выполнена
         coroutineScope.launch {

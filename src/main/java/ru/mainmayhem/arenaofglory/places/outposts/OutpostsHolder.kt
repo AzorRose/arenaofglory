@@ -1,11 +1,11 @@
 package ru.mainmayhem.arenaofglory.places.outposts
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.entities.ArenaPlayer
 import ru.mainmayhem.arenaofglory.data.local.repositories.OutpostsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class OutpostsHolder @Inject constructor(
@@ -14,36 +14,35 @@ class OutpostsHolder @Inject constructor(
     private val javaPlugin: JavaPlugin
 ) {
 
-    private val outpostsMeta: List<OutpostMeta> by lazy {
+    private val outpostsMeta: Map<Long, OutpostMeta> by lazy {
         outpostsRepository.getCachedOutposts()
-            .map {
-                OutpostMeta(
-                    outpostId = it.first.id,
-                    outpostName = it.first.name,
+            .map { (outpost, _) ->
+                outpost.id to OutpostMeta(
+                    outpostId = outpost.id,
+                    outpostName = outpost.name,
                     outpostsRepository = outpostsRepository,
                     javaPlugin = javaPlugin
                 )
             }
+            .toMap()
     }
 
-    fun getOutpostMeta(id: Long): OutpostMeta?{
-        return outpostsMeta.find { it.getPlaceId() == id }
+    fun getOutpostMeta(id: Long): OutpostMeta? {
+        return outpostsMeta[id]
     }
 
-    @Synchronized
-    fun addPlayer(arenaPlayer: ArenaPlayer, outpostId: Long){
+    fun addPlayer(arenaPlayer: ArenaPlayer, outpostId: Long) {
         val meta = getOutpostMeta(outpostId)
-        if (meta == null){
+        if (meta == null) {
             logger.warning("Не найден аванпост с id = $outpostId")
             return
         }
         meta.addPlayer(arenaPlayer)
     }
 
-    @Synchronized
-    fun removePlayer(arenaPlayer: ArenaPlayer, outpostId: Long){
+    fun removePlayer(arenaPlayer: ArenaPlayer, outpostId: Long) {
         val meta = getOutpostMeta(outpostId)
-        if (meta == null){
+        if (meta == null) {
             logger.warning("Не найден аванпост с id = $outpostId")
             return
         }
