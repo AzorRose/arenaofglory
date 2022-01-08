@@ -18,10 +18,6 @@ class RewardRepositoryImpl @Inject constructor(
 ): RewardRepository {
 
     private var reward: ArenaReward? = null
-        @Synchronized
-        set
-        @Synchronized
-        get
 
     init {
         coroutineScope.launch(dispatchers.main) {

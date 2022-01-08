@@ -71,9 +71,7 @@ class FractionPlaceholders @Inject constructor(
     private fun OfflinePlayer.getFractionName(): String {
         val id = uniqueId.toString()
         val arenaPlayer = arenaPlayersRepository.getCachedPlayerById(id) ?: return EMPTY_RESULT
-        return fractionsRepository.getCachedFractions()
-            .find { it.id == arenaPlayer.fractionId }?.name
-            .orEmpty()
+        return fractionsRepository.getFractionById(arenaPlayer.fractionId)?.name.orEmpty()
     }
 
 }

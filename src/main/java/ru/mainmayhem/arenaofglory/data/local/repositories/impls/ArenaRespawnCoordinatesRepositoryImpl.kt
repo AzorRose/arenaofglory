@@ -1,9 +1,9 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories.impls
 
+import java.util.Collections
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinatesRepository
@@ -18,26 +18,21 @@ class ArenaRespawnCoordinatesRepositoryImpl @Inject constructor(
 
     private val dao = database.getArenaRespawnCoordinatesDao()
 
-    private var calculatedLocations: Map<Long, CalculatedLocation> = emptyMap()
+    private val calculatedLocations = Collections.synchronizedMap(mutableMapOf<Long, CalculatedLocation>())
 
     init {
         coroutineScope.launch {
             dao.coordinatesFlow()
-                .map { respawns ->
-                    val res = mutableMapOf<Long, CalculatedLocation>()
+                .collectLatest { respawns ->
                     respawns.forEach { respawn ->
-                        res[respawn.fractionId] = calculator.calculate(respawn.coordinates)
+                        calculatedLocations[respawn.fractionId] = calculator.calculate(respawn.coordinates)
                     }
-                    res
-                }
-                .collectLatest { mapLocations ->
-                    calculatedLocations = mapLocations
                 }
         }
     }
 
     override fun getCachedCoordinates(): Map<Long, CalculatedLocation> {
-        return calculatedLocations
+        return calculatedLocations.toMap()
     }
 
 }

@@ -19,19 +19,19 @@ class ArenaMatchMetaRepositoryImpl @Inject constructor(
     private val dispatchers: CoroutineDispatchers
 ): ArenaMatchMetaRepository {
 
-    private val players = Collections.synchronizedList(mutableListOf<ArenaMatchMember>())
+    private val playersMap = Collections.synchronizedMap(mutableMapOf<String, ArenaMatchMember>())
+    private val playersList: List<ArenaMatchMember>
+        get() = playersMap.values.toList()
     private val fractions = Collections.synchronizedMap(mutableMapOf<Long, Int>())
 
     override suspend fun setPlayers(players: List<ArenaPlayer>) {
         withContext(dispatchers.main) {
             logger.info("Обновляем участников арены, сбрасываем очки фракций")
-            this@ArenaMatchMetaRepositoryImpl.players.clear()
+            playersMap.clear()
             fractions.clear()
-            this@ArenaMatchMetaRepositoryImpl.players.addAll(
-                players.map { player ->
-                    ArenaMatchMember(player, ZERO_KILLS)
-                }
-            )
+            players.forEach { player ->
+                playersMap[player.id] = ArenaMatchMember(player, ZERO_KILLS)
+            }
             fractionsRepository.getCachedFractions().forEach { fraction ->
                 fractions[fraction.id] = ZERO_FRACTION_POINTS
             }
@@ -40,24 +40,23 @@ class ArenaMatchMetaRepositoryImpl @Inject constructor(
 
     override fun remove(playerId: String) {
         logger.info("Удаляем из матча игрока с id = $playerId")
-        players.removeIf { it.player.id == playerId }
+        playersMap.remove(playerId)
     }
 
     override fun insert(player: ArenaPlayer) {
         logger.info("Добавляем нового участника: $player")
-        players.add(ArenaMatchMember(player, ZERO_KILLS))
+        playersMap[player.id] = ArenaMatchMember(player, ZERO_KILLS)
     }
 
     override fun incrementPlayerKills(playerId: String) {
         logger.info("Повышаем счетчик убийств у игрока с id = $playerId")
-        val player = players.find { player -> player.player.id == playerId }
+        val player = playersMap[playerId]
         if (player == null) {
             logger.warning("Игрок не найден в данных текущего матча")
             return
         }
-        val index = players.indexOf(player)
-        players[index] = player.copy(kills = player.kills.inc())
-        logger.info("Новые данные по игрокам: $players")
+        playersMap[playerId] = player.copy(kills = player.kills.inc())
+        logger.info("Новые данные по игрокам: $playersList")
     }
 
     override fun increaseFractionPoints(fractionId: Long, points: Int) {
@@ -74,10 +73,12 @@ class ArenaMatchMetaRepositoryImpl @Inject constructor(
 
     override fun getFractionsPoints(): Map<Long, Int> = fractions.toMap()
 
-    override fun getPlayers(): List<ArenaMatchMember> = players.toList()
+    override fun getPlayers(): List<ArenaMatchMember> = playersList
+
+    override fun getPlayerById(playerId: String): ArenaMatchMember? = playersMap[playerId]
 
     override fun clear() {
-        players.clear()
+        playersMap.clear()
         fractions.clear()
     }
 

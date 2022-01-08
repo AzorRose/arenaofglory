@@ -1,6 +1,6 @@
 package ru.mainmayhem.arenaofglory.data.entities
 
-import java.util.*
+import java.util.Date
 
 data class PluginSettings(
     val openWaitingRoomMins: Int,

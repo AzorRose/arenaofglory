@@ -23,8 +23,7 @@ class PlayerLeftOutpostEventHandler @Inject constructor(
         val to = event.to?.asCoordinates()
         val playerId = event.player.uniqueId.toString()
         val player = arenaPlayersRepository.getCachedPlayerById(playerId)
-        val inArena =
-            arenaMatchMetaRepository.getPlayers().find { playerItem -> playerItem.player.id == playerId } != null
+        val inArena = arenaMatchMetaRepository.getPlayerById(playerId) != null
         if (to == null || player == null || inArena) {
             super.handle(event)
             return

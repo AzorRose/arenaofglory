@@ -3,8 +3,8 @@ package ru.mainmayhem.arenaofglory.domain.events.handlers
 import javax.inject.Inject
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerMoveEvent
+import ru.mainmayhem.arenaofglory.data.asCoordinates
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.MatchJobInstance
-import ru.mainmayhem.arenaofglory.data.entities.Coordinates
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaMatchMetaRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaRespawnCoordinatesRepository
@@ -34,7 +34,7 @@ class MoveToEnemyRespawnEventHandler @Inject constructor(
             super.handle(event)
             return
         }
-        val playerTargetCoordinates = Coordinates(to.x.toInt(), to.y.toInt(), to.z.toInt())
+        val playerTargetCoordinates = to.asCoordinates()
         val playerId = event.player.uniqueId.toString()
         val playerFractionId = arenaPlayersRepository.getCachedPlayerById(playerId)?.fractionId
         coordinates.forEach { (fractionId, respCoords) ->
@@ -47,9 +47,7 @@ class MoveToEnemyRespawnEventHandler @Inject constructor(
     }
 
     private fun Player.isNotInArena(): Boolean {
-        return arenaMatchMetaRepository.getPlayers().find { arenaMember ->
-            arenaMember.player.id == uniqueId.toString()
-        } == null
+        return arenaMatchMetaRepository.getPlayerById(uniqueId.toString()) == null
     }
 
 }

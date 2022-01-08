@@ -45,8 +45,7 @@ class FriendlyFireHandler @Inject constructor(
     }
 
     private fun Player.isInArena(): Boolean {
-        val players = arenaMatchMetaRepository.getPlayers()
-        return players.find { player -> player.player.id == uniqueId.toString() } != null
+        return arenaMatchMetaRepository.getPlayerById(uniqueId.toString()) != null
     }
 
 }

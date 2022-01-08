@@ -41,9 +41,7 @@ class ArenaChatEventHandler @Inject constructor(
     }
 
     private fun Player.isNotInArena(): Boolean {
-        return arenaMatchMetaRepository.getPlayers().find { matchMember ->
-            matchMember.player.id == uniqueId.toString()
-        } == null
+        return arenaMatchMetaRepository.getPlayerById(uniqueId.toString()) == null
     }
 
     private fun Player.sendMessageToTeammates(message: String) {
@@ -51,7 +49,7 @@ class ArenaChatEventHandler @Inject constructor(
         val playerId = uniqueId.toString()
         val playerFractionId = arenaPlayersRepository.getCachedPlayerById(playerId)?.fractionId ?: return
         players
-            .filter { it.player.fractionId == playerFractionId }
+            .filter { matchMember -> matchMember.player.fractionId == playerFractionId }
             .forEach { matchMember ->
                 javaPlugin.server.getPlayer(matchMember.player.name)?.sendMessage("$playerListName: $message")
             }

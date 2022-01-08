@@ -2,7 +2,7 @@ package ru.mainmayhem.arenaofglory.domain.events.handlers
 
 import javax.inject.Inject
 import org.bukkit.event.player.PlayerTeleportEvent
-import ru.mainmayhem.arenaofglory.data.entities.Coordinates
+import ru.mainmayhem.arenaofglory.data.asCoordinates
 import ru.mainmayhem.arenaofglory.data.local.repositories.OutpostsRepository
 import ru.mainmayhem.arenaofglory.domain.CoordinatesComparator
 import ru.mainmayhem.arenaofglory.domain.events.BaseEventHandler
@@ -19,7 +19,7 @@ class TpToOutpostsEventHandler @Inject constructor(
             super.handle(event)
             return
         }
-        val coordinates = Coordinates(to.x.toInt(), to.y.toInt(), to.z.toInt())
+        val coordinates = to.asCoordinates()
         outposts.forEach { (_, location) ->
             if (coordinatesComparator.compare(coordinates, location)) {
                 event.isCancelled = true

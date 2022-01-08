@@ -91,8 +91,7 @@ class ChangeFractionCommandExecutor @Inject constructor(
     }
 
     private fun hasPlayerInFraction(playerName: String): Boolean {
-        val players = arenaPlayersRepository.getCachedPlayers()
-        return players.find { it.name == playerName } != null
+        return arenaPlayersRepository.getCachedPlayerByName(playerName) != null
     }
 
 }

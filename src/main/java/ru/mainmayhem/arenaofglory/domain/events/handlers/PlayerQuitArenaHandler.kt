@@ -51,13 +51,11 @@ class PlayerQuitArenaHandler @Inject constructor(
             if (newPlayer == null) {
                 logger.info("Невозможно взять нового игрока из очереди: очередь фракции пуста")
             }
-            newPlayer?.let { arenaPlayer ->
-                arenaMatchMetaRepository.insert(arenaPlayer)
-            }
+            newPlayer?.let(arenaMatchMetaRepository::insert)
             newPlayer?.teleportPlayerToArena()
             //телепортируем игрока на спавн, чтобы при след. заходе он не оказался на арене
-            javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let {
-                event.player.teleport(it.spawnLocation)
+            javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let { world ->
+                event.player.teleport(world.spawnLocation)
             }
             if (disbalanceFinder.hasEmptyFractions()) {
                 logger.info("Обнаружена пустая команда, старт таймера автоматической победы")
@@ -68,9 +66,7 @@ class PlayerQuitArenaHandler @Inject constructor(
     }
 
     private fun hasInArena(player: Player): Boolean {
-        return arenaMatchMetaRepository.getPlayers().find { matchMember ->
-            matchMember.player.id == player.uniqueId.toString()
-        } != null
+        return arenaMatchMetaRepository.getPlayerById(player.uniqueId.toString()) != null
     }
 
     private fun ArenaPlayer.teleportPlayerToArena() {

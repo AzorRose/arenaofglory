@@ -2,7 +2,6 @@ package ru.mainmayhem.arenaofglory.domain.useCases
 
 import java.util.Date
 import javax.inject.Inject
-import kotlin.random.Random
 import kotlinx.coroutines.withContext
 import org.bukkit.Location
 import org.bukkit.plugin.java.JavaPlugin
@@ -142,10 +141,11 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
     private fun enemyFractionsInQueue(fractionId: Long): Boolean {
         val queue = arenaQueueRepository.get()
         fractionsRepository.getCachedFractions()
-            .map { it.id }
-            .filter { it != fractionId }
-            .forEach {
-                if (queue[it].isNullOrEmpty())
+            .asSequence()
+            .map { fraction -> fraction.id }
+            .filter { id -> id != fractionId }
+            .forEach { id ->
+                if (queue[id].isNullOrEmpty())
                     return false
             }
         return true
@@ -154,8 +154,7 @@ class TeleportToWaitingRoomUseCase @Inject constructor(
     private fun getRandomWRCoordinate(): Coordinates {
         val coordinates = waitingRoomCoordsRepository.getCachedCoordinates()?.coordinates
             ?: throw NullPointerException("Не найдены координаты комнаты ожидания")
-        val randomInt = Random.nextInt(coordinates.size)
-        return coordinates[randomInt]
+        return coordinates.random()
     }
 
     private fun getTimeToStartMatch(): Long {

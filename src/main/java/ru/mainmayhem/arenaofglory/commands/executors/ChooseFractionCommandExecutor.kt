@@ -12,6 +12,7 @@ import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.ArenaPlayersRepository
 import ru.mainmayhem.arenaofglory.data.local.repositories.FractionsRepository
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
+import ru.mainmayhem.arenaofglory.data.second
 
 private const val COMMAND_ARGS_AMOUNT = 2
 
@@ -43,7 +44,7 @@ class ChooseFractionCommandExecutor @Inject constructor(
         }
 
         val fractionName = args.first()
-        val playerName = args[1]
+        val playerName = args.second()
 
         if (!isFractionNameValid(fractionName)) {
             sender.sendMessage("Некорректное название фракции")
@@ -118,8 +119,7 @@ class ChooseFractionCommandExecutor @Inject constructor(
     }
 
     private fun hasPlayerInFraction(playerName: String): Boolean {
-        val players = arenaPlayersRepository.getCachedPlayers()
-        return players.find { it.name == playerName } != null
+        return arenaPlayersRepository.getCachedPlayerByName(playerName) != null
     }
 
 }

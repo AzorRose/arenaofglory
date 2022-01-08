@@ -55,7 +55,6 @@ class MatchJob @Inject constructor(
     }
 
     private fun printCurrentResults() {
-        val fractions = fractionsRepository.getCachedFractions()
         val message = StringBuilder()
         val scoreFontSettings = GOLD.toString() + BOLD.toString()
         val resultsFontSettings = YELLOW.toString()
@@ -66,7 +65,7 @@ class MatchJob @Inject constructor(
             .map { Pair(it.key, it.value) }
             .forEachIndexed { index, res ->
                 val font = if (index == 0 || index % 2 == 0) evenFractionFontSettings else oddFractionFontSettings
-                val fractionName = font + fractions.find { it.id == res.first }?.name
+                val fractionName = font + fractionsRepository.getFractionById(res.first)?.name
                 message.append("$fractionName: $scoreFontSettings${res.second}\n")
             }
         sendMessageToAllPlayersInMatch(message.toString())

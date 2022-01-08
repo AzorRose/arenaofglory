@@ -28,7 +28,7 @@ class ArenaRespawnEventHandler @Inject constructor(
 
     override fun handle(event: PlayerRespawnEvent) {
         val playerId = event.player.uniqueId.toString()
-        val player = arenaMatchMetaRepository.getPlayers().find { it.player.id == playerId }
+        val player = arenaMatchMetaRepository.getPlayerById(playerId)
         if (player != null) {
             val coordinate = getRandomCoordinate(player.player.fractionId)
             if (coordinate == null) {

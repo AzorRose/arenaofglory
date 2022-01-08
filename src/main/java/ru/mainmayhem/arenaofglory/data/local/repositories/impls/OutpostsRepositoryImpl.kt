@@ -25,6 +25,7 @@ class OutpostsRepositoryImpl @Inject constructor(
                 .coordinatesFlow()
                 .collectLatest { outposts ->
                     outposts.forEach { outpost ->
+                        cache.clear()
                         cache[outpost] = calculator.calculate(outpost.coordinates)
                     }
                 }

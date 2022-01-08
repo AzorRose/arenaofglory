@@ -1,8 +1,6 @@
 package ru.mainmayhem.arenaofglory.domain.useCases
 
-import java.util.UUID
 import javax.inject.Inject
-import kotlin.random.Random
 import kotlinx.coroutines.withContext
 import org.bukkit.plugin.java.JavaPlugin
 import ru.mainmayhem.arenaofglory.data.Constants
@@ -38,22 +36,22 @@ class StartArenaMatchUseCase @Inject constructor(
     private val settingsRepository: PluginSettingsRepository
 ) {
 
-    suspend fun handle(){
+    suspend fun handle() {
         val size = queueSize()
         logger.info("Игроков в очереди: $size")
-        when(size){
+        when (size) {
             NO_PLAYERS_AMOUNT -> return
             NOT_ENOUGH_PLAYERS_AMOUNT -> kickPlayer()
             else -> startMatch()
         }
     }
 
-    private suspend fun kickPlayer(){
+    private suspend fun kickPlayer() {
         val arenaPlayer = arenaQueueRepository.getAll().first()
         arenaQueueRepository.remove(arenaPlayer.id)
         val player = javaPlugin.server.getPlayer(arenaPlayer.name) ?: return
         logger.info("Кикаем игрока ${player.getShortInfo()} из комнаты ожидания")
-        withContext(dispatchers.main){
+        withContext(dispatchers.main) {
             javaPlugin.server.getWorld(Constants.WORLD_NAME)?.let { world ->
                 player.teleport(world.spawnLocation)
             }
@@ -61,10 +59,10 @@ class StartArenaMatchUseCase @Inject constructor(
         }
     }
 
-    private suspend fun startMatch(){
+    private suspend fun startMatch() {
         logger.info("Начинаем матч")
         val queue = arenaQueueRepository.get()
-        if (allFractionsSizeEqual(queue)){
+        if (allFractionsSizeEqual(queue)) {
             logger.info("Игроков равное кол-во")
             logger.info("Очищаем очередь")
             arenaQueueRepository.clear()
@@ -79,7 +77,7 @@ class StartArenaMatchUseCase @Inject constructor(
         }
     }
 
-    private suspend fun startMatchWithEqualPlayersSize(players: Map<Long, Set<ArenaPlayer>>){
+    private suspend fun startMatchWithEqualPlayersSize(players: Map<Long, Set<ArenaPlayer>>) {
         val min = getMinPlayersInFraction(players)
         logger.info("Меньшая из фракций состоит из $min игроков")
         val newPlayers = mutableMapOf<Long, Set<ArenaPlayer>>()
@@ -102,7 +100,7 @@ class StartArenaMatchUseCase @Inject constructor(
         var res = 0
         players.entries.forEachIndexed { index, entry ->
             val size = entry.value.size
-            when{
+            when {
                 index == FIRST_LIST_INDEX -> res = entry.value.size
                 res > size -> res = size
             }
@@ -110,7 +108,7 @@ class StartArenaMatchUseCase @Inject constructor(
         return res
     }
 
-    private suspend fun savePlayersInArenaMeta(players: Map<Long, Set<ArenaPlayer>>){
+    private suspend fun savePlayersInArenaMeta(players: Map<Long, Set<ArenaPlayer>>) {
         val res = mutableListOf<ArenaPlayer>()
         players.values.forEach { playersSet ->
             res.addAll(playersSet)
@@ -118,16 +116,14 @@ class StartArenaMatchUseCase @Inject constructor(
         arenaMatchMetaRepository.setPlayers(res)
     }
 
-    private suspend fun teleportPlayersAndStartJob(players: Map<Long, Set<ArenaPlayer>>){
+    private suspend fun teleportPlayersAndStartJob(players: Map<Long, Set<ArenaPlayer>>) {
         startMatchDelayJob.start()
-        withContext(dispatchers.main){
-            players.forEach { (key, value) ->
-                value.forEach { player ->
-                    arenaRespawnCoordinatesRepository.getCachedCoordinates()[key]?.let {
-                        val random = it.coordinates[Random.nextInt(it.coordinates.size)]
-                        val serverPlayer = javaPlugin.server.getPlayer(UUID.fromString(player.id))
-                        serverPlayer?.teleport(
-                            random.getLocation(javaPlugin.server.getWorld(Constants.WORLD_NAME))
+        withContext(dispatchers.main) {
+            players.forEach { (fractionId, playersSet) ->
+                playersSet.forEach { player ->
+                    arenaRespawnCoordinatesRepository.getCachedCoordinates()[fractionId]?.let { location ->
+                        javaPlugin.server.getPlayer(player.name)?.teleport(
+                            location.coordinates.random().getLocation(javaPlugin.server.getWorld(Constants.WORLD_NAME))
                         )
                     }
                 }
@@ -135,10 +131,10 @@ class StartArenaMatchUseCase @Inject constructor(
         }
     }
 
-    private fun allFractionsSizeEqual(queue: Map<Long, Set<ArenaPlayer>>): Boolean{
+    private fun allFractionsSizeEqual(queue: Map<Long, Set<ArenaPlayer>>): Boolean {
         var firstFractionSize = 0
         queue.entries.forEachIndexed { index, entry ->
-            when{
+            when {
                 index == FIRST_LIST_INDEX -> firstFractionSize = entry.value.size
                 firstFractionSize != entry.value.size -> return false
             }
@@ -146,7 +142,7 @@ class StartArenaMatchUseCase @Inject constructor(
         return true
     }
 
-    private fun queueSize(): Int{
+    private fun queueSize(): Int {
         val queue = arenaQueueRepository.get()
         var res = 0
         queue.forEach { (_, value) ->

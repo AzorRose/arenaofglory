@@ -46,6 +46,11 @@ interface ArenaMatchMetaRepository {
     fun getPlayers(): List<ArenaMatchMember>
 
     /**
+     * Возвращает учатника по его id, если он участвует в матче
+     */
+    fun getPlayerById(playerId: String): ArenaMatchMember?
+
+    /**
      * Очистить данные, нужно после матча
      */
     fun clear()
