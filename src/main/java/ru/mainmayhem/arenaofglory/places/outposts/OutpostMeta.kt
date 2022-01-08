@@ -20,9 +20,7 @@ class OutpostMeta(
     var lastCaptureTime: Long? = null
 
     override fun defendingFractionId(): Long? {
-        return outpostsRepository.getCachedOutposts()
-            .keys
-            .find { outpost -> outpost.id == outpostId }?.fractionId
+        return outpostsRepository.getCachedOutposts()[outpostId]?.outpost?.fractionId
     }
 
     override fun getPlaceId(): Long = outpostId

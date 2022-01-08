@@ -28,9 +28,10 @@ class PlayerLeftOutpostEventHandler @Inject constructor(
             super.handle(event)
             return
         }
-        outpostsRepository.getCachedOutposts().forEach { (outpost, location) ->
+        outpostsRepository.getCachedOutposts().forEach { (outpostId, data) ->
+            val location = data.calculatedLocation
             if (comparator.compare(from, location) && !comparator.compare(to, location)) {
-                outpostsHolder.removePlayer(player, outpost.id)
+                outpostsHolder.removePlayer(player, outpostId)
             }
         }
         super.handle(event)

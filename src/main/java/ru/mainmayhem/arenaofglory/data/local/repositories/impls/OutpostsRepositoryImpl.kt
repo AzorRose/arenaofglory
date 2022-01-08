@@ -5,10 +5,9 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import ru.mainmayhem.arenaofglory.data.entities.Outpost
+import ru.mainmayhem.arenaofglory.data.entities.OutpostData
 import ru.mainmayhem.arenaofglory.data.local.database.PluginDatabase
 import ru.mainmayhem.arenaofglory.data.local.repositories.OutpostsRepository
-import ru.mainmayhem.arenaofglory.domain.CalculatedLocation
 import ru.mainmayhem.arenaofglory.domain.CoordinatesCalculator
 
 class OutpostsRepositoryImpl @Inject constructor(
@@ -17,7 +16,7 @@ class OutpostsRepositoryImpl @Inject constructor(
     coroutineScope: CoroutineScope
 ): OutpostsRepository {
 
-    private val cache = Collections.synchronizedMap(mutableMapOf<Outpost, CalculatedLocation>())
+    private val cache = Collections.synchronizedMap(mutableMapOf<Long, OutpostData>())
 
     init {
         coroutineScope.launch {
@@ -25,8 +24,10 @@ class OutpostsRepositoryImpl @Inject constructor(
                 .coordinatesFlow()
                 .collectLatest { outposts ->
                     outposts.forEach { outpost ->
-                        cache.clear()
-                        cache[outpost] = calculator.calculate(outpost.coordinates)
+                        cache[outpost.id] = OutpostData(
+                            outpost = outpost,
+                            calculatedLocation = calculator.calculate(outpost.coordinates)
+                        )
                     }
                 }
         }

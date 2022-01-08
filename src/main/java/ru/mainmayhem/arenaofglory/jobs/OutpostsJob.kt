@@ -62,8 +62,9 @@ class OutpostsJob @Inject constructor(
         }
 
         outpostsRepository.getCachedOutposts()
-            .forEach { (outpost, _) ->
-                outpostsHolder.getOutpostMeta(outpost.id)?.let { meta ->
+            .keys
+            .forEach { outpostId ->
+                outpostsHolder.getOutpostMeta(outpostId)?.let { meta ->
 
                     if (meta.getStatus() !is ConquerablePlaceStatus.None && !meta.canBeCaptured()) {
                         return@let

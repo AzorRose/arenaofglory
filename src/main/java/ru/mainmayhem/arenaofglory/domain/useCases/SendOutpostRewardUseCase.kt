@@ -29,7 +29,7 @@ class SendOutpostRewardUseCase @Inject constructor(
         withContext(dispatchers.default) {
             outpostsRepository.getCachedOutposts()
                 .asSequence()
-                .map { (outpost, _) -> outpost }
+                .map { (_, data) -> data.outpost }
                 .filter { outpost -> outpost.fractionId != null }
                 .forEach { outpost ->
                     val fractionId = outpost.fractionId!!

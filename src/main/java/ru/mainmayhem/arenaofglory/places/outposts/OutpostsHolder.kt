@@ -16,10 +16,10 @@ class OutpostsHolder @Inject constructor(
 
     private val outpostsMeta: Map<Long, OutpostMeta> by lazy {
         outpostsRepository.getCachedOutposts()
-            .map { (outpost, _) ->
-                outpost.id to OutpostMeta(
-                    outpostId = outpost.id,
-                    outpostName = outpost.name,
+            .map { (outpostId, data) ->
+                outpostId to OutpostMeta(
+                    outpostId = outpostId,
+                    outpostName = data.outpost.name,
                     outpostsRepository = outpostsRepository,
                     javaPlugin = javaPlugin
                 )

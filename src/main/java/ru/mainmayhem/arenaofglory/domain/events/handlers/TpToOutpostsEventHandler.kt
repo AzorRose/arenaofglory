@@ -20,8 +20,8 @@ class TpToOutpostsEventHandler @Inject constructor(
             return
         }
         val coordinates = to.asCoordinates()
-        outposts.forEach { (_, location) ->
-            if (coordinatesComparator.compare(coordinates, location)) {
+        outposts.forEach { (_, data) ->
+            if (coordinatesComparator.compare(coordinates, data.calculatedLocation)) {
                 event.isCancelled = true
                 event.player.sendMessage("Вы не можете перемещаться на аванпосты с помощью консольных команд")
                 return

@@ -1,10 +1,9 @@
 package ru.mainmayhem.arenaofglory.data.local.repositories
 
-import ru.mainmayhem.arenaofglory.data.entities.Outpost
-import ru.mainmayhem.arenaofglory.domain.CalculatedLocation
+import ru.mainmayhem.arenaofglory.data.entities.OutpostData
 
 interface OutpostsRepository {
 
-    fun getCachedOutposts(): Map<Outpost, CalculatedLocation>
+    fun getCachedOutposts(): Map<Long, OutpostData>
 
 }
