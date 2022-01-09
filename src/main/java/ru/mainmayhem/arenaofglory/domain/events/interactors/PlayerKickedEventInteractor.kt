@@ -8,6 +8,7 @@ import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerQuitWRQueueHandl
 import ru.mainmayhem.arenaofglory.data.getShortInfo
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.events.EventHandler
+import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerQuitOutpostHandler
 
 /**
  * Класс для создания цепочек для обработки кика игрока с сервера
@@ -17,14 +18,15 @@ class PlayerKickedEventInteractor @Inject constructor(
     private val playerQuitWRQueue: EventHandler<PlayerEvent>,
     @PlayerQuitArenaHandlerInstance
     private val playerQuitArenaHandler: EventHandler<PlayerEvent>,
+    private val playerQuitOutpostHandler: PlayerQuitOutpostHandler,
     private val logger: PluginLogger
 ) {
 
     fun handle(event: PlayerKickEvent) {
         logger.info("Игрок ${event.player.getShortInfo()} вышел с сервера")
-        playerQuitWRQueue.apply {
-            setNext(playerQuitArenaHandler)
-        }.handle(event)
+        playerQuitArenaHandler.setNext(playerQuitOutpostHandler)
+        playerQuitWRQueue.setNext(playerQuitArenaHandler)
+        playerQuitWRQueue.handle(event)
     }
 
 }
