@@ -4,9 +4,9 @@ import javax.inject.Inject
 import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerQuitArenaHandlerInstance
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerQuitOutpostHandlerInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerQuitWRQueueHandlerInstance
 import ru.mainmayhem.arenaofglory.domain.events.EventHandler
-import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerQuitOutpostHandler
 
 /**
  * Класс для создания цепочек для обработки выхода игрока с сервера
@@ -16,7 +16,8 @@ class PlayerQuitServerEventInteractor @Inject constructor(
     private val playerQuitWRQueue: EventHandler<PlayerEvent>,
     @PlayerQuitArenaHandlerInstance
     private val playerQuitArena: EventHandler<PlayerEvent>,
-    private val playerQuitOutpostHandler: PlayerQuitOutpostHandler
+    @PlayerQuitOutpostHandlerInstance
+    private val playerQuitOutpostHandler: EventHandler<PlayerEvent>
 ) {
 
     fun handle(event: PlayerQuitEvent){

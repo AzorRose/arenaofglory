@@ -15,6 +15,7 @@ import ru.mainmayhem.arenaofglory.data.dagger.annotations.MoveToEnemyRespawnEven
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerEnteredOutpostEventHandlerInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerLeftOutpostEventHandlerInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerQuitArenaHandlerInstance
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerQuitOutpostHandlerInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerQuitWRQueueHandlerInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.TpToArenaEventHandlerInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.TpToOutpostsEventHandlerInstance
@@ -29,6 +30,7 @@ import ru.mainmayhem.arenaofglory.domain.events.handlers.MoveToEnemyRespawnEvent
 import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerEnteredOutpostEventHandler
 import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerLeftOutpostEventHandler
 import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerQuitArenaHandler
+import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerQuitOutpostHandler
 import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerQuitWRQueueHandler
 import ru.mainmayhem.arenaofglory.domain.events.handlers.TpToArenaEventHandler
 import ru.mainmayhem.arenaofglory.domain.events.handlers.TpToOutpostsEventHandler
@@ -85,5 +87,9 @@ abstract class EventHandlerModule {
     @Binds
     @TpToOutpostsEventHandlerInstance
     abstract fun getTpToOutpostsEventHandler(impl: TpToOutpostsEventHandler): EventHandler<PlayerTeleportEvent>
+
+    @Binds
+    @PlayerQuitOutpostHandlerInstance
+    abstract fun getPlayerQuitOutpostHandler(impl: PlayerQuitOutpostHandler): EventHandler<PlayerEvent>
 
 }

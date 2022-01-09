@@ -41,3 +41,7 @@ annotation class TpToWaitingRoomEventHandlerInstance
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class TpToOutpostsEventHandlerInstance
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class PlayerQuitOutpostHandlerInstance

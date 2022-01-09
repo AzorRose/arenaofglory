@@ -22,8 +22,8 @@ class PlayerQuitOutpostHandler @Inject constructor(
             super.handle(event)
             return
         }
-        outpostsRepository.getCachedOutposts().forEach {
-            outpostsHolder.removePlayer(player, it.first.id)
+        outpostsRepository.getCachedOutposts().keys.forEach { outpostId ->
+            outpostsHolder.removePlayer(player, outpostId)
         }
         super.handle(event)
     }

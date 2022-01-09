@@ -4,11 +4,11 @@ import javax.inject.Inject
 import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerKickEvent
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerQuitArenaHandlerInstance
+import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerQuitOutpostHandlerInstance
 import ru.mainmayhem.arenaofglory.data.dagger.annotations.PlayerQuitWRQueueHandlerInstance
 import ru.mainmayhem.arenaofglory.data.getShortInfo
 import ru.mainmayhem.arenaofglory.data.logger.PluginLogger
 import ru.mainmayhem.arenaofglory.domain.events.EventHandler
-import ru.mainmayhem.arenaofglory.domain.events.handlers.PlayerQuitOutpostHandler
 
 /**
  * Класс для создания цепочек для обработки кика игрока с сервера
@@ -18,7 +18,8 @@ class PlayerKickedEventInteractor @Inject constructor(
     private val playerQuitWRQueue: EventHandler<PlayerEvent>,
     @PlayerQuitArenaHandlerInstance
     private val playerQuitArenaHandler: EventHandler<PlayerEvent>,
-    private val playerQuitOutpostHandler: PlayerQuitOutpostHandler,
+    @PlayerQuitOutpostHandlerInstance
+    private val playerQuitOutpostHandler: EventHandler<PlayerEvent>,
     private val logger: PluginLogger
 ) {
 
