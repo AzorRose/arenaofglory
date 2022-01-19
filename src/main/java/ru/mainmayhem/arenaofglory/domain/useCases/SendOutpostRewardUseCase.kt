@@ -51,7 +51,7 @@ class SendOutpostRewardUseCase @Inject constructor(
 
     private infix fun String.performWith(player: String) {
         val command = replace(COMMAND_PLAYER_NAME_KEY, player)
-        kotlin.runCatching {
+        runCatching {
             val isExecuted = Bukkit.dispatchCommand(
                 Bukkit.getConsoleSender(),
                 command

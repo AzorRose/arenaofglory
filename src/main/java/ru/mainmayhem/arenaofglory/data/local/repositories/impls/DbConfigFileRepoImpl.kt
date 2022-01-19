@@ -48,7 +48,7 @@ class DbConfigFileRepoImpl @Inject constructor(
 
     private fun File.getConfig(): DbConfig {
         val json = readText()
-        val dbConfig = kotlin.runCatching { dbConfigAdapter.fromJson(json) }.getOrNull()
+        val dbConfig = runCatching { dbConfigAdapter.fromJson(json) }.getOrNull()
             ?: throw NullPointerException("Неверная структура файла $FILE_NAME")
 
         if (dbConfig.url.isBlank())

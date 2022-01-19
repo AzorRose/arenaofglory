@@ -55,7 +55,7 @@ class SettingsRepositoryImpl @Inject constructor(
         val content = readText()
         if (content.isBlank())
             throw RuntimeException("Файл $FILE_NAME пуст")
-        val settings = kotlin.runCatching { settingsAdapter.fromJson(content) }.getOrNull()
+        val settings = runCatching { settingsAdapter.fromJson(content) }.getOrNull()
             ?: throw RuntimeException("Некорректный формат записи в файле $FILE_NAME")
         return settings.toModel()
     }

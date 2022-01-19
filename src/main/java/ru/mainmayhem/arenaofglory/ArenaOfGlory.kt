@@ -105,7 +105,7 @@ class ArenaOfGlory: JavaPlugin() {
 
     private fun initData() {
         coroutineScope.launch {
-            kotlin.runCatching {
+            runCatching {
                 initDataUseCase.init()
             }.exceptionOrNull()?.let { error ->
                 logger.error(
