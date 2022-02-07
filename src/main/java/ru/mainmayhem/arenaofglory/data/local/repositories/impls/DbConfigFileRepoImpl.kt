@@ -27,6 +27,7 @@ class DbConfigFileRepoImpl @Inject constructor(
 
     private val dbConfigAdapter = moshi.adapter(DbConfig::class.java).indent(DB_CONFIG_INDENT)
 
+    //TODO use PluginDirectoryRepository
     private val filePath = jarFilePath + Constants.PLUGIN_META_FOLDER_NAME + "/"
 
     override fun getConfigFromFile(): DbConfig {

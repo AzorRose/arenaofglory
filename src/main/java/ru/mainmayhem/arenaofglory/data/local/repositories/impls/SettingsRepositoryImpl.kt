@@ -22,6 +22,7 @@ class SettingsRepositoryImpl @Inject constructor(
 
     private val settingsAdapter = moshi.adapter(Settings::class.java).indent(SETTINGS_INDENT)
 
+    //TODO use PluginDirectoryRepository
     private val filePath = jarFilePath + Constants.PLUGIN_META_FOLDER_NAME + "/"
 
     private val pluginSettings: PluginSettings by lazy {
