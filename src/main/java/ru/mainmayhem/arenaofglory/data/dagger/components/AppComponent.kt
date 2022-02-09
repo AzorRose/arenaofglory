@@ -8,6 +8,7 @@ import ru.mainmayhem.arenaofglory.ArenaOfGlory
 import ru.mainmayhem.arenaofglory.data.dagger.modules.AppModule
 import ru.mainmayhem.arenaofglory.data.dagger.modules.EventHandlerModule
 import ru.mainmayhem.arenaofglory.data.dagger.modules.JobModule
+import ru.mainmayhem.arenaofglory.data.dagger.modules.ProvidersModule
 import ru.mainmayhem.arenaofglory.data.dagger.modules.RepositoryModule
 import ru.mainmayhem.arenaofglory.data.dagger.modules.StorageModule
 
@@ -18,7 +19,8 @@ import ru.mainmayhem.arenaofglory.data.dagger.modules.StorageModule
         StorageModule::class,
         RepositoryModule::class,
         JobModule::class,
-        EventHandlerModule::class
+        EventHandlerModule::class,
+        ProvidersModule::class
     ]
 )
 interface AppComponent {
