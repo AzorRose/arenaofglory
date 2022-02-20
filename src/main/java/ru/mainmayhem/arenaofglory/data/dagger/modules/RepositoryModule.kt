@@ -27,7 +27,8 @@ import ru.mainmayhem.arenaofglory.data.local.repositories.impls.OutpostsReposito
 import ru.mainmayhem.arenaofglory.data.local.repositories.impls.RewardRepositoryImpl
 import ru.mainmayhem.arenaofglory.data.local.repositories.impls.SettingsRepositoryImpl
 import ru.mainmayhem.arenaofglory.data.local.repositories.impls.WRCoordinatesRepositoryImpl
-
+import ru.mainmayhem.arenaofglory.resources.files.BuyerPluginDirectoryRepository
+import ru.mainmayhem.arenaofglory.resources.files.PluginDirectoryRepository
 @Module
 abstract class RepositoryModule {
 
@@ -78,4 +79,6 @@ abstract class RepositoryModule {
     @Singleton
     abstract fun getMatchResultsRepository(impl: MatchResultRepositoryImpl): MatchResultsRepository
 
+    @Binds
+    abstract fun bindPluginDirectoryRepository(impl: BuyerPluginDirectoryRepository): PluginDirectoryRepository
 }
